@@ -19,7 +19,7 @@ Example:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import torch
 from torch import Tensor
@@ -36,7 +36,7 @@ logger = get_logger(__name__)
 def export_model(
     checkpoint_path: str | Path,
     output_path: str | Path,
-    export_format: str = "onnx",
+    export_format: Literal["onnx", "tensorrt", "safetensors"] = "onnx",
     config_path: str | Path | None = None,
     **kwargs: Any,
 ) -> Path:
