@@ -1,6 +1,5 @@
 """Unit tests for tuning search space."""
 
-
 from objdet.tuning.search_space import (
     DETECTION_SEARCH_SPACE,
     YOLO_SEARCH_SPACE,
