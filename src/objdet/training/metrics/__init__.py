@@ -5,10 +5,10 @@ This package provides detection-specific metrics:
 - Class-wise AP computation
 """
 
-from objdet.training.metrics.confusion_matrix import ConfusionMatrix
 from objdet.training.metrics.classwise_ap import ClasswiseAP
+from objdet.training.metrics.confusion_matrix import ConfusionMatrix
 
 __all__ = [
-    "ConfusionMatrix",
     "ClasswiseAP",
+    "ConfusionMatrix",
 ]

@@ -6,15 +6,11 @@ useful for debugging training issues.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import lightning as L
 from lightning.pytorch.callbacks import Callback
+from torch.optim import Optimizer
 
 from objdet.core.logging import get_logger
-
-if TYPE_CHECKING:
-    pass
 
 logger = get_logger(__name__)
 
@@ -47,7 +43,7 @@ class GradientMonitorCallback(Callback):
         self,
         trainer: L.Trainer,
         pl_module: L.LightningModule,
-        optimizer: "Optimizer",
+        optimizer: Optimizer,
     ) -> None:
         """Monitor gradients before optimizer step."""
         if trainer.global_step % self.log_every_n_steps != 0:

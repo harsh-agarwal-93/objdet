@@ -19,8 +19,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from objdet.pipelines.celery_app import app
+from celery import Task
+
 from objdet.core.logging import get_logger
+from objdet.pipelines.celery_app import app
 
 logger = get_logger(__name__)
 
@@ -32,7 +34,7 @@ logger = get_logger(__name__)
     default_retry_delay=60,
 )
 def train_model(
-    self,
+    self: Task,
     config_path: str,
     output_dir: str,
     checkpoint: str | None = None,
@@ -46,6 +48,7 @@ def train_model(
     This task runs a full training loop using Lightning Trainer.
 
     Args:
+        self: Celery task instance (bound task).
         config_path: Path to LightningCLI config YAML.
         output_dir: Directory for outputs (checkpoints, logs).
         checkpoint: Optional path to resume from checkpoint.
@@ -57,10 +60,10 @@ def train_model(
     Returns:
         Dictionary with training results (best metrics, checkpoint path).
     """
-    from lightning.pytorch import Trainer
-    from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
-    from lightning.pytorch.loggers import TensorBoardLogger, MLFlowLogger
     import yaml
+    from lightning.pytorch import Trainer
+    from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+    from lightning.pytorch.loggers import MLFlowLogger, TensorBoardLogger
 
     logger.info(f"Starting training task: config={config_path}")
 
@@ -156,7 +159,7 @@ def train_model(
     name="objdet.pipelines.tasks.export_model",
 )
 def export_model(
-    self,
+    self: Task,
     checkpoint_path: str,
     output_path: str,
     export_format: str = "onnx",
@@ -165,6 +168,7 @@ def export_model(
     """Export a trained model to optimized format.
 
     Args:
+        self: Celery task instance (bound task).
         checkpoint_path: Path to model checkpoint.
         output_path: Output path for exported model.
         export_format: Target format (onnx, tensorrt, safetensors).
@@ -201,7 +205,7 @@ def export_model(
     name="objdet.pipelines.tasks.preprocess_data",
 )
 def preprocess_data(
-    self,
+    self: Task,
     input_dir: str,
     output_dir: str,
     format_name: str,
@@ -211,6 +215,7 @@ def preprocess_data(
     """Preprocess dataset to LitData format.
 
     Args:
+        self: Celery task instance (bound task).
         input_dir: Source dataset directory.
         output_dir: Output directory.
         format_name: Source format (coco, voc, yolo).

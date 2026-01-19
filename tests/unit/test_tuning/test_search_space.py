@@ -1,13 +1,11 @@
 """Unit tests for tuning search space."""
 
-import pytest
-from unittest.mock import MagicMock
 
 from objdet.tuning.search_space import (
-    SearchSpace,
-    define_search_space,
     DETECTION_SEARCH_SPACE,
     YOLO_SEARCH_SPACE,
+    SearchSpace,
+    define_search_space,
 )
 
 

@@ -20,13 +20,13 @@ Example:
 
 from __future__ import annotations
 
-from whenever import Instant
-from pathlib import Path
 from typing import Any
 
+from whenever import Instant
+
 from objdet.core.logging import get_logger
-from objdet.pipelines.job import Job, JobStatus, JobType
 from objdet.pipelines.celery_app import get_queue_for_resources
+from objdet.pipelines.job import Job, JobStatus, JobType
 
 logger = get_logger(__name__)
 
@@ -65,8 +65,6 @@ def submit_job(
         ...     max_epochs=50,
         ... )
     """
-    from objdet.pipelines import tasks
-
     # Create job
     job = Job(
         job_type=JobType(job_type),
@@ -127,10 +125,6 @@ def _submit_task(job: Job, queue: str) -> None:
 
 def _wait_and_submit(job: Job, queue: str) -> None:
     """Submit job after dependencies complete."""
-    from celery import chain, group
-
-    from objdet.pipelines import tasks
-
     # Create chain that waits for dependencies
     job.status = JobStatus.PENDING
 

@@ -74,7 +74,7 @@ class Predictor:
         model_class: type | None = None,
         device: str = "cuda",
         **kwargs: Any,
-    ) -> "Predictor":
+    ) -> Predictor:
         """Create predictor from a Lightning checkpoint.
 
         Args:
@@ -107,8 +107,8 @@ class Predictor:
                     model_class = MODEL_REGISTRY.get(model_type.lower())
                 else:
                     raise ModelError(
-                        f"Cannot determine model class from checkpoint. "
-                        f"Please provide model_class explicitly."
+                        "Cannot determine model class from checkpoint. "
+                        "Please provide model_class explicitly."
                     )
             else:
                 raise ModelError("No hyper_parameters in checkpoint")
@@ -120,7 +120,7 @@ class Predictor:
 
     def predict(
         self,
-        image: str | Path | Tensor | "Image.Image",
+        image: str | Path | Tensor | Image.Image,
         return_image: bool = False,
     ) -> DetectionPrediction | tuple[DetectionPrediction, Tensor]:
         """Run inference on a single image.
@@ -216,7 +216,7 @@ class Predictor:
         # Map to filenames
         return {path.name: pred for path, pred in zip(image_paths, predictions, strict=True)}
 
-    def _load_image(self, image: str | Path | Tensor | "Image.Image") -> Tensor:
+    def _load_image(self, image: str | Path | Tensor | Image.Image) -> Tensor:
         """Load and preprocess image to tensor."""
         if isinstance(image, Tensor):
             return image

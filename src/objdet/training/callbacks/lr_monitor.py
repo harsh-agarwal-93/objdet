@@ -5,15 +5,10 @@ Enhanced learning rate logging with scheduler information.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import lightning as L
 from lightning.pytorch.callbacks import Callback
 
 from objdet.core.logging import get_logger
-
-if TYPE_CHECKING:
-    pass
 
 logger = get_logger(__name__)
 

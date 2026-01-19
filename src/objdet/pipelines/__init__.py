@@ -8,17 +8,17 @@ This package provides:
 """
 
 from objdet.pipelines.celery_app import app
-from objdet.pipelines.tasks import train_model, export_model, preprocess_data
 from objdet.pipelines.job import Job, JobStatus
-from objdet.pipelines.sdk import submit_job, get_job_status
+from objdet.pipelines.sdk import get_job_status, submit_job
+from objdet.pipelines.tasks import export_model, preprocess_data, train_model
 
 __all__ = [
-    "app",
-    "train_model",
-    "export_model",
-    "preprocess_data",
     "Job",
     "JobStatus",
-    "submit_job",
+    "app",
+    "export_model",
     "get_job_status",
+    "preprocess_data",
+    "submit_job",
+    "train_model",
 ]

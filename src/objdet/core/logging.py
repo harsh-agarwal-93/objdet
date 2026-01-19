@@ -20,13 +20,9 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from loguru import logger
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
 
 # Remove default loguru handler
 logger.remove()
@@ -60,6 +56,7 @@ def _json_serializer(record: dict[str, Any]) -> str:
         JSON-formatted string.
     """
     import json
+
     from whenever import Instant
 
     log_entry = {
@@ -181,7 +178,7 @@ def configure_logging(
     logger.debug(f"Logging configured: level={level}, format={log_format}")
 
 
-def get_logger(name: str | None = None) -> "LoggerInterface":
+def get_logger(name: str | None = None) -> LoggerInterface:
     """Get a logger instance for the specified module.
 
     This returns a loguru logger that can be used for logging throughout
@@ -199,7 +196,7 @@ def get_logger(name: str | None = None) -> "LoggerInterface":
         >>> logger.info("Processing started")
         >>> logger.debug("Processing item", item_id=123)
     """
-    global _configured  # noqa: PLW0603
+    global _configured
 
     if not _configured:
         configure_logging()
@@ -240,7 +237,7 @@ class LoggerInterface:
         """Log an exception with traceback."""
         ...
 
-    def bind(self, **kwargs: Any) -> "LoggerInterface":
+    def bind(self, **kwargs: Any) -> LoggerInterface:
         """Bind context to the logger."""
         ...
 

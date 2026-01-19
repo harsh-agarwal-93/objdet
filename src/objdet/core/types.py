@@ -6,14 +6,13 @@ the framework for improved type safety and code clarity.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, TypeVar, runtime_checkable
+from collections.abc import Mapping
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, TypedDict, TypeVar, runtime_checkable
 
-import torch
 from torch import Tensor
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping, Sequence
-
     import numpy as np
     from numpy.typing import NDArray
     from PIL import Image
@@ -36,7 +35,7 @@ if TYPE_CHECKING:
     NumpyBoxes: TypeAlias = NDArray[np.float32]  # (N, 4) bounding boxes
 
 # Path types
-PathLike: TypeAlias = str | "Path"
+PathLike: TypeAlias = str | Path
 
 # Config types
 ConfigDict: TypeAlias = dict[str, Any]
@@ -135,7 +134,7 @@ class SupportsTransform(Protocol):
 
     def __call__(
         self,
-        image: Tensor | "Image.Image",
+        image: Tensor | Image.Image,
         target: DetectionTarget | None = None,
     ) -> tuple[Tensor, DetectionTarget | None]:
         """Apply transform to image and target.
@@ -157,7 +156,3 @@ class SupportsTransform(Protocol):
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound="SupportsPredict")
 TransformT = TypeVar("TransformT", bound="SupportsTransform")
-
-
-# Need to import TypedDict properly
-from typing import TypedDict

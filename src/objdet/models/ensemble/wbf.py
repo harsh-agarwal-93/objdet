@@ -24,7 +24,6 @@ from typing import TYPE_CHECKING, Any
 
 import torch
 from ensemble_boxes import weighted_boxes_fusion
-from torch import Tensor
 
 from objdet.core.constants import EnsembleStrategy
 from objdet.core.logging import get_logger

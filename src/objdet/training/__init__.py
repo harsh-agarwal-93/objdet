@@ -13,8 +13,8 @@ from objdet.training.callbacks import (
     LearningRateMonitorCallback,
 )
 from objdet.training.metrics import (
-    ConfusionMatrix,
     ClasswiseAP,
+    ConfusionMatrix,
 )
 
 __all__ = [

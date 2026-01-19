@@ -2332,6 +2332,17 @@ dependencies = [
 [package.optional-dependencies]
 all = [
     { name = "lightning-thunder" },
+    { name = "tensorrt" },
+]
+tensorrt = [
+    { name = "tensorrt" },
+]
+thunder = [
+    { name = "lightning-thunder" },
+]
+
+[package.dev-dependencies]
+dev = [
     { name = "myst-parser" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -2342,15 +2353,6 @@ all = [
     { name = "sphinx" },
     { name = "sphinx-autodoc-typehints" },
     { name = "sphinx-rtd-theme" },
-    { name = "tensorrt" },
-]
-dev = [
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "pytest-mock" },
-    { name = "ruff" },
 ]
 docs = [
     { name = "myst-parser" },
@@ -2358,11 +2360,15 @@ docs = [
     { name = "sphinx-autodoc-typehints" },
     { name = "sphinx-rtd-theme" },
 ]
-tensorrt = [
-    { name = "tensorrt" },
+lint = [
+    { name = "pre-commit" },
+    { name = "ruff" },
 ]
-thunder = [
-    { name = "lightning-thunder" },
+test = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pytest-mock" },
 ]
 
 [package.metadata]
@@ -2378,28 +2384,18 @@ requires-dist = [
     { name = "litserve", specifier = ">=0.2.0" },
     { name = "loguru", specifier = ">=0.7.0" },
     { name = "mlflow", specifier = ">=2.10.0" },
-    { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "numpy", specifier = ">=1.26.0" },
-    { name = "objdet", extras = ["tensorrt", "thunder", "dev", "docs"], marker = "extra == 'all'" },
+    { name = "objdet", extras = ["tensorrt", "thunder"], marker = "extra == 'all'" },
     { name = "onnx", specifier = ">=1.15.0" },
     { name = "onnxruntime", specifier = ">=1.17.0" },
     { name = "optuna", specifier = ">=3.5.0" },
     { name = "pillow", specifier = ">=10.2.0" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.6.0" },
     { name = "pydantic", specifier = ">=2.6.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
-    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.12.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "rich", specifier = ">=13.7.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.3.0" },
     { name = "safetensors", specifier = ">=0.4.0" },
     { name = "sahi", specifier = ">=0.11.0" },
-    { name = "sphinx", marker = "extra == 'docs'", specifier = ">=7.2.0" },
-    { name = "sphinx-autodoc-typehints", marker = "extra == 'docs'", specifier = ">=2.0.0" },
-    { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "tensorboard", specifier = ">=2.16.0" },
     { name = "tensorrt", marker = "extra == 'tensorrt'", specifier = ">=8.6.0" },
     { name = "torch", specifier = ">=2.2.0" },
@@ -2409,7 +2405,37 @@ requires-dist = [
     { name = "ultralytics", specifier = ">=8.1.0" },
     { name = "whenever", specifier = ">=0.8.0" },
 ]
-provides-extras = ["tensorrt", "thunder", "dev", "docs", "all"]
+provides-extras = ["tensorrt", "thunder", "all"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "myst-parser", specifier = ">=2.0.0" },
+    { name = "pre-commit", specifier = ">=3.6.0" },
+    { name = "pytest", specifier = ">=8.0.0" },
+    { name = "pytest-asyncio", specifier = ">=0.23.0" },
+    { name = "pytest-cov", specifier = ">=4.1.0" },
+    { name = "pytest-mock", specifier = ">=3.12.0" },
+    { name = "ruff", specifier = ">=0.3.0" },
+    { name = "sphinx", specifier = ">=7.2.0" },
+    { name = "sphinx-autodoc-typehints", specifier = ">=2.0.0" },
+    { name = "sphinx-rtd-theme", specifier = ">=2.0.0" },
+]
+docs = [
+    { name = "myst-parser", specifier = ">=2.0.0" },
+    { name = "sphinx", specifier = ">=7.2.0" },
+    { name = "sphinx-autodoc-typehints", specifier = ">=2.0.0" },
+    { name = "sphinx-rtd-theme", specifier = ">=2.0.0" },
+]
+lint = [
+    { name = "pre-commit", specifier = ">=3.6.0" },
+    { name = "ruff", specifier = ">=0.3.0" },
+]
+test = [
+    { name = "pytest", specifier = ">=8.0.0" },
+    { name = "pytest-asyncio", specifier = ">=0.23.0" },
+    { name = "pytest-cov", specifier = ">=4.1.0" },
+    { name = "pytest-mock", specifier = ">=3.12.0" },
+]
 
 [[package]]
 name = "obstore"

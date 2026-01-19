@@ -6,9 +6,8 @@ values used throughout the framework.
 
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Final
-
 
 # =============================================================================
 # Class Index Handling

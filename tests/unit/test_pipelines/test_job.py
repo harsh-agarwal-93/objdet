@@ -1,7 +1,6 @@
-import pytest
 from whenever import Instant
 
-from objdet.pipelines.job import Job, JobStatus, JobType, JobDAG
+from objdet.pipelines.job import Job, JobDAG, JobStatus, JobType
 
 
 class TestJob:

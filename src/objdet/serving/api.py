@@ -16,15 +16,12 @@ from __future__ import annotations
 import base64
 import io
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import torch
 from torch import Tensor
 
 from objdet.core.logging import get_logger
-
-if TYPE_CHECKING:
-    pass
 
 logger = get_logger(__name__)
 
@@ -116,8 +113,8 @@ class DetectionAPI:
 
         elif "url" in request:
             # URL - fetch image
-            import numpy as np
             import httpx
+            import numpy as np
             from PIL import Image
 
             response = httpx.get(request["url"], timeout=10)
@@ -161,10 +158,11 @@ class DetectionAPI:
         # Add class names if available
         if self.class_names:
             class_labels = [
-                self.class_names[l] if l < len(self.class_names) else f"class_{l}" for l in labels
+                self.class_names[label] if label < len(self.class_names) else f"class_{label}"
+                for label in labels
             ]
         else:
-            class_labels = [f"class_{l}" for l in labels]
+            class_labels = [f"class_{label}" for label in labels]
 
         detections = []
         for box, label, score, class_name in zip(boxes, labels, scores, class_labels, strict=True):

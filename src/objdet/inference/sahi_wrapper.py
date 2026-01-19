@@ -19,7 +19,7 @@ Example:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import torch
 from torch import Tensor
@@ -90,8 +90,8 @@ class SlicedInference:
         """
         # Load image
         if isinstance(image, (str, Path)):
-            from PIL import Image as PILImage
             import numpy as np
+            from PIL import Image as PILImage
 
             image_pil = PILImage.open(image).convert("RGB")
             image_tensor = torch.from_numpy(np.array(image_pil)).permute(2, 0, 1).float() / 255.0

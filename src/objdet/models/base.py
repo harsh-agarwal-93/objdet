@@ -19,7 +19,7 @@ Example:
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import lightning as L
 import torch
@@ -27,17 +27,14 @@ from torch import Tensor, nn
 from torchmetrics.detection import MeanAveragePrecision
 
 from objdet.core.constants import (
-    ClassIndexMode,
     DEFAULT_CONFIDENCE_THRESHOLD,
     DEFAULT_LEARNING_RATE,
     DEFAULT_NMS_THRESHOLD,
     DEFAULT_WEIGHT_DECAY,
+    ClassIndexMode,
 )
 from objdet.core.logging import get_logger
 from objdet.core.types import DetectionPrediction, DetectionTarget
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
 
 logger = get_logger(__name__)
 

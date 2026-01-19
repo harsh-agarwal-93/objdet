@@ -7,10 +7,11 @@ status and results.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from whenever import Instant
 from enum import Enum
 from typing import Any
 from uuid import uuid4
+
+from whenever import Instant
 
 
 class JobStatus(str, Enum):
@@ -85,7 +86,7 @@ class Job:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Job":
+    def from_dict(cls, data: dict[str, Any]) -> Job:
         """Create job from dictionary."""
         job = cls(
             id=data["id"],
@@ -183,7 +184,7 @@ class JobDAG:
             List of job IDs in execution order.
         """
         # Kahn's algorithm
-        in_degree = {jid: 0 for jid in self.jobs}
+        in_degree = dict.fromkeys(self.jobs, 0)
         for job in self.jobs.values():
             for dep_id in job.dependencies:
                 if dep_id in in_degree:

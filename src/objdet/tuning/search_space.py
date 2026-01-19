@@ -83,7 +83,7 @@ class SearchSpace:
         name: str,
         param_type: str,
         *args: Any,
-    ) -> "SearchSpace":
+    ) -> SearchSpace:
         """Add a parameter to the search space.
 
         Args:

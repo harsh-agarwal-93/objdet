@@ -7,7 +7,7 @@ training, useful for monitoring model progress.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import lightning as L
 import torch
@@ -15,9 +15,6 @@ from lightning.pytorch.callbacks import Callback
 from torch import Tensor
 
 from objdet.core.logging import get_logger
-
-if TYPE_CHECKING:
-    pass
 
 logger = get_logger(__name__)
 
@@ -153,12 +150,12 @@ class DetectionVisualizationCallback(Callback):
             # Create labels
             if self.class_names:
                 box_labels = [
-                    f"{self.class_names[l.item()]}: {s:.2f}"
-                    for l, s in zip(labels, scores, strict=True)
+                    f"{self.class_names[lbl.item()]}: {s:.2f}"
+                    for lbl, s in zip(labels, scores, strict=True)
                 ]
             else:
                 box_labels = [
-                    f"class_{l.item()}: {s:.2f}" for l, s in zip(labels, scores, strict=True)
+                    f"class_{lbl.item()}: {s:.2f}" for lbl, s in zip(labels, scores, strict=True)
                 ]
 
             image = draw_bounding_boxes(
@@ -184,7 +181,6 @@ class DetectionVisualizationCallback(Callback):
         except ImportError:
             # Fallback using PIL
             from PIL import Image as PILImage
-            import numpy as np
 
             img_np = image.permute(1, 2, 0).numpy()
             PILImage.fromarray(img_np).save(path)

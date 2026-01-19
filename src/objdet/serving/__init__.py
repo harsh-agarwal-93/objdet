@@ -6,10 +6,10 @@ This package provides REST API deployment using Lightning LitServe:
 - Dynamic batching
 """
 
-from objdet.serving.server import run_server
 from objdet.serving.api import DetectionAPI
+from objdet.serving.server import run_server
 
 __all__ = [
-    "run_server",
     "DetectionAPI",
+    "run_server",
 ]

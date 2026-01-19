@@ -5,17 +5,11 @@ This metric computes AP per class for detailed performance analysis.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-import torch
 from torch import Tensor
 from torchmetrics import Metric
 from torchmetrics.detection import MeanAveragePrecision
 
 from objdet.core.logging import get_logger
-
-if TYPE_CHECKING:
-    pass
 
 logger = get_logger(__name__)
 

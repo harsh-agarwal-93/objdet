@@ -9,7 +9,7 @@ from multiple object detection models:
 """
 
 from objdet.models.ensemble.base import BaseEnsemble
-from objdet.models.ensemble.wbf import WBFEnsemble
 from objdet.models.ensemble.nms import NMSEnsemble
+from objdet.models.ensemble.wbf import WBFEnsemble
 
-__all__ = ["BaseEnsemble", "WBFEnsemble", "NMSEnsemble"]
+__all__ = ["BaseEnsemble", "NMSEnsemble", "WBFEnsemble"]

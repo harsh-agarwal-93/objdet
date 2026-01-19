@@ -8,9 +8,9 @@ This package provides Lightning callbacks for:
 """
 
 from objdet.training.callbacks.confusion_matrix import ConfusionMatrixCallback
-from objdet.training.callbacks.visualization import DetectionVisualizationCallback
 from objdet.training.callbacks.gradient_monitor import GradientMonitorCallback
 from objdet.training.callbacks.lr_monitor import LearningRateMonitorCallback
+from objdet.training.callbacks.visualization import DetectionVisualizationCallback
 
 __all__ = [
     "ConfusionMatrixCallback",

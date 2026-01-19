@@ -4,18 +4,15 @@ import pytest
 import torch
 
 from objdet.data.transforms.base import (
-    BaseTransform,
     Compose,
     Normalize,
     Resize,
-    ToTensor,
 )
 from objdet.data.transforms.detection import (
-    DetectionTransform,
-    RandomHorizontalFlip,
-    RandomVerticalFlip,
     ColorJitter,
     RandomCrop,
+    RandomHorizontalFlip,
+    RandomVerticalFlip,
 )
 
 

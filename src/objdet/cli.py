@@ -25,7 +25,7 @@ from lightning.pytorch.cli import LightningArgumentParser, LightningCLI
 from objdet.core.logging import configure_logging, get_logger
 
 if TYPE_CHECKING:
-    from lightning import LightningDataModule, LightningModule, Trainer
+    from lightning import LightningDataModule, LightningModule
 
 logger = get_logger(__name__)
 
@@ -109,8 +109,8 @@ class ObjDetCLI(LightningCLI):
 
 
 def create_cli(
-    model_class: type["LightningModule"] | None = None,
-    datamodule_class: type["LightningDataModule"] | None = None,
+    model_class: type[LightningModule] | None = None,
+    datamodule_class: type[LightningDataModule] | None = None,
     **kwargs: Any,
 ) -> ObjDetCLI:
     """Create and return an ObjDetCLI instance.
@@ -186,10 +186,10 @@ def main() -> None:
 
 def _run_serve_command() -> None:
     """Run the serving subcommand."""
-    from objdet.serving.server import run_server
-
     # Parse serve-specific arguments
     import argparse
+
+    from objdet.serving.server import run_server
 
     parser = argparse.ArgumentParser(description="Start ObjDet inference server")
     parser.add_argument(

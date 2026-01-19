@@ -22,7 +22,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 import torch
-from torch import Tensor
 
 from objdet.core.exceptions import ExportError
 from objdet.core.logging import get_logger

@@ -1,8 +1,9 @@
 """Unit tests for inference predictor."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 import torch
-from unittest.mock import MagicMock, patch
 
 from objdet.inference.predictor import Predictor
 
@@ -112,7 +113,6 @@ class TestPredictorLoadImage:
     def test_load_path(self, mock_open, predictor):
         """Path input should load image."""
         import numpy as np
-        from PIL import Image
 
         # Mock PIL image
         mock_img = MagicMock()

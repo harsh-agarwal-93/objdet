@@ -23,8 +23,9 @@ Example:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 import optuna
 from optuna.pruners import MedianPruner
@@ -33,7 +34,9 @@ from optuna.samplers import TPESampler
 from objdet.core.logging import get_logger
 
 if TYPE_CHECKING:
-    pass
+    import lightning as L
+
+    from objdet.tuning.search_space import SearchSpace
 
 logger = get_logger(__name__)
 
@@ -58,7 +61,7 @@ class OptunaTuner:
 
     def __init__(
         self,
-        search_space: "SearchSpace",
+        search_space: SearchSpace,
         n_trials: int = 50,
         study_name: str = "objdet_tuning",
         storage: str | None = None,
@@ -215,7 +218,11 @@ class PyTorchLightningPruningCallback:
         self.trial = trial
         self.monitor = monitor
 
-    def on_validation_end(self, trainer, pl_module) -> None:
+    def on_validation_end(
+        self,
+        trainer: L.Trainer,
+        pl_module: L.LightningModule,
+    ) -> None:
         """Report and possibly prune after validation."""
         epoch = trainer.current_epoch
         current_value = trainer.callback_metrics.get(self.monitor)
