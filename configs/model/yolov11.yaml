@@ -1,0 +1,17 @@
+# YOLOv11 configuration for LightningCLI
+# Usage: objdet fit --config configs/model/yolov11.yaml
+
+model:
+  class_path: objdet.models.yolo.YOLOv11
+  init_args:
+    num_classes: 80
+    model_size: n # Options: n, s, m, l, x
+    pretrained: true
+    conf_thres: 0.25
+    iou_thres: 0.45
+    learning_rate: 0.01
+    weight_decay: 0.0005
+    optimizer: sgd
+    scheduler: cosine
+    scheduler_kwargs:
+      T_max: 100

@@ -1,0 +1,20 @@
+# RetinaNet configuration for LightningCLI
+# Usage: objdet fit --config configs/model/retinanet.yaml
+
+model:
+  class_path: objdet.models.torchvision.RetinaNet
+  init_args:
+    num_classes: 80
+    backbone: resnet50_fpn_v2
+    pretrained: false
+    pretrained_backbone: true
+    trainable_backbone_layers: 3
+    min_size: 800
+    max_size: 1333
+    score_thresh: 0.05
+    nms_thresh: 0.5
+    detections_per_img: 300
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    optimizer: adamw
+    scheduler: cosine
