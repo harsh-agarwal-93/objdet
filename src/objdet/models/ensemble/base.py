@@ -159,7 +159,7 @@ class BaseEnsemble(BaseLightningDetector):
         total_loss = torch.tensor(0.0, device=images[0].device)
         loss_dict: dict[str, Tensor] = {}
 
-        for i, (model, weight) in enumerate(zip(self.ensemble_models, self.weights)):
+        for i, (model, weight) in enumerate(zip(self.ensemble_models, self.weights, strict=True)):
             model_losses = model(images, targets)
             if isinstance(model_losses, dict):
                 for key, value in model_losses.items():
