@@ -1,0 +1,29 @@
+# Lint jobs
+
+ruff-lint:
+  stage: lint
+  extends: .base-job
+  script:
+    - uv run ruff check src tests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+ruff-format:
+  stage: lint
+  extends: .base-job
+  script:
+    - uv run ruff format --check src tests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+type-check:
+  stage: lint
+  extends: .base-job
+  script:
+    - uv run ty check src
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  allow_failure: true  # ty is still maturing

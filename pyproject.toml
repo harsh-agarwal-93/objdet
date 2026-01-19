@@ -1,0 +1,207 @@
+[project]
+name = "objdet"
+version = "0.1.0"
+description = "Production-grade object detection training framework built on PyTorch Lightning"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+authors = [{ name = "Your Name", email = "your.email@example.com" }]
+keywords = [
+    "object-detection",
+    "pytorch",
+    "pytorch-lightning",
+    "deep-learning",
+    "computer-vision",
+    "yolo",
+    "faster-rcnn",
+    "mlops",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+
+dependencies = [
+    # Core ML
+    "torch>=2.2.0",
+    "torchvision>=0.17.0",
+    "lightning>=2.2.0",
+    "torchmetrics>=1.3.0",
+
+    # YOLO
+    "ultralytics-opencv-headless>=8.1.0",
+
+    # Data
+    "litdata>=0.2.0",
+    "albumentations>=1.4.0",
+    "sahi>=0.11.0",
+
+    # Experiment Tracking
+    "mlflow>=2.10.0",
+    "tensorboard>=2.16.0",
+
+    # Optimization & Inference
+    "onnx>=1.15.0",
+    "onnxruntime>=1.17.0",
+    "safetensors>=0.4.0",
+
+    # Serving
+    "litserve>=0.2.0",
+    "pydantic>=2.6.0",
+
+    # Job Queue
+    "celery[rabbitmq]>=5.3.0",
+
+    # Hyperparameter Tuning
+    "optuna>=3.5.0",
+
+    # Logging
+    "loguru>=0.7.0",
+    "rich>=13.7.0",
+
+    # Configuration
+    "jsonargparse[signatures]>=4.27.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.0",
+
+    # Utilities
+    "numpy>=1.26.0",
+    "pillow>=10.2.0",
+    "opencv-python-headless>=4.9.0",
+    "tqdm>=4.66.0",
+    "ensemble-boxes>=1.0.9",
+]
+
+[project.optional-dependencies]
+tensorrt = ["tensorrt>=8.6.0"]
+thunder = ["lightning-thunder>=0.2.0"]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.12.0",
+    "pre-commit>=3.6.0",
+    "ruff>=0.3.0",
+]
+docs = [
+    "sphinx>=7.2.0",
+    "sphinx-autodoc-typehints>=2.0.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "myst-parser>=2.0.0",
+]
+all = ["objdet[tensorrt,thunder,dev,docs]"]
+
+[project.scripts]
+objdet = "objdet.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/objdet"
+Documentation = "https://objdet.readthedocs.io"
+Repository = "https://github.com/yourusername/objdet"
+Issues = "https://github.com/yourusername/objdet/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/objdet"]
+
+# ============================================================================
+# Ruff Configuration
+# ============================================================================
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate (commented-out code)
+    "PL",  # Pylint
+    "RUF", # Ruff-specific rules
+    "D",   # pydocstyle
+    "ANN", # flake8-annotations
+]
+ignore = [
+    "D100",    # Missing docstring in public module
+    "D104",    # Missing docstring in public package
+    "D107",    # Missing docstring in __init__
+    "ANN101",  # Missing type annotation for self
+    "ANN102",  # Missing type annotation for cls
+    "PLR0913", # Too many arguments in function definition
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "ANN", "PLR2004"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+# ============================================================================
+# ty Configuration (Type Checking)
+# ============================================================================
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ty.rules]
+possibly-unresolved-reference = "warn"
+
+# ============================================================================
+# Pytest Configuration
+# ============================================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = ["-v", "--tb=short", "--strict-markers", "--strict-config"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "gpu: marks tests requiring GPU",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src/objdet"]
+branch = true
+omit = ["*/tests/*", "*/__main__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
+fail_under = 80
+show_missing = true
+
+# ============================================================================
+# Git-cliff Configuration (Changelog)
+# ============================================================================
+# Note: Full git-cliff config is in cliff.toml

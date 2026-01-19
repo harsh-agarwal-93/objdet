@@ -1,0 +1,71 @@
+# <type>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+
+# ============================================================================
+# TYPE must be one of the following:
+# ============================================================================
+#   feat:     A new feature
+#   fix:      A bug fix
+#   docs:     Documentation only changes
+#   style:    Changes that do not affect the meaning of the code
+#   refactor: A code change that neither fixes a bug nor adds a feature
+#   perf:     A code change that improves performance
+#   test:     Adding missing tests or correcting existing tests
+#   build:    Changes that affect the build system or external dependencies
+#   ci:       Changes to CI configuration files and scripts
+#   chore:    Other changes that don't modify src or test files
+#   revert:   Reverts a previous commit
+#
+# ============================================================================
+# SCOPE is optional and can be anything specifying the place of the commit
+# change. For example: models, data, training, inference, serving, pipelines
+# ============================================================================
+#
+# ============================================================================
+# SUBJECT is a short description of the change:
+# ============================================================================
+#   - use the imperative, present tense: "change" not "changed" nor "changes"
+#   - don't capitalize the first letter
+#   - no dot (.) at the end
+#
+# ============================================================================
+# BODY should include the motivation for the change and contrast with
+# previous behavior.
+# ============================================================================
+#
+# ============================================================================
+# FOOTER should contain any information about Breaking Changes and is also
+# the place to reference GitHub/GitLab issues that this commit closes.
+# ============================================================================
+#
+# Breaking Changes should start with the word BREAKING CHANGE: with a space
+# or two newlines. The rest of the commit message is then used for this.
+#
+# ============================================================================
+# EXAMPLES:
+# ============================================================================
+#
+# feat(models): add YOLOv11 lightning module
+#
+# Implements YOLOv11 as a PyTorch Lightning module, wrapping the
+# Ultralytics model architecture with custom training/validation steps.
+#
+# Closes #123
+#
+# ---
+#
+# fix(data): correct class index mapping for YOLO format
+#
+# YOLO format uses 0-indexed classes without background, while
+# TorchVision models expect background at index 0.
+#
+# BREAKING CHANGE: Users must now explicitly specify class_index_mode
+# in data configuration.
+#
+# ---
+#
+# docs(readme): update installation instructions for uv
+#

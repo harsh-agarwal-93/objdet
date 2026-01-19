@@ -1,0 +1,35 @@
+# Test jobs
+
+unit-tests:
+  stage: test
+  extends: .base-job
+  script:
+    - uv run pytest tests/unit -v --cov=src/objdet --cov-report=xml --cov-report=term-missing
+  coverage: '/TOTAL.*\s+(\d+%)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - coverage.xml
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Integration tests (future)
+# integration-tests:
+#   stage: test
+#   extends: .base-job
+#   image: pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+#   tags:
+#     - gpu
+#   script:
+#     - uv run pytest tests/integration -v --slow
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#       when: manual
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#       when: manual
+#   allow_failure: true

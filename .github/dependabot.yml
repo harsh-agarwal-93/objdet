@@ -1,0 +1,78 @@
+# Dependabot configuration for automated dependency updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # Python dependencies (uv/pip ecosystem)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "python"
+    groups:
+      # Group PyTorch-related updates
+      pytorch:
+        patterns:
+          - "torch*"
+          - "lightning*"
+          - "torchvision"
+          - "torchmetrics"
+      # Group ML/data processing updates
+      ml-tools:
+        patterns:
+          - "ultralytics"
+          - "albumentations"
+          - "sahi"
+          - "optuna"
+          - "ensemble-boxes"
+      # Group MLOps tools
+      mlops:
+        patterns:
+          - "mlflow"
+          - "tensorboard"
+          - "celery*"
+      # Group dev tools
+      dev-tools:
+        patterns:
+          - "pytest*"
+          - "ruff"
+          - "pre-commit"
+          - "sphinx*"
+    ignore:
+      # Ignore major version updates for core ML libs (review manually)
+      - dependency-name: "torch"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "lightning"
+        update-types: ["version-update:semver-major"]
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # GitHub Actions (also works for GitLab CI in some cases)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "ci"
