@@ -60,10 +60,10 @@ def _json_serializer(record: dict[str, Any]) -> str:
         JSON-formatted string.
     """
     import json
-    from datetime import datetime, timezone
+    from whenever import Instant
 
     log_entry = {
-        "timestamp": datetime.now(tz=timezone.utc).isoformat(),
+        "timestamp": str(Instant.now()),
         "level": record["level"].name,
         "logger": record["name"],
         "message": record["message"],

@@ -1,7 +1,5 @@
-"""Unit tests for pipelines job model."""
-
 import pytest
-from datetime import datetime
+from whenever import Instant
 
 from objdet.pipelines.job import Job, JobStatus, JobType, JobDAG
 
@@ -43,7 +41,7 @@ class TestJob:
             "job_type": "train",
             "status": "completed",
             "config": {},
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": str(Instant.now()),
         }
 
         job = Job.from_dict(data)

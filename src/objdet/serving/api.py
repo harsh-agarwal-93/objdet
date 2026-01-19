@@ -117,10 +117,10 @@ class DetectionAPI:
         elif "url" in request:
             # URL - fetch image
             import numpy as np
-            import requests as http_requests
+            import httpx
             from PIL import Image
 
-            response = http_requests.get(request["url"], timeout=10)
+            response = httpx.get(request["url"], timeout=10)
             image = Image.open(io.BytesIO(response.content)).convert("RGB")
             image_tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / 255.0
             return image_tensor

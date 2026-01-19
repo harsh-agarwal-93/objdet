@@ -7,7 +7,7 @@ status and results.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from whenever import Instant
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -57,9 +57,9 @@ class Job:
     id: str = field(default_factory=lambda: str(uuid4()))
     status: JobStatus = JobStatus.PENDING
     dependencies: list[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    started_at: datetime | None = None
-    completed_at: datetime | None = None
+    created_at: Instant = field(default_factory=Instant.now)
+    started_at: Instant | None = None
+    completed_at: Instant | None = None
     result: dict[str, Any] | None = None
     error: str | None = None
     celery_task_id: str | None = None
@@ -74,9 +74,9 @@ class Job:
             "status": self.status.value,
             "config": self.config,
             "dependencies": self.dependencies,
-            "created_at": self.created_at.isoformat(),
-            "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "created_at": str(self.created_at),
+            "started_at": str(self.started_at) if self.started_at else None,
+            "completed_at": str(self.completed_at) if self.completed_at else None,
             "result": self.result,
             "error": self.error,
             "celery_task_id": self.celery_task_id,
@@ -98,11 +98,11 @@ class Job:
         )
 
         if data.get("created_at"):
-            job.created_at = datetime.fromisoformat(data["created_at"])
+            job.created_at = Instant.parse_common_iso(data["created_at"])
         if data.get("started_at"):
-            job.started_at = datetime.fromisoformat(data["started_at"])
+            job.started_at = Instant.parse_common_iso(data["started_at"])
         if data.get("completed_at"):
-            job.completed_at = datetime.fromisoformat(data["completed_at"])
+            job.completed_at = Instant.parse_common_iso(data["completed_at"])
 
         job.result = data.get("result")
         job.error = data.get("error")

@@ -20,7 +20,7 @@ Example:
 
 from __future__ import annotations
 
-from datetime import datetime
+from whenever import Instant
 from pathlib import Path
 from typing import Any
 
@@ -120,7 +120,7 @@ def _submit_task(job: Job, queue: str) -> None:
 
     job.celery_task_id = result.id
     job.status = JobStatus.QUEUED
-    job.started_at = datetime.utcnow()
+    job.started_at = Instant.now()
 
     logger.info(f"Submitted job {job.id} to queue {queue}: task_id={result.id}")
 
@@ -171,11 +171,11 @@ def _update_from_celery(job: Job) -> None:
         if result.successful():
             job.status = JobStatus.COMPLETED
             job.result = result.result
-            job.completed_at = datetime.utcnow()
+            job.completed_at = Instant.now()
         else:
             job.status = JobStatus.FAILED
             job.error = str(result.result)
-            job.completed_at = datetime.utcnow()
+            job.completed_at = Instant.now()
     elif result.state == "STARTED":
         job.status = JobStatus.RUNNING
     elif result.state == "RETRY":
@@ -204,7 +204,7 @@ def cancel_job(job_id: str) -> bool:
         result.revoke(terminate=True)
 
     job.status = JobStatus.CANCELLED
-    job.completed_at = datetime.utcnow()
+    job.completed_at = Instant.now()
     logger.info(f"Cancelled job {job_id}")
 
     return True
