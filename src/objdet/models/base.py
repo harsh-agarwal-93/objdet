@@ -312,7 +312,7 @@ class BaseLightningDetector(L.LightningModule):
 
         return cast("list[DetectionPrediction]", filtered)
 
-    def configure_optimizers(self) -> "OptimizerLRSchedulerConfig":  # type: ignore[override]
+    def configure_optimizers(self) -> OptimizerLRSchedulerConfig:  # type: ignore[override]
         """Configure optimizer and learning rate scheduler.
 
         Returns:

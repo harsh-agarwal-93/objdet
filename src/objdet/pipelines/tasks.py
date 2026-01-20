@@ -119,6 +119,7 @@ def train_model(
 
         # Initialize trainer
         from typing import cast
+
         from lightning.pytorch.callbacks import Callback
 
         trainer = Trainer(

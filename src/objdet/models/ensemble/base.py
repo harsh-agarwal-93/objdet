@@ -99,7 +99,7 @@ class BaseEnsemble(BaseLightningDetector):
             self.weights = [w / total for w in weights]
 
         super().__init__(
-            num_classes=cast(int, num_classes),
+            num_classes=cast("int", num_classes),
             class_index_mode=class_index_mode,
             confidence_threshold=conf_thresh,
             nms_threshold=iou_thresh,

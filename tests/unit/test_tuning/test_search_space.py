@@ -1,12 +1,13 @@
 """Unit tests for tuning search space."""
 
+from typing import TYPE_CHECKING, cast
+
 from objdet.tuning.search_space import (
     DETECTION_SEARCH_SPACE,
     YOLO_SEARCH_SPACE,
     SearchSpace,
     define_search_space,
 )
-from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from optuna.trial import Trial
