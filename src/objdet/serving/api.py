@@ -129,7 +129,7 @@ class DetectionAPI:
         else:
             raise ValueError("Request must contain 'image', 'url', or 'tensor' field")
 
-    def predict(self, inputs: list[Tensor]) -> list[dict[str, Any]]:
+    def predict(self, inputs: list[Tensor]) -> list[dict[str, Tensor]]:
         """Run prediction on batch of inputs.
 
         Args:
@@ -138,9 +138,9 @@ class DetectionAPI:
         Returns:
             List of prediction dictionaries.
         """
-        # Run batch prediction
-        predictions = self.predictor.predict_batch(inputs)
-        return predictions
+        # Run batch prediction - type ignores for structural typing compatibility
+        predictions = self.predictor.predict_batch(inputs)  # type: ignore[arg-type]
+        return predictions  # type: ignore[return-value]
 
     def encode_response(self, output: dict[str, Tensor]) -> dict[str, Any]:
         """Encode prediction to JSON-serializable response.

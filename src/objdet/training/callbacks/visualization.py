@@ -64,6 +64,7 @@ class DetectionVisualizationCallback(Callback):
         outputs: Any,
         batch: Any,
         batch_idx: int,
+        dataloader_idx: int = 0,
     ) -> None:
         """Collect samples for visualization."""
         if len(self._validation_samples) >= self.num_samples:
@@ -201,10 +202,11 @@ class DetectionVisualizationCallback(Callback):
                 padding=2,
             )
 
-            trainer.logger.experiment.add_image(
-                "val/predictions",
-                grid,
-                trainer.current_epoch,
-            )
+            if trainer.logger is not None and hasattr(trainer.logger, "experiment"):
+                trainer.logger.experiment.add_image(
+                    "val/predictions",
+                    grid,
+                    trainer.current_epoch,
+                )
         except Exception as e:
             logger.debug(f"Could not log to TensorBoard: {e}")

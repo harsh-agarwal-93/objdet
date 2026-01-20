@@ -16,9 +16,12 @@ Example:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from objdet.core.logging import get_logger
+
+if TYPE_CHECKING:
+    from litserve import LitAPI
 
 logger = get_logger(__name__)
 
@@ -29,8 +32,8 @@ def run_server(
     host: str = "0.0.0.0",
     port: int = 8000,
     workers_per_device: int = 1,
-    accelerator: str = "auto",
-    devices: int | str = "auto",
+    accelerator: Literal["auto", "cpu", "cuda", "mps"] = "auto",
+    devices: int | Literal["auto"] = "auto",
     max_batch_size: int = 8,
     batch_timeout: float = 0.01,
     api_path: str = "/predict",
@@ -75,7 +78,7 @@ def run_server(
 
     # Create server
     server = ls.LitServer(
-        api,
+        cast("LitAPI", api),
         accelerator=accelerator,
         devices=devices,
         workers_per_device=workers_per_device,

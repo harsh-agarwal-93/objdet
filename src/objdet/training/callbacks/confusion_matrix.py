@@ -86,6 +86,7 @@ class ConfusionMatrixCallback(Callback):
         outputs: Any,
         batch: Any,
         batch_idx: int,
+        dataloader_idx: int = 0,
     ) -> None:
         """Update confusion matrix with batch predictions."""
         if self._confusion_matrix is None:
@@ -146,14 +147,14 @@ class ConfusionMatrixCallback(Callback):
                 true_class = self.num_classes  # Background index
                 pred_class = p_label.item()
 
-            self._confusion_matrix[true_class, pred_class] += 1
+            self._confusion_matrix[int(true_class), int(pred_class)] += 1
 
         # False negatives: unmatched GT
         for gt_idx, (matched, gt_label) in enumerate(zip(gt_matched, gt_labels, strict=True)):
             if not matched:
                 true_class = gt_label.item()
                 pred_class = self.num_classes  # Not detected
-                self._confusion_matrix[true_class, pred_class] += 1
+                self._confusion_matrix[int(true_class), int(pred_class)] += 1
 
     def _compute_iou(self, box1: Tensor, box2: Tensor) -> float:
         """Compute IoU between two boxes in xyxy format."""
@@ -203,6 +204,8 @@ class ConfusionMatrixCallback(Callback):
         import matplotlib.pyplot as plt
         import numpy as np
 
+        if self._confusion_matrix is None:
+            return
         cm = self._confusion_matrix.cpu().numpy()
 
         # Normalize if requested

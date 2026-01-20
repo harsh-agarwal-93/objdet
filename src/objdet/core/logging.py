@@ -20,9 +20,9 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 
-from loguru import logger
+from loguru import Logger, logger
 
 # Remove default loguru handler
 logger.remove()
@@ -178,7 +178,7 @@ def configure_logging(
     logger.debug(f"Logging configured: level={level}, format={log_format}")
 
 
-def get_logger(name: str | None = None) -> LoggerInterface:
+def get_logger(name: str | None = None) -> Logger:
     """Get a logger instance for the specified module.
 
     This returns a loguru logger that can be used for logging throughout
@@ -206,11 +206,11 @@ def get_logger(name: str | None = None) -> LoggerInterface:
     return logger
 
 
-class LoggerInterface:
+@runtime_checkable
+class LoggerInterface(Protocol):
     """Type hint interface for the logger returned by get_logger.
 
-    This class is not instantiated directly; it serves as documentation
-    for the available logging methods.
+    This class is a Protocol for type checking purposes.
     """
 
     def debug(self, message: str, *args: Any, **kwargs: Any) -> None:

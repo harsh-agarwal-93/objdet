@@ -115,25 +115,25 @@ class SlicedInference:
             slice_tensor = image_tensor[:, y1:y2, x1:x2]
 
             # Run prediction
-            pred = self.predictor.predict(slice_tensor)
+            pred = self.predictor.predict(slice_tensor)  # type: ignore[union-attr]
 
-            if pred["boxes"].numel() > 0:
+            if pred["boxes"].numel() > 0:  # type: ignore[union-attr]
                 # Offset boxes to original image coordinates
-                boxes = pred["boxes"].clone()
+                boxes = pred["boxes"].clone()  # type: ignore[union-attr]
                 boxes[:, [0, 2]] += x1
                 boxes[:, [1, 3]] += y1
 
                 all_boxes.append(boxes)
-                all_labels.append(pred["labels"])
-                all_scores.append(pred["scores"])
+                all_labels.append(pred["labels"])  # type: ignore[union-attr]
+                all_scores.append(pred["scores"])  # type: ignore[union-attr]
 
         # Optionally include full image prediction
         if self.include_full_image:
-            full_pred = self.predictor.predict(image_tensor)
-            if full_pred["boxes"].numel() > 0:
-                all_boxes.append(full_pred["boxes"])
-                all_labels.append(full_pred["labels"])
-                all_scores.append(full_pred["scores"])
+            full_pred = self.predictor.predict(image_tensor)  # type: ignore[union-attr]
+            if full_pred["boxes"].numel() > 0:  # type: ignore[union-attr]
+                all_boxes.append(full_pred["boxes"])  # type: ignore[union-attr]
+                all_labels.append(full_pred["labels"])  # type: ignore[union-attr]
+                all_scores.append(full_pred["scores"])  # type: ignore[union-attr]
 
         # Merge predictions
         if not all_boxes:

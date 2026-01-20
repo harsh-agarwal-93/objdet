@@ -5,6 +5,8 @@ Enhanced learning rate logging with scheduler information.
 
 from __future__ import annotations
 
+from typing import Any
+
 import lightning as L
 from lightning.pytorch.callbacks import Callback
 
@@ -41,7 +43,7 @@ class LearningRateMonitorCallback(Callback):
         self,
         trainer: L.Trainer,
         pl_module: L.LightningModule,
-        batch: any,
+        batch: Any,
         batch_idx: int,
     ) -> None:
         """Log learning rates at batch start."""

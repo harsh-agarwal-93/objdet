@@ -99,11 +99,11 @@ class Job:
         )
 
         if data.get("created_at"):
-            job.created_at = Instant.parse_common_iso(data["created_at"])
+            job.created_at = Instant.parse_iso(data["created_at"])
         if data.get("started_at"):
-            job.started_at = Instant.parse_common_iso(data["started_at"])
+            job.started_at = Instant.parse_iso(data["started_at"])
         if data.get("completed_at"):
-            job.completed_at = Instant.parse_common_iso(data["completed_at"])
+            job.completed_at = Instant.parse_iso(data["completed_at"])
 
         job.result = data.get("result")
         job.error = data.get("error")

@@ -34,7 +34,7 @@ class SearchSpace:
         params: Dictionary of parameter definitions.
     """
 
-    params: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    params: dict[str, tuple[Any, ...]] = field(default_factory=dict)
 
     def sample(self, trial: optuna.Trial) -> dict[str, Any]:
         """Sample hyperparameters from the search space.
@@ -98,7 +98,7 @@ class SearchSpace:
         return self
 
 
-def define_search_space(**kwargs: tuple[str, ...]) -> SearchSpace:
+def define_search_space(**kwargs: tuple[Any, ...]) -> SearchSpace:
     """Create a search space from keyword arguments.
 
     Each argument should be a tuple of (type, *args):

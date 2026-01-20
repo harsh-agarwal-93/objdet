@@ -128,7 +128,7 @@ def export_to_onnx(
     # Export
     torch.onnx.export(
         model,
-        [sample_input],
+        (sample_input,),
         str(output_path),
         input_names=["input"],
         output_names=["boxes", "labels", "scores"],
@@ -277,7 +277,7 @@ def export_to_tensorrt(
 
 def _load_model_from_checkpoint(
     checkpoint_path: Path,
-    config_path: Path | None = None,
+    config_path: str | Path | None = None,
 ) -> BaseLightningDetector:
     """Load model from checkpoint."""
     checkpoint = torch.load(checkpoint_path, map_location="cpu")
