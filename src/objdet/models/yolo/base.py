@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 import torch
 from torch import Tensor, nn
-from ultralytics import YOLO
+from ultralytics import YOLO  # type: ignore[import-not-found]
 
 from objdet.core.constants import ClassIndexMode
 from objdet.core.exceptions import ModelError
@@ -128,11 +128,11 @@ class YOLOBaseLightning(BaseLightningDetector):
 
         # Modify the detection head for custom number of classes if needed
         if self.num_classes != 80:  # 80 is COCO default
-            self._modify_head_for_classes(model)
+            self._modify_head_for_classes(model)  # type: ignore[arg-type]
 
         logger.info(f"Built YOLO model: variant={variant}, num_classes={self.num_classes}")
 
-        return model
+        return model  # type: ignore[return-value]
 
     def _modify_head_for_classes(self, model: nn.Module) -> None:
         """Modify the detection head for a different number of classes.
@@ -144,10 +144,10 @@ class YOLOBaseLightning(BaseLightningDetector):
         # This handles the common case for YOLOv8/v11
         try:
             # Find the Detect head
-            detect = model.model[-1]  # Usually the last layer
+            detect = model.model[-1]  # type: ignore[index]  # Usually the last layer
 
             # Update number of classes
-            detect.nc = self.num_classes
+            detect.nc = self.num_classes  # type: ignore[union-attr]
 
             # Recalculate output channels
             # Detection head outputs: (num_classes + 4) per anchor for each scale
@@ -285,7 +285,7 @@ class YOLOBaseLightning(BaseLightningDetector):
         # The exact API depends on the YOLO version
         try:
             # YOLOv8/v11 loss computation
-            loss_fn = self.ultralytics_model.model.loss
+            loss_fn = self.ultralytics_model.model.loss  # type: ignore[union-attr]
 
             # Compute loss
             loss, loss_items = loss_fn(outputs, targets)
@@ -319,12 +319,12 @@ class YOLOBaseLightning(BaseLightningDetector):
         for result in results:
             boxes = result.boxes
 
-            pred = {
-                "boxes": boxes.xyxy.cpu() if boxes.xyxy is not None else torch.empty(0, 4),
-                "labels": boxes.cls.cpu().int()
+            pred: DetectionPrediction = {
+                "boxes": boxes.xyxy.cpu() if boxes.xyxy is not None else torch.empty(0, 4),  # type: ignore[union-attr]
+                "labels": boxes.cls.cpu().int()  # type: ignore[union-attr]
                 if boxes.cls is not None
                 else torch.empty(0, dtype=torch.int64),
-                "scores": boxes.conf.cpu() if boxes.conf is not None else torch.empty(0),
+                "scores": boxes.conf.cpu() if boxes.conf is not None else torch.empty(0),  # type: ignore[union-attr]
             }
             predictions.append(pred)
 

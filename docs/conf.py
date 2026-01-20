@@ -2,14 +2,14 @@
 
 import os
 import sys
-from whenever import PlainDate
+from datetime import date
 
 # Add source directory to path
 sys.path.insert(0, os.path.abspath("../src"))
 
 # Project information
 project = "ObjDet"
-copyright = f"{PlainDate.today().year}, ObjDet Contributors"
+copyright = f"{date.today().year}, ObjDet Contributors"
 author = "ObjDet Contributors"
 
 # Get version from package

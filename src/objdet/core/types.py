@@ -46,22 +46,27 @@ HyperParams: TypeAlias = Mapping[str, int | float | str | bool]
 # =============================================================================
 
 
-class DetectionTarget(TypedDict, total=False):
+class _DetectionTargetRequired(TypedDict):
+    """Required fields for DetectionTarget."""
+
+    boxes: Tensor
+    labels: Tensor
+
+
+class DetectionTarget(_DetectionTargetRequired, total=False):
     """Type definition for a detection annotation target.
 
     This follows the torchvision detection format.
 
     Attributes:
-        boxes: (N, 4) tensor of bounding boxes in [x1, y1, x2, y2] format.
-        labels: (N,) tensor of class labels.
+        boxes: (N, 4) tensor of bounding boxes in [x1, y1, x2, y2] format (required).
+        labels: (N,) tensor of class labels (required).
         masks: Optional (N, H, W) tensor of instance masks.
         area: Optional (N,) tensor of box areas.
         iscrowd: Optional (N,) tensor indicating crowd regions.
         image_id: Optional image identifier.
     """
 
-    boxes: Tensor
-    labels: Tensor
     masks: Tensor
     area: Tensor
     iscrowd: Tensor

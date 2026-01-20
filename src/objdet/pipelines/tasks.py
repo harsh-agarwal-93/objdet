@@ -17,12 +17,15 @@ Example:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from celery import Task
 
 from objdet.core.logging import get_logger
 from objdet.pipelines.celery_app import app
+
+if TYPE_CHECKING:
+    from lightning.pytorch.loggers import Logger
 
 logger = get_logger(__name__)
 
@@ -99,8 +102,8 @@ def train_model(
         ]
 
         # Setup loggers
-        loggers = [
-            TensorBoardLogger(save_dir=output_path, name="tensorboard"),
+        loggers: list[Logger] = [
+            TensorBoardLogger(save_dir=output_path, name="tensorboard"),  # type: ignore[list-item]
         ]
 
         # Add MLflow if configured
@@ -185,7 +188,7 @@ def export_model(
         result_path = do_export(
             checkpoint_path=checkpoint_path,
             output_path=output_path,
-            export_format=export_format,
+            export_format=export_format,  # type: ignore[arg-type]
             input_shape=input_shape,
         )
 

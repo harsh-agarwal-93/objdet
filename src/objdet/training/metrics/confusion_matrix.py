@@ -33,9 +33,10 @@ class ConfusionMatrix(Metric):
         >>> cm = metric.compute()
     """
 
-    is_differentiable: bool = False
+    is_differentiable: bool | None = False
     higher_is_better: bool | None = None
-    full_state_update: bool = False
+    full_state_update: bool | None = False
+    matrix: Tensor  # Declared by add_state
 
     def __init__(
         self,
@@ -56,7 +57,7 @@ class ConfusionMatrix(Metric):
             "matrix",
             default=torch.zeros((num_classes + 1, num_classes + 1), dtype=torch.int64),
             dist_reduce_fx="sum",
-        )
+        )  # type: ignore[assignment]
 
     def update(
         self,

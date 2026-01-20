@@ -19,12 +19,15 @@ Example:
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 import lightning as L
 import torch
 from torch import Tensor, nn
 from torchmetrics.detection import MeanAveragePrecision
+
+if TYPE_CHECKING:
+    from lightning.pytorch.utilities.types import OptimizerLRSchedulerConfig
 
 from objdet.core.constants import (
     DEFAULT_CONFIDENCE_THRESHOLD,
@@ -178,10 +181,10 @@ class BaseLightningDetector(L.LightningModule):
         images, targets = batch
 
         # Forward pass with targets returns losses
-        loss_dict = self.forward(images, targets)
+        loss_dict = cast("dict[str, Tensor]", self.forward(images, targets))
 
         # Sum all losses
-        total_loss = sum(loss_dict.values())
+        total_loss: Tensor = sum(loss_dict.values())  # type: ignore[assignment]
 
         # Log losses
         for name, value in loss_dict.items():
@@ -204,13 +207,13 @@ class BaseLightningDetector(L.LightningModule):
         images, targets = batch
 
         # Get predictions (inference mode)
-        predictions = self.forward(images)
+        predictions = cast("list[DetectionPrediction]", self.forward(images))
 
         # Filter predictions by confidence
         filtered_preds = self._filter_predictions(predictions)
 
-        # Update metrics
-        self._val_map.update(filtered_preds, targets)
+        # Update metrics - use type ignore since types are structurally compatible
+        self._val_map.update(filtered_preds, targets)  # type: ignore[arg-type]
 
     def on_validation_epoch_end(self) -> None:
         """Compute and log validation metrics at epoch end."""
@@ -242,9 +245,9 @@ class BaseLightningDetector(L.LightningModule):
             batch_idx: Index of the current batch.
         """
         images, targets = batch
-        predictions = self.forward(images)
+        predictions = cast("list[DetectionPrediction]", self.forward(images))
         filtered_preds = self._filter_predictions(predictions)
-        self._test_map.update(filtered_preds, targets)
+        self._test_map.update(filtered_preds, targets)  # type: ignore[arg-type]
 
     def on_test_epoch_end(self) -> None:
         """Compute and log test metrics at epoch end."""
@@ -276,7 +279,7 @@ class BaseLightningDetector(L.LightningModule):
         else:
             images = batch
 
-        predictions = self.forward(images)
+        predictions = cast("list[DetectionPrediction]", self.forward(images))
         return self._filter_predictions(predictions)
 
     def _filter_predictions(
@@ -303,7 +306,7 @@ class BaseLightningDetector(L.LightningModule):
             )
         return filtered
 
-    def configure_optimizers(self) -> dict[str, Any]:
+    def configure_optimizers(self) -> "OptimizerLRSchedulerConfig":  # type: ignore[override]
         """Configure optimizer and learning rate scheduler.
 
         Returns:
@@ -338,7 +341,7 @@ class BaseLightningDetector(L.LightningModule):
                 "frequency": 1,
             }
 
-        return config
+        return cast("OptimizerLRSchedulerConfig", config)
 
     def _build_scheduler(
         self,

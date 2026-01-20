@@ -31,9 +31,9 @@ class ClasswiseAP(Metric):
         >>> ap_per_class = metric.compute()
     """
 
-    is_differentiable: bool = False
-    higher_is_better: bool = True
-    full_state_update: bool = True
+    is_differentiable: bool | None = False
+    higher_is_better: bool | None = True
+    full_state_update: bool | None = True
 
     def __init__(
         self,
