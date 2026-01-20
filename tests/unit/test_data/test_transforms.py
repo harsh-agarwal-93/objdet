@@ -71,8 +71,12 @@ class TestResize:
 
     def test_resize_boxes_scaled(self, sample_image, sample_target):
         """Boxes should be scaled proportionally."""
+        from copy import deepcopy
+
+        target = deepcopy(sample_target)
+
         transform = Resize(min_size=400, max_size=800)
-        _, result_target = transform(sample_image, sample_target)
+        _, result_target = transform(sample_image, target)
 
         # Original image is 480x640, min is 480
         # Scaled to min=400, scale = 400/480 = 0.833
@@ -106,8 +110,12 @@ class TestRandomHorizontalFlip:
 
     def test_flip_always(self, sample_image, sample_target):
         """Test flip with p=1."""
+        from copy import deepcopy
+
+        target = deepcopy(sample_target)
+
         transform = RandomHorizontalFlip(p=1.0)
-        result_img, result_target = transform(sample_image, sample_target)
+        result_img, result_target = transform(sample_image, target)
 
         # Image should be horizontally flipped
         assert torch.allclose(result_img, sample_image.flip(-1))
@@ -133,8 +141,12 @@ class TestRandomVerticalFlip:
 
     def test_flip_always(self, sample_image, sample_target):
         """Test vertical flip with p=1."""
+        from copy import deepcopy
+
+        target = deepcopy(sample_target)
+
         transform = RandomVerticalFlip(p=1.0)
-        result_img, result_target = transform(sample_image, sample_target)
+        result_img, result_target = transform(sample_image, target)
 
         # Image should be vertically flipped
         assert torch.allclose(result_img, sample_image.flip(-2))

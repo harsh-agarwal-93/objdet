@@ -67,10 +67,13 @@ class TestPredictor:
         assert "labels" in result
         assert "scores" in result
 
-    def test_predict_filters_by_confidence(self, mock_model):
+    def test_predict_filters_by_confidence(self):
         """Test that low confidence predictions are filtered."""
-        # Create model that returns low confidence
-        mock_model.__call__ = lambda images: [
+        # Create mock model
+        mock_model = MagicMock()
+        mock_model.to.return_value = mock_model
+        mock_model.eval.return_value = mock_model
+        mock_model.return_value = [
             {
                 "boxes": torch.tensor([[100, 100, 200, 200]]),
                 "labels": torch.tensor([1]),
@@ -120,7 +123,10 @@ class TestPredictorLoadImage:
         # Mock PIL image
         mock_img = MagicMock()
         mock_img.convert.return_value = mock_img
-        mock_img.__array__ = lambda self: np.random.rand(480, 640, 3) * 255
+        # Fix: Accept any arguments for __array__ as np.array calls it with args
+        mock_img.__array__ = lambda *args, **kwargs: (np.random.rand(480, 640, 3) * 255).astype(
+            np.uint8
+        )
         mock_open.return_value = mock_img
 
         result = predictor._load_image("/path/to/image.jpg")

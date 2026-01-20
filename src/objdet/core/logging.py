@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
-from loguru import Logger, logger
+from loguru import logger
 
 # Remove default loguru handler
 logger.remove()
@@ -178,7 +178,43 @@ def configure_logging(
     logger.debug(f"Logging configured: level={level}, format={log_format}")
 
 
-def get_logger(name: str | None = None) -> Logger:
+@runtime_checkable
+class LoggerInterface(Protocol):
+    """Type hint interface for the logger returned by get_logger.
+
+    This class is a Protocol for type checking purposes.
+    """
+
+    def debug(self, message: Any, /, *args: Any, **kwargs: Any) -> None:
+        """Log a debug message."""
+        ...
+
+    def info(self, message: Any, /, *args: Any, **kwargs: Any) -> None:
+        """Log an info message."""
+        ...
+
+    def warning(self, message: Any, /, *args: Any, **kwargs: Any) -> None:
+        """Log a warning message."""
+        ...
+
+    def error(self, message: Any, /, *args: Any, **kwargs: Any) -> None:
+        """Log an error message."""
+        ...
+
+    def critical(self, message: Any, /, *args: Any, **kwargs: Any) -> None:
+        """Log a critical message."""
+        ...
+
+    def exception(self, message: Any, /, *args: Any, **kwargs: Any) -> None:
+        """Log an exception with traceback."""
+        ...
+
+    def bind(self, **kwargs: Any) -> LoggerInterface:
+        """Bind context to the logger."""
+        ...
+
+
+def get_logger(name: str | None = None) -> LoggerInterface:
     """Get a logger instance for the specified module.
 
     This returns a loguru logger that can be used for logging throughout
@@ -204,42 +240,6 @@ def get_logger(name: str | None = None) -> Logger:
     if name:
         return logger.bind(name=name)
     return logger
-
-
-@runtime_checkable
-class LoggerInterface(Protocol):
-    """Type hint interface for the logger returned by get_logger.
-
-    This class is a Protocol for type checking purposes.
-    """
-
-    def debug(self, message: str, *args: Any, **kwargs: Any) -> None:
-        """Log a debug message."""
-        ...
-
-    def info(self, message: str, *args: Any, **kwargs: Any) -> None:
-        """Log an info message."""
-        ...
-
-    def warning(self, message: str, *args: Any, **kwargs: Any) -> None:
-        """Log a warning message."""
-        ...
-
-    def error(self, message: str, *args: Any, **kwargs: Any) -> None:
-        """Log an error message."""
-        ...
-
-    def critical(self, message: str, *args: Any, **kwargs: Any) -> None:
-        """Log a critical message."""
-        ...
-
-    def exception(self, message: str, *args: Any, **kwargs: Any) -> None:
-        """Log an exception with traceback."""
-        ...
-
-    def bind(self, **kwargs: Any) -> LoggerInterface:
-        """Bind context to the logger."""
-        ...
 
 
 def intercept_standard_logging() -> None:
