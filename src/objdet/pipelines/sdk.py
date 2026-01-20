@@ -110,7 +110,7 @@ def _submit_task(job: Job, queue: str) -> None:
         raise ValueError(f"Unknown job type: {job.job_type}")
 
     # Submit to Celery
-    result = task.apply_async(
+    result = task.apply_async(  # type: ignore
         kwargs=job.config,
         queue=queue,
         priority=job.priority,

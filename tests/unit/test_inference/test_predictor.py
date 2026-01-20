@@ -87,6 +87,9 @@ class TestPredictor:
         image = torch.rand(3, 480, 640)
         result = predictor.predict(image)
 
+        from typing import cast
+
+        result = cast("dict", result)
         assert len(result["boxes"]) == 0
 
     def test_predict_batch(self, predictor):

@@ -6,6 +6,10 @@ from objdet.tuning.search_space import (
     SearchSpace,
     define_search_space,
 )
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from optuna.trial import Trial
 
 
 class MockTrial:
@@ -50,7 +54,7 @@ class TestSearchSpace:
         )
 
         trial = MockTrial()
-        result = space.sample(trial)
+        result = space.sample(cast("Trial", trial))
 
         assert "weight_decay" in result
         assert 0.0 <= result["weight_decay"] <= 0.1
@@ -64,7 +68,7 @@ class TestSearchSpace:
         )
 
         trial = MockTrial()
-        result = space.sample(trial)
+        result = space.sample(cast("Trial", trial))
 
         assert "lr" in result
 
@@ -77,7 +81,7 @@ class TestSearchSpace:
         )
 
         trial = MockTrial()
-        result = space.sample(trial)
+        result = space.sample(cast("Trial", trial))
 
         assert "epochs" in result
         assert isinstance(result["epochs"], int)
@@ -91,7 +95,7 @@ class TestSearchSpace:
         )
 
         trial = MockTrial()
-        result = space.sample(trial)
+        result = space.sample(cast("Trial", trial))
 
         assert result["optimizer"] in ["adam", "sgd"]
 

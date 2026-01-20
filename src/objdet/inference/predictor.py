@@ -211,7 +211,11 @@ class Predictor:
         logger.info(f"Found {len(image_paths)} images in {directory}")
 
         # Run batch inference
-        predictions = self.predict_batch(image_paths, batch_size=batch_size)
+        from typing import cast
+
+        predictions = self.predict_batch(
+            cast("list[str | Path | Tensor]", image_paths), batch_size=batch_size
+        )
 
         # Map to filenames
         return {path.name: pred for path, pred in zip(image_paths, predictions, strict=True)}

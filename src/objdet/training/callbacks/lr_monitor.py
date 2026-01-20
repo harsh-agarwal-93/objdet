@@ -62,7 +62,8 @@ class LearningRateMonitorCallback(Callback):
                 # Momentum
                 if self.log_momentum:
                     momentum = param_group.get("momentum", param_group.get("betas", (0,))[0])
-                    pl_module.log(f"momentum/pg_{pg_idx}", momentum, prog_bar=False)
+                    if momentum is not None:
+                        pl_module.log(f"momentum/pg_{pg_idx}", momentum, prog_bar=False)
 
                 # Weight decay
                 if self.log_weight_decay:

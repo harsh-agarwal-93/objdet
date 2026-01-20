@@ -318,6 +318,8 @@ class YOLOBaseLightning(BaseLightningDetector):
         predictions = []
         for result in results:
             boxes = result.boxes
+            if boxes is None:
+                continue
 
             pred: DetectionPrediction = {
                 "boxes": boxes.xyxy.cpu() if boxes.xyxy is not None else torch.empty(0, 4),  # type: ignore[union-attr]

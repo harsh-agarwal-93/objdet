@@ -59,7 +59,7 @@ class ConfusionMatrix(Metric):
             dist_reduce_fx="sum",
         )  # type: ignore[assignment]
 
-    def update(
+    def update(  # type: ignore
         self,
         preds: list[dict[str, Tensor]],
         targets: list[dict[str, Tensor]],

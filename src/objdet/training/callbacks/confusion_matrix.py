@@ -163,7 +163,7 @@ class ConfusionMatrixCallback(Callback):
         x2 = min(box1[2].item(), box2[2].item())
         y2 = min(box1[3].item(), box2[3].item())
 
-        inter_area = max(0, x2 - x1) * max(0, y2 - y1)
+        inter_area = max(0.0, x2 - x1) * max(0.0, y2 - y1)
 
         box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
         box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])

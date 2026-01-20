@@ -266,7 +266,10 @@ def intercept_standard_logging() -> None:
                 level = record.levelno
 
             # Find caller from where the logging call originated
-            frame, depth = sys._getframe(6), 6
+            from types import FrameType
+
+            frame: FrameType | None = sys._getframe(6)
+            depth = 6
             while frame and frame.f_code.co_filename == logging.__file__:
                 frame = frame.f_back
                 depth += 1

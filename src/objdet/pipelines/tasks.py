@@ -117,13 +117,16 @@ def train_model(
                 )
             )
 
-        # Create trainer
+        # Initialize trainer
+        from typing import cast
+        from lightning.pytorch.callbacks import Callback
+
         trainer = Trainer(
             default_root_dir=str(output_path),
             max_epochs=config.get("trainer", {}).get("max_epochs", 100),
             accelerator=accelerator,
             devices=devices,
-            callbacks=callbacks,
+            callbacks=cast("list[Callback]", callbacks),
             logger=loggers,
         )
 
@@ -138,8 +141,16 @@ def train_model(
         )
 
         # Get best checkpoint
-        best_ckpt = callbacks[0].best_model_path
-        best_score = callbacks[0].best_model_score
+        checkpoint_callback = callbacks[0]
+        # We know it's a ModelCheckpoint because we created it first in the list
+        from lightning.pytorch.callbacks import ModelCheckpoint
+
+        if isinstance(checkpoint_callback, ModelCheckpoint):
+            best_ckpt = checkpoint_callback.best_model_path
+            best_score = checkpoint_callback.best_model_score
+        else:
+            best_ckpt = ""
+            best_score = None
 
         result = {
             "status": "completed",

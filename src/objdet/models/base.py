@@ -145,7 +145,7 @@ class BaseLightningDetector(L.LightningModule):
         ...
 
     @abstractmethod
-    def forward(
+    def forward(  # type: ignore
         self,
         images: list[Tensor],
         targets: list[DetectionTarget] | None = None,
@@ -164,7 +164,7 @@ class BaseLightningDetector(L.LightningModule):
         """
         ...
 
-    def training_step(
+    def training_step(  # type: ignore
         self,
         batch: tuple[list[Tensor], list[DetectionTarget]],
         batch_idx: int,
@@ -193,7 +193,7 @@ class BaseLightningDetector(L.LightningModule):
 
         return total_loss
 
-    def validation_step(
+    def validation_step(  # type: ignore
         self,
         batch: tuple[list[Tensor], list[DetectionTarget]],
         batch_idx: int,
@@ -233,7 +233,7 @@ class BaseLightningDetector(L.LightningModule):
         # Reset metrics for next epoch
         self._val_map.reset()
 
-    def test_step(
+    def test_step(  # type: ignore
         self,
         batch: tuple[list[Tensor], list[DetectionTarget]],
         batch_idx: int,
@@ -259,7 +259,7 @@ class BaseLightningDetector(L.LightningModule):
 
         self._test_map.reset()
 
-    def predict_step(
+    def predict_step(  # type: ignore
         self,
         batch: list[Tensor] | tuple[list[Tensor], Any],
         batch_idx: int,
@@ -294,17 +294,23 @@ class BaseLightningDetector(L.LightningModule):
         Returns:
             Filtered predictions.
         """
+        # Filter invalid predictions (e.g., empty boxes) and apply confidence threshold
         filtered = []
         for pred in predictions:
+            # Apply confidence threshold
             mask = pred["scores"] >= self.confidence_threshold
-            filtered.append(
-                {
-                    "boxes": pred["boxes"][mask],
-                    "labels": pred["labels"][mask],
-                    "scores": pred["scores"][mask],
-                }
-            )
-        return filtered
+            if mask.sum() > 0:
+                filtered.append(
+                    {
+                        "boxes": pred["boxes"][mask],
+                        "labels": pred["labels"][mask],
+                        "scores": pred["scores"][mask],
+                    }
+                )
+        # Cast to match return type
+        from typing import cast
+
+        return cast("list[DetectionPrediction]", filtered)
 
     def configure_optimizers(self) -> "OptimizerLRSchedulerConfig":  # type: ignore[override]
         """Configure optimizer and learning rate scheduler.

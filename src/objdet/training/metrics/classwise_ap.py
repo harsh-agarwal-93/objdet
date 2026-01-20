@@ -55,7 +55,7 @@ class ClasswiseAP(Metric):
             class_metrics=True,  # Enable per-class metrics
         )
 
-    def update(
+    def update(  # type: ignore
         self,
         preds: list[dict[str, Tensor]],
         targets: list[dict[str, Tensor]],
