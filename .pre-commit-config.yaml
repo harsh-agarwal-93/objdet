@@ -12,7 +12,7 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-        args: [--unsafe]  # Allow custom tags for LightningCLI configs
+        args: [--unsafe] # Allow custom tags for LightningCLI configs
       - id: check-toml
       - id: check-json
       - id: check-added-large-files
@@ -32,12 +32,12 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  # ty - type checking
+  # pyrefly - type checking
   - repo: local
     hooks:
-      - id: ty
-        name: ty type checker
-        entry: uv run ty check
+      - id: pyrefly
+        name: pyrefly type checker
+        entry: uv run pyrefly check
         language: system
         types: [python]
         pass_filenames: false
@@ -49,7 +49,20 @@ repos:
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
-        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
+        args:
+          [
+            feat,
+            fix,
+            docs,
+            style,
+            refactor,
+            perf,
+            test,
+            build,
+            ci,
+            chore,
+            revert,
+          ]
 
   # Check for secrets
   - repo: https://github.com/Yelp/detect-secrets
