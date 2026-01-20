@@ -82,5 +82,5 @@ CMD ["serve", "--config", "configs/serving/default.yaml"]
 # Labels
 LABEL org.opencontainers.image.title="ObjDet Serving"
 LABEL org.opencontainers.image.description="Object detection inference API"
-LABEL org.opencontainers.image.source="https://github.com/yourusername/objdet"
+LABEL org.opencontainers.image.source="https://github.com/harsh-agarwal-93/objdet"
 LABEL org.opencontainers.image.licenses="Apache-2.0"

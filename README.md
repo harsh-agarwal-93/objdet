@@ -33,7 +33,7 @@ A production-grade MLOps framework for training, optimizing, and deploying objec
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/objdet.git
+git clone https://github.com/harsh-agarwal-93/objdet.git
 cd objdet
 
 # Install with uv

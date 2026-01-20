@@ -70,5 +70,5 @@ CMD ["--help"]
 # Labels
 LABEL org.opencontainers.image.title="ObjDet Training"
 LABEL org.opencontainers.image.description="Object detection training framework"
-LABEL org.opencontainers.image.source="https://github.com/yourusername/objdet"
+LABEL org.opencontainers.image.source="https://github.com/harsh-agarwal-93/objdet"
 LABEL org.opencontainers.image.licenses="Apache-2.0"

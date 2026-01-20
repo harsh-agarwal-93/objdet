@@ -114,10 +114,10 @@ docs = [
 objdet = "objdet.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/objdet"
+Homepage = "https://github.com/harsh-agarwal-93/objdet"
 Documentation = "https://objdet.readthedocs.io"
-Repository = "https://github.com/yourusername/objdet"
-Issues = "https://github.com/yourusername/objdet/issues"
+Repository = "https://github.com/harsh-agarwal-93/objdet.git"
+Issues = "https://github.com/harsh-agarwal-93/objdet/issues"
 
 [build-system]
 requires = ["hatchling"]

@@ -22,7 +22,7 @@ Please be respectful and constructive in all interactions. We're building someth
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/objdet.git`
+2. Clone your fork: `git clone https://github.com/harsh-agarwal-93/objdet.git`
 3. Add the upstream remote: `git remote add upstream https://github.com/originalowner/objdet.git`
 
 ## Development Setup
