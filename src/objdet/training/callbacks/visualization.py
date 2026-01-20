@@ -151,7 +151,7 @@ class DetectionVisualizationCallback(Callback):
             # Create labels
             if self.class_names:
                 box_labels = [
-                    f"{self.class_names[lbl.item()]}: {s:.2f}"
+                    f"{self.class_names[lbl.item()]}: {s:.2f}"  # type: ignore[index]
                     for lbl, s in zip(labels, scores, strict=True)
                 ]
             else:
@@ -203,7 +203,7 @@ class DetectionVisualizationCallback(Callback):
             )
 
             if trainer.logger is not None and hasattr(trainer.logger, "experiment"):
-                trainer.logger.experiment.add_image(
+                trainer.logger.experiment.add_image(  # type: ignore[union-attr]
                     "val/predictions",
                     grid,
                     trainer.current_epoch,

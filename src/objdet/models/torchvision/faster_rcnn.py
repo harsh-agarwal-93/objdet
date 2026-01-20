@@ -139,7 +139,7 @@ class FasterRCNN(BaseLightningDetector):
 
         # Replace the classifier head for custom number of classes
         # num_model_classes includes background
-        in_features = model.roi_heads.box_predictor.cls_score.in_features
+        in_features = model.roi_heads.box_predictor.cls_score.in_features  # type: ignore[union-attr]
         model.roi_heads.box_predictor = FastRCNNPredictor(in_features, self.num_model_classes)
 
         return model

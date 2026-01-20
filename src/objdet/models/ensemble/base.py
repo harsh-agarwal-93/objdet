@@ -17,7 +17,7 @@ Example:
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import torch
 from torch import Tensor, nn
@@ -99,7 +99,7 @@ class BaseEnsemble(BaseLightningDetector):
             self.weights = [w / total for w in weights]
 
         super().__init__(
-            num_classes=num_classes,
+            num_classes=cast(int, num_classes),
             class_index_mode=class_index_mode,
             confidence_threshold=conf_thresh,
             nms_threshold=iou_thresh,
@@ -198,7 +198,7 @@ class BaseEnsemble(BaseLightningDetector):
         for img_idx in range(batch_size):
             # Collect predictions from all models for this image
             img_preds = [preds[img_idx] for preds in all_predictions]
-            fused = self._fuse_predictions(img_preds, images[img_idx].shape[-2:])
+            fused = self._fuse_predictions(img_preds, images[img_idx].shape[-2:])  # type: ignore[arg-type]
             fused_predictions.append(fused)
 
         return fused_predictions

@@ -141,7 +141,7 @@ def export_to_onnx(
     if simplify:
         try:
             import onnx
-            from onnxsim import simplify as onnx_simplify
+            from onnxsim import simplify as onnx_simplify  # type: ignore[import-not-found]
 
             onnx_model = onnx.load(str(output_path))
             simplified, check = onnx_simplify(onnx_model)
@@ -229,7 +229,7 @@ def export_to_tensorrt(
         Path to the exported TensorRT engine.
     """
     try:
-        import torch_tensorrt
+        import torch_tensorrt  # type: ignore[import-not-found]
     except ImportError as e:
         raise ExportError(
             "torch-tensorrt is required for TensorRT export",

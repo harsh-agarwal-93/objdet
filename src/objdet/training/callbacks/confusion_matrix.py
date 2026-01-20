@@ -147,14 +147,14 @@ class ConfusionMatrixCallback(Callback):
                 true_class = self.num_classes  # Background index
                 pred_class = p_label.item()
 
-            self._confusion_matrix[int(true_class), int(pred_class)] += 1
+            self._confusion_matrix[int(true_class), int(pred_class)] += 1  # type: ignore[index]
 
         # False negatives: unmatched GT
         for gt_idx, (matched, gt_label) in enumerate(zip(gt_matched, gt_labels, strict=True)):
             if not matched:
                 true_class = gt_label.item()
                 pred_class = self.num_classes  # Not detected
-                self._confusion_matrix[int(true_class), int(pred_class)] += 1
+                self._confusion_matrix[int(true_class), int(pred_class)] += 1  # type: ignore[index]
 
     def _compute_iou(self, box1: Tensor, box2: Tensor) -> float:
         """Compute IoU between two boxes in xyxy format."""
