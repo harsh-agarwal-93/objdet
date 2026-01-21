@@ -2,15 +2,16 @@
 
 
 import sys
-from datetime import date
 from pathlib import Path
+
+import whenever
 
 # Add source directory to path
 sys.path.insert(0, str(Path("../src").resolve()))
 
 # Project information
 project = "ObjDet"
-copyright = f"{date.today().year}, ObjDet Contributors"
+copyright = f"{whenever.Date.today_in_system_tz().year}, ObjDet Contributors"
 author = "ObjDet Contributors"
 
 # Get version from package
