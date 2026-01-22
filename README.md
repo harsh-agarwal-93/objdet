@@ -103,6 +103,34 @@ job = client.submit_training(
 print(f"Job submitted: {job.id}")
 ```
 
+### Preprocessing Datasets
+
+Convert datasets to LitData's optimized streaming format for faster training:
+
+```bash
+# Convert COCO dataset to LitData format
+objdet preprocess \
+    --input /path/to/coco \
+    --output /path/to/coco_litdata \
+    --format coco \
+    --num_workers 8
+```
+
+Supported formats: `coco`, `voc`, `yolo`
+
+You can also use the Python API:
+
+```python
+from objdet.data.preprocessing import convert_to_litdata
+
+convert_to_litdata(
+    input_dir="/data/coco",
+    output_dir="/data/coco_litdata",
+    format_name="coco",
+    num_workers=8,
+)
+```
+
 ## 📁 Project Structure
 
 ```
