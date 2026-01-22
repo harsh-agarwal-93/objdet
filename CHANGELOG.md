@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **Data**: Added LitData support for optimized dataset loading and streaming.
     - **Optimization**: Added Optuna for automated hyperparameter tuning.
 - **Inference**: Added SAHI integration for large image sliced inference.
+- **Exceptions**: Added `DependencyError` for clear messaging when optional dependencies are missing.
 
 ### 🚜 Refactor
 
@@ -23,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Replaced `requests` with `httpx` for modern, async-capable HTTP clients.
     - Replaced `datetime` with `whenever` for robust time handling.
 - **Typing**: Migrated from Pyright to **Pyrefly** for stricter, more accurate type checking.
+- **Data**: Made `LitDataConverter.input_dir` optional when format-specific paths are provided directly.
 
 ### 🛠 Maintenance
 
@@ -33,4 +35,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
-- Add README with project overview
+- Added comprehensive README with project overview, installation, and usage examples.
+- Added preprocessing documentation with CLI and Python API examples.

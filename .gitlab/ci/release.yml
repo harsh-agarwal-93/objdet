@@ -9,7 +9,7 @@ validate-version:
       # Extract version from pyproject.toml
       VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
       echo "Current version: $VERSION"
-      
+
       # Check if tag already exists
       if git rev-parse "v$VERSION" >/dev/null 2>&1; then
         echo "Tag v$VERSION already exists"
@@ -47,7 +47,7 @@ create-release:
     name: "Release $CI_COMMIT_TAG"
     description: |
       ## What's Changed
-      
+
       See [CHANGELOG.md](CHANGELOG.md) for full details.
     assets:
       links:
