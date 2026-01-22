@@ -1,7 +1,7 @@
 #:schema "https://json.schemastore.org/pyproject.json"
 [project]
 name = "objdet"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Production-grade object detection training framework built on PyTorch Lightning"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -122,6 +122,9 @@ Issues = "https://github.com/harsh-agarwal-93/objdet/issues"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/objdet/version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/objdet"]
