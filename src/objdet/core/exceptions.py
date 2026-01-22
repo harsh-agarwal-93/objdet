@@ -72,6 +72,42 @@ class DataError(ObjDetError):
     pass
 
 
+class DependencyError(ObjDetError):
+    """Error when an optional dependency is not installed.
+
+    Raised when:
+    - An optional package is required but not installed
+    - A package version is incompatible
+
+    Args:
+        message: Error description.
+        package_name: Name of the missing package.
+        install_command: Command to install the package.
+
+    Example:
+        >>> raise DependencyError(
+        ...     "LitData is required for streaming datasets",
+        ...     package_name="litdata",
+        ...     install_command="uv add litdata",
+        ... )
+    """
+
+    def __init__(
+        self,
+        message: str,
+        package_name: str | None = None,
+        install_command: str | None = None,
+    ) -> None:
+        details = {}
+        if package_name:
+            details["package"] = package_name
+        if install_command:
+            details["install"] = install_command
+        super().__init__(message, details)
+        self.package_name = package_name
+        self.install_command = install_command
+
+
 class DataFormatError(DataError):
     """Error specific to dataset format issues.
 
