@@ -277,8 +277,8 @@ def _run_preprocess_command() -> None:
     parser.add_argument(
         "--input",
         type=str,
-        required=True,
-        help="Input dataset directory",
+        default=None,
+        help="Input dataset directory (optional if format-specific paths provided)",
     )
     parser.add_argument(
         "--output",
@@ -299,6 +299,65 @@ def _run_preprocess_command() -> None:
         default=4,
         help="Number of preprocessing workers",
     )
+    parser.add_argument(
+        "--class_names",
+        type=str,
+        nargs="+",
+        default=None,
+        help="List of class names (required for YOLO format)",
+    )
+    parser.add_argument(
+        "--splits",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Dataset splits to convert (default: train val)",
+    )
+    # COCO-specific paths
+    parser.add_argument(
+        "--coco_ann_file",
+        type=str,
+        default=None,
+        help="COCO annotation file path",
+    )
+    parser.add_argument(
+        "--coco_images_dir",
+        type=str,
+        default=None,
+        help="COCO images directory",
+    )
+    # VOC-specific paths
+    parser.add_argument(
+        "--voc_images_dir",
+        type=str,
+        default=None,
+        help="VOC JPEGImages directory",
+    )
+    parser.add_argument(
+        "--voc_annotations_dir",
+        type=str,
+        default=None,
+        help="VOC Annotations directory",
+    )
+    parser.add_argument(
+        "--voc_imagesets_dir",
+        type=str,
+        default=None,
+        help="VOC ImageSets/Main directory",
+    )
+    # YOLO-specific paths
+    parser.add_argument(
+        "--yolo_images_dir",
+        type=str,
+        default=None,
+        help="YOLO images directory",
+    )
+    parser.add_argument(
+        "--yolo_labels_dir",
+        type=str,
+        default=None,
+        help="YOLO labels directory",
+    )
 
     args = parser.parse_args(sys.argv[2:])
 
@@ -306,10 +365,19 @@ def _run_preprocess_command() -> None:
     from objdet.data.preprocessing import convert_to_litdata
 
     convert_to_litdata(
-        input_dir=args.input,
         output_dir=args.output,
         format_name=args.format,
+        input_dir=args.input,
         num_workers=args.num_workers,
+        class_names=args.class_names,
+        splits=args.splits,
+        coco_ann_file=args.coco_ann_file,
+        coco_images_dir=args.coco_images_dir,
+        voc_images_dir=args.voc_images_dir,
+        voc_annotations_dir=args.voc_annotations_dir,
+        voc_imagesets_dir=args.voc_imagesets_dir,
+        yolo_images_dir=args.yolo_images_dir,
+        yolo_labels_dir=args.yolo_labels_dir,
     )
 
 
