@@ -1,0 +1,67 @@
+# Faster R-CNN + COCO Full Experiment Configuration
+# Usage: objdet fit --config configs/experiment/faster_rcnn_coco.yaml
+
+# Model Configuration
+model:
+  class_path: objdet.models.torchvision.FasterRCNN
+  init_args:
+    num_classes: 80
+    backbone: resnet50_fpn_v2
+    pretrained: false
+    pretrained_backbone: true
+    trainable_backbone_layers: 3
+    min_size: 800
+    max_size: 1333
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    optimizer: adamw
+    scheduler: cosine
+    scheduler_kwargs:
+      T_max: 100
+      eta_min: 0.000001
+
+# Data Configuration
+data:
+  class_path: objdet.data.formats.coco.COCODataModule
+  init_args:
+    data_dir: /path/to/coco # Update with your COCO dataset path
+    train_ann_file: annotations/instances_train2017.json
+    val_ann_file: annotations/instances_val2017.json
+    train_img_dir: train2017
+    val_img_dir: val2017
+    batch_size: 8
+    num_workers: 4
+    pin_memory: true
+    persistent_workers: true
+
+# Trainer Configuration
+trainer:
+  max_epochs: 100
+  accelerator: auto
+  devices: auto
+  precision: 16-mixed
+  gradient_clip_val: 1.0
+  accumulate_grad_batches: 1
+  log_every_n_steps: 50
+  check_val_every_n_epoch: 1
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val/mAP
+        mode: max
+        save_top_k: 3
+        save_last: true
+        filename: "epoch={epoch:02d}-mAP={val/mAP:.4f}"
+    - class_path: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        monitor: val/mAP
+        mode: max
+        patience: 10
+    - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+  logger:
+    class_path: lightning.pytorch.loggers.TensorBoardLogger
+    init_args:
+      save_dir: logs
+      name: faster_rcnn_coco

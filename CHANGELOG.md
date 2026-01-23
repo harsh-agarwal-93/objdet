@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Features
 
 - **Models**: Added support for Faster R-CNN, RetinaNet, YOLOv8, and YOLOv11 architectures.
+- **Configs**: Added full experiment configs combining model, data, and trainer sections:
+    - COCO configs: `faster_rcnn_coco.yaml`, `retinanet_coco.yaml`, `yolov8_coco.yaml`, `yolov11_coco.yaml`
+    - LitData configs: `faster_rcnn_litdata.yaml`, `retinanet_litdata.yaml`, `yolov8_litdata.yaml`, `yolov11_litdata.yaml`
 - **MLOps**:
     - **Serving**: Implemented LitServe for high-performance model serving with dynamic batching and A/B testing.
     - **Pipelines**: Integrated RabbitMQ and Celery for distributed job queuing and management.

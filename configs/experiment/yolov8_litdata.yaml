@@ -1,0 +1,63 @@
+# YOLOv8 + LitData Full Experiment Configuration
+# Usage: objdet fit --config configs/experiment/yolov8_litdata.yaml
+
+# Model Configuration
+model:
+  class_path: objdet.models.yolo.YOLOv8
+  init_args:
+    num_classes: 80
+    model_size: n # Options: n, s, m, l, x
+    pretrained: true
+    conf_thres: 0.25
+    iou_thres: 0.45
+    learning_rate: 0.01
+    weight_decay: 0.0005
+    optimizer: sgd
+    scheduler: cosine
+    scheduler_kwargs:
+      T_max: 100
+
+# Data Configuration - LitData optimized format
+data:
+  class_path: objdet.data.formats.litdata.LitDataDataModule
+  init_args:
+    data_dir: /path/to/litdata # Update with your LitData dataset path
+    train_subdir: train
+    val_subdir: val
+    test_subdir: test
+    batch_size: 16
+    num_workers: 4
+    pin_memory: true
+    persistent_workers: true
+
+# Trainer Configuration
+trainer:
+  max_epochs: 100
+  accelerator: auto
+  devices: auto
+  precision: 16-mixed
+  gradient_clip_val: 10.0
+  accumulate_grad_batches: 1
+  log_every_n_steps: 50
+  check_val_every_n_epoch: 1
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val/mAP
+        mode: max
+        save_top_k: 3
+        save_last: true
+        filename: "epoch={epoch:02d}-mAP={val/mAP:.4f}"
+    - class_path: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        monitor: val/mAP
+        mode: max
+        patience: 15
+    - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+  logger:
+    class_path: lightning.pytorch.loggers.TensorBoardLogger
+    init_args:
+      save_dir: logs
+      name: yolov8_litdata

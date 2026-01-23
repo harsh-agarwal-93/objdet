@@ -65,11 +65,14 @@ git config commit.template .gitmessage
 # Train Faster R-CNN on COCO dataset
 objdet fit --config configs/experiment/faster_rcnn_coco.yaml
 
+# Train with LitData optimized dataset (faster data loading)
+objdet fit --config configs/experiment/faster_rcnn_litdata.yaml
+
 # Train with custom overrides
 objdet fit \
-    --config configs/experiment/yolov8_custom.yaml \
+    --config configs/experiment/yolov8_coco.yaml \
     --trainer.max_epochs 100 \
-    --data.batch_size 16
+    --data.init_args.batch_size 16
 ```
 
 ### Running Inference
@@ -136,10 +139,10 @@ convert_to_litdata(
 ```
 objdet/
 ├── configs/              # YAML configuration files
-│   ├── model/            # Model architectures
-│   ├── data/             # Dataset configurations
-│   ├── trainer/          # Training settings
-│   └── experiment/       # Full experiment configs
+│   ├── model/            # Model-only configs
+│   └── experiment/       # Full configs (model + data + trainer)
+│       ├── *_coco.yaml   # COCO dataset experiments
+│       └── *_litdata.yaml # LitData optimized experiments
 ├── src/objdet/           # Source code
 │   ├── core/             # Core utilities (logging, exceptions)
 │   ├── models/           # Model implementations
