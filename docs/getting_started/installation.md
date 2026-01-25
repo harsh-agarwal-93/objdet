@@ -45,12 +45,12 @@ For TensorRT optimization:
 uv add "objdet[tensorrt]"
 ```
 
-### Serving
+### Optimization
 
-For LitServe deployment:
+For Lightning Thunder compilation:
 
 ```bash
-uv add "objdet[serve]"
+uv add "objdet[thunder]"
 ```
 
 ### All Features
