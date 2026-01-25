@@ -75,6 +75,7 @@ myst_enable_extensions = [
     "fieldlist",
     "tasklist",
 ]
+myst_heading_anchors = 3
 
 # Templates
 templates_path = ["_templates"]
