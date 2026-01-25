@@ -131,7 +131,7 @@ datasets/
 
 # Documentation builds
 docs/_build/
-docs/api/
+
 
 # OS files
 .DS_Store
