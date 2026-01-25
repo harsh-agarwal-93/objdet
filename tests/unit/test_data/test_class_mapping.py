@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import pytest
 import torch
-
-from objdet.core.constants import ClassIndexMode
-from objdet.core.exceptions import ClassMappingError
 from objdet.data.class_mapping import (
     ClassMapper,
     create_identity_mapper,
     create_torchvision_to_yolo_mapper,
     create_yolo_to_torchvision_mapper,
 )
+
+from objdet.core.constants import ClassIndexMode
+from objdet.core.exceptions import ClassMappingError
 
 
 class TestClassMapper:
