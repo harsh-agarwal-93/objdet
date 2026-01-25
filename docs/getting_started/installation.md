@@ -8,8 +8,16 @@
 
 ## Install from PyPI
 
+For usage as a CLI tool:
+
 ```bash
-pip install objdet
+uv tool install objdet
+```
+
+For usage as a library in a project:
+
+```bash
+uv add objdet
 ```
 
 ## Install from Source
@@ -17,19 +25,7 @@ pip install objdet
 ```bash
 git clone https://github.com/example/objdet.git
 cd objdet
-pip install -e ".[dev]"
-```
-
-## Install with uv (Recommended)
-
-```bash
-uv pip install objdet
-```
-
-Or for development:
-
-```bash
-uv pip install -e ".[dev,docs]"
+uv sync --all-extras
 ```
 
 ## Verify Installation
@@ -46,7 +42,7 @@ print(objdet.__version__)
 For TensorRT optimization:
 
 ```bash
-pip install "objdet[tensorrt]"
+uv add "objdet[tensorrt]"
 ```
 
 ### Serving
@@ -54,11 +50,11 @@ pip install "objdet[tensorrt]"
 For LitServe deployment:
 
 ```bash
-pip install "objdet[serve]"
+uv add "objdet[serve]"
 ```
 
 ### All Features
 
 ```bash
-pip install "objdet[all]"
+uv add "objdet[all]"
 ```
