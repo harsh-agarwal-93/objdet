@@ -4,6 +4,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Lightning](https://img.shields.io/badge/Lightning-2.x-792ee5.svg)](https://lightning.ai/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![CI/CD](https://github.com/harsh-agarwal-93/objdet/actions/workflows/ci.yml/badge.svg)](https://github.com/harsh-agarwal-93/objdet/actions/workflows/ci.yml)
 
 A production-grade MLOps framework for training, optimizing, and deploying object detection models using PyTorch Lightning.
 
