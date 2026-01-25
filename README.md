@@ -137,7 +137,7 @@ convert_to_litdata(
 
 ## 📁 Project Structure
 
-```
+```text
 objdet/
 ├── configs/              # YAML configuration files
 │   ├── model/            # Model-only configs
