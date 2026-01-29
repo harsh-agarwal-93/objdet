@@ -10,15 +10,20 @@ Each format has a corresponding Dataset class and DataModule.
 """
 
 from objdet.data.formats.coco import COCODataModule, COCODataset
-from objdet.data.formats.litdata import LitDataDataModule, LitDataDataset
+from objdet.data.formats.litdata import (
+    DetectionStreamingDataset,
+    LitDataDataModule,
+    create_streaming_dataloader,
+)
 from objdet.data.formats.voc import VOCDataModule, VOCDataset
 from objdet.data.formats.yolo import YOLODataModule, YOLODataset
 
 __all__ = [
     "COCODataset",
     "COCODataModule",
-    "LitDataDataset",
+    "DetectionStreamingDataset",
     "LitDataDataModule",
+    "create_streaming_dataloader",
     "VOCDataset",
     "VOCDataModule",
     "YOLODataset",

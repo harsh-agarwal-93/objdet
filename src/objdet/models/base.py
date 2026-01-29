@@ -292,10 +292,11 @@ class BaseLightningDetector(L.LightningModule):
             predictions: List of prediction dictionaries.
 
         Returns:
-            Filtered predictions.
+            Filtered predictions. Always returns one prediction dict per input
+            image to maintain alignment with targets for metric computation.
         """
-        # Filter invalid predictions (e.g., empty boxes) and apply confidence threshold
-        filtered = []
+        # Filter by confidence threshold while maintaining one output per image
+        filtered: list[DetectionPrediction] = []
         for pred in predictions:
             # Apply confidence threshold
             mask = pred["scores"] >= self.confidence_threshold
@@ -307,10 +308,18 @@ class BaseLightningDetector(L.LightningModule):
                         "scores": pred["scores"][mask],
                     }
                 )
-        # Cast to match return type
-        from typing import cast
-
-        return cast("list[DetectionPrediction]", filtered)
+            else:
+                # Return empty prediction dict to maintain length alignment with targets
+                # torchmetrics MAP requires preds and targets to have the same length
+                device = pred["boxes"].device
+                filtered.append(
+                    {
+                        "boxes": torch.empty((0, 4), device=device),
+                        "labels": torch.empty((0,), dtype=torch.int64, device=device),
+                        "scores": torch.empty((0,), device=device),
+                    }
+                )
+        return filtered
 
     def configure_optimizers(self) -> OptimizerLRSchedulerConfig:  # type: ignore[override]
         """Configure optimizer and learning rate scheduler.

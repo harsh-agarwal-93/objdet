@@ -24,7 +24,7 @@ model:
 data:
   class_path: objdet.data.formats.litdata.LitDataDataModule
   init_args:
-    data_dir: /path/to/litdata # Update with your LitData dataset path
+    data_dir: /home/hagarwal/fiftyone/sama-coco/optimized # Update with your LitData dataset path
     train_subdir: train
     val_subdir: val
     test_subdir: test
@@ -35,13 +35,13 @@ data:
 
 # Trainer Configuration
 trainer:
-  max_epochs: 100
+  max_epochs: 5
   accelerator: auto
   devices: auto
-  precision: 16-mixed
+  precision: 32-true
   gradient_clip_val: 1.0
   accumulate_grad_batches: 1
-  log_every_n_steps: 50
+  log_every_n_steps: 1
   check_val_every_n_epoch: 1
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint

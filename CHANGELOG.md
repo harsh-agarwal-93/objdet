@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Replaced `datetime` with `whenever` for robust time handling.
 - **Typing**: Migrated from Pyright to **Pyrefly** for stricter, more accurate type checking.
 - **Data**: Made `LitDataConverter.input_dir` optional when format-specific paths are provided directly.
+- **Data**: Refactored `LitDataDataModule` to use native `StreamingDataset` with `transform` parameter and `StreamingDataLoader` with custom `collate_fn`. Added `DetectionStreamingDataset` factory and `create_streaming_dataloader` helper for full LitData API compatibility.
 
 ### 🛠 Maintenance
 
@@ -40,3 +41,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added comprehensive README with project overview, installation, and usage examples.
 - Added preprocessing documentation with CLI and Python API examples.
+- Added comprehensive data formats guide with LitData streaming, COCO, VOC, and YOLO format details.
+- Added data API reference with full documentation for all data modules and utilities.
