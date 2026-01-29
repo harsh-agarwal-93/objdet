@@ -221,9 +221,7 @@ class LitDataDataModule(BaseDataModule):
         class_index_mode: ClassIndexMode | str = ClassIndexMode.TORCHVISION,
         **kwargs: Any,
     ) -> None:
-        # Set dataset format to LITDATA (we'll add this enum value)
-        # For now, use COCO as a fallback since LitData is format-agnostic
-        kwargs.setdefault("dataset_format", DatasetFormat.COCO)
+        kwargs.setdefault("dataset_format", DatasetFormat.LITDATA)
 
         super().__init__(
             data_dir=data_dir,

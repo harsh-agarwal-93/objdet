@@ -77,6 +77,9 @@ class DatasetFormat(str, Enum):
     YOLO = "yolo"
     """YOLO txt format with per-image label files."""
 
+    LITDATA = "litdata"
+    """LitData optimized streaming format."""
+
     CUSTOM = "custom"
     """Custom format requiring user-defined parser."""
 
