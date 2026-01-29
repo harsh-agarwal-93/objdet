@@ -126,7 +126,6 @@ outputs/
 checkpoints/
 
 # Large data directories
-data/
 datasets/
 
 # Documentation builds
