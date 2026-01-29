@@ -12,7 +12,7 @@ Example:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import torch
 from torch import Tensor, nn
@@ -150,7 +150,16 @@ class RetinaNet(BaseLightningDetector):
         # RetinaNet head uses num_classes directly (no background)
         # But TorchVision internally adds 1 for background
         num_anchors = model.head.classification_head.num_anchors
-        in_channels = model.head.classification_head.conv[0].in_channels
+
+        # Get in_channels from the first conv layer
+        # In newer TorchVision, conv[0] is Conv2dNormActivation, so we need [0][0]
+        conv_layer = model.head.classification_head.conv[0]
+        if hasattr(conv_layer, "in_channels"):
+            in_channels = conv_layer.in_channels
+        else:
+            # Conv2dNormActivation container - get the actual Conv2d
+            # cast to nn.Sequential to allow indexing for type checker
+            in_channels = cast("nn.Sequential", conv_layer)[0].in_channels
 
         # Create new classification head
         model.head.classification_head = RetinaNetClassificationHead(

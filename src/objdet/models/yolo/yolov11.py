@@ -39,6 +39,12 @@ class YOLOv11(YOLOBaseLightning):
     - l (large): High accuracy
     - x (extra-large): Highest accuracy
 
+    Warning:
+        There is a known bug in the training pipeline that may cause
+        ``IndexError: too many indices for tensor of dimension 2``
+        during the loss computation. This is the same issue as YOLOv8.
+        Investigation is ongoing to resolve this issue.
+
     Args:
         num_classes: Number of object classes (no background).
         model_size: Model size variant ("n", "s", "m", "l", "x").

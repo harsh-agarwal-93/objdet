@@ -38,6 +38,13 @@ class YOLOv8(YOLOBaseLightning):
     - l (large): High accuracy (~43.7M params)
     - x (extra-large): Highest accuracy (~68.2M params)
 
+    Warning:
+        There is a known bug in the training pipeline that causes
+        ``IndexError: too many indices for tensor of dimension 2``
+        during the loss computation. This affects training via both CLI
+        and Python API. Investigation is ongoing to resolve this issue
+        in the Ultralytics loss integration.
+
     Args:
         num_classes: Number of object classes (no background).
         model_size: Model size variant ("n", "s", "m", "l", "x").

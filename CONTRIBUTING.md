@@ -218,11 +218,12 @@ class MyClass:
 
 ## Testing
 
-- Write tests for all new functionality
-- Aim for 80% code coverage
-- Use pytest fixtures for common setup
-- Mark slow tests with `@pytest.mark.slow`
-- Mark GPU tests with `@pytest.mark.gpu`
+We use pytest for testing with two categories of tests:
+
+- **Unit tests** (`tests/unit/`): Fast, isolated tests for individual components
+- **Functional tests** (`tests/functional/`): End-to-end workflow tests with sample data
+
+### Running Unit Tests
 
 ```bash
 # Run all unit tests
@@ -234,6 +235,51 @@ uv run pytest tests/unit --cov=src/objdet --cov-report=term-missing
 # Run only fast tests
 uv run pytest tests/unit -m "not slow"
 ```
+
+### Running Functional Tests
+
+Functional tests verify complete workflows (training, inference, preprocessing) using synthetic sample data:
+
+```bash
+# Run all functional tests (excluding slow tests)
+uv run pytest tests/functional -v -m "integration and not slow"
+
+# Run training workflow tests
+uv run pytest tests/functional/test_cli_training.py -v
+
+# Run specific model training test
+uv run pytest tests/functional/test_cli_training.py::TestFasterRCNNTraining -v
+
+# Run inference tests
+uv run pytest tests/functional/test_cli_inference.py -v
+
+# Run preprocessing tests
+uv run pytest tests/functional/test_cli_preprocessing.py -v
+```
+
+### Test Markers
+
+| Marker | Description |
+|--------|-------------|
+| `@pytest.mark.slow` | Tests that take significant time |
+| `@pytest.mark.integration` | End-to-end functional tests |
+| `@pytest.mark.gpu` | Tests requiring GPU |
+
+### Writing Tests
+
+- Write tests for all new functionality
+- Aim for 80% code coverage
+- Use pytest fixtures for common setup
+- Use the `sample_coco_dataset` fixture for functional tests with sample data
+
+### Known Issues
+
+> [!WARNING]
+> **YOLOv8 Training**: There is a known bug in the YOLOv8 model that causes
+> `IndexError: too many indices for tensor of dimension 2` during training.
+> This affects both CLI and Python API training. The issue is in the loss
+> computation when processing predictions. YOLOv11 may have the same issue.
+> See `tests/functional/test_cli_training.py::TestYOLOv8Training` for details.
 
 ## Documentation
 

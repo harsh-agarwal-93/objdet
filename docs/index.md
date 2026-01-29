@@ -20,6 +20,7 @@ user_guide/data
 user_guide/training
 user_guide/inference
 user_guide/deployment
+user_guide/testing
 ```
 
 ```{toctree}
