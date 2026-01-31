@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
-from unittest.mock import patch
-
-import pytest
 
 from objdet.core.logging import (
     _get_json_format,

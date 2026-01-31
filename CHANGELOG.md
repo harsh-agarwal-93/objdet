@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🧪 Testing
+
+- **Unit Tests**: Added 62+ unit tests covering core modules:
+    - `test_logging.py`: Comprehensive tests for logging utilities (JSON formatting, file handlers, log levels).
+    - `test_base.py`: Tests for base data module functionality.
+    - `test_voc.py`: Tests for Pascal VOC dataset parsing and loading.
+    - `test_yolo.py`: Tests for YOLO format dataset handling.
+    - `test_ensemble.py`: Tests for model ensemble strategies (WBF, NMS).
+- **Integration Tests**: Added full integration test suite:
+    - `test_cli.py`: End-to-end CLI command tests (fit, predict, validate, export, serve, preprocess).
+    - `test_serving.py`: LitServe API integration tests with A/B testing support.
+    - `test_callbacks.py`: Training callback integration tests (checkpointing, early stopping, logging).
+    - `test_export.py`: Model export tests for ONNX, TensorRT, and SafeTensors formats.
+- **Test Infrastructure**: Added `conftest.py` with shared fixtures for integration tests.
+
 ### 🚀 Features
 
 - **Models**: Added support for Faster R-CNN, RetinaNet, YOLOv8, and YOLOv11 architectures.

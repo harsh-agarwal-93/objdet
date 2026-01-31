@@ -154,6 +154,8 @@ objdet/
 │   ├── serving/          # REST API with LitServe
 │   └── pipelines/        # Job queue with Celery
 ├── tests/                # Unit and integration tests
+│   ├── unit/             # Unit tests for individual modules
+│   └── integration/      # End-to-end integration tests
 ├── docs/                 # Documentation
 └── scripts/              # Utility scripts
 ```
