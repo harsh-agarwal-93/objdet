@@ -77,6 +77,9 @@ dependencies = [
 tensorrt = ["tensorrt>=8.6.0"]
 thunder = ["lightning-thunder>=0.2.0"]
 all = ["objdet[tensorrt,thunder]"]
+onnx = [
+    "onnxscript>=0.6.0",
+]
 
 [dependency-groups]
 dev = [
