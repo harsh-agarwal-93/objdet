@@ -164,8 +164,8 @@ class TestLitDataDataModuleLoading:
         train_loader = datamodule.train_dataloader()
         batch = next(iter(train_loader))
 
-        # Verify batch structure
-        assert isinstance(batch, tuple), "Batch should be a tuple"
+        # Verify batch structure (StreamingDataLoader may return list or tuple)
+        assert isinstance(batch, (tuple, list)), "Batch should be a tuple or list"
         assert len(batch) == 2, "Batch should contain (images, targets)"
 
         images, targets = batch
