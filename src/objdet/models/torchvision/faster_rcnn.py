@@ -156,9 +156,8 @@ class FasterRCNN(BaseLightningDetector):
             targets: Optional list of target dicts for training.
 
         Returns:
-            Training: Dict of losses {'loss_classifier', 'loss_box_reg',
-                'loss_objectness', 'loss_rpn_box_reg'}.
-            Inference: List of prediction dicts with 'boxes', 'labels', 'scores'.
+            Training: Dict of losses.
+            Inference: List of prediction dicts with boxes, labels, scores.
         """
         if self.training and targets is not None:
             # Training mode: compute losses

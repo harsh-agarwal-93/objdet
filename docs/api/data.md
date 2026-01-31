@@ -6,14 +6,12 @@ API reference for data modules and datasets.
 
 ### LitDataDataModule
 
-::: objdet.data.formats.litdata.LitDataDataModule
-    options:
-      show_root_heading: true
-      members:
-        - setup
-        - train_dataloader
-        - val_dataloader
-        - test_dataloader
+```{eval-rst}
+.. autoclass:: objdet.data.formats.litdata.LitDataDataModule
+   :members: setup, train_dataloader, val_dataloader, test_dataloader
+   :undoc-members:
+   :show-inheritance:
+```
 
 ### DetectionStreamingDataset
 
@@ -63,62 +61,80 @@ loader = create_streaming_dataloader(
 
 **Returns:** A `litdata.StreamingDataLoader` with detection-specific collation.
 
+---
+
 ## Standard Formats
 
 ### COCODataModule
 
-::: objdet.data.formats.coco.COCODataModule
-    options:
-      show_root_heading: true
+```{eval-rst}
+.. autoclass:: objdet.data.formats.coco.COCODataModule
+   :members:
+   :undoc-members:
+   :show-inheritance:
+```
 
 ### COCODataset
 
-::: objdet.data.formats.coco.COCODataset
-    options:
-      show_root_heading: true
+```{eval-rst}
+.. autoclass:: objdet.data.formats.coco.COCODataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+```
 
 ### VOCDataModule
 
-::: objdet.data.formats.voc.VOCDataModule
-    options:
-      show_root_heading: true
+```{eval-rst}
+.. autoclass:: objdet.data.formats.voc.VOCDataModule
+   :members:
+   :undoc-members:
+   :show-inheritance:
+```
 
 ### YOLODataModule
 
-::: objdet.data.formats.yolo.YOLODataModule
-    options:
-      show_root_heading: true
+```{eval-rst}
+.. autoclass:: objdet.data.formats.yolo.YOLODataModule
+   :members:
+   :undoc-members:
+   :show-inheritance:
+```
+
+---
 
 ## Base Classes
 
 ### BaseDataModule
 
-::: objdet.data.base.BaseDataModule
-    options:
-      show_root_heading: true
-      members:
-        - __init__
-        - setup
-        - train_dataloader
-        - val_dataloader
-        - test_dataloader
+```{eval-rst}
+.. autoclass:: objdet.data.base.BaseDataModule
+   :members: __init__, setup, train_dataloader, val_dataloader, test_dataloader
+   :undoc-members:
+   :show-inheritance:
+```
 
 ### detection_collate_fn
 
-::: objdet.data.base.detection_collate_fn
-    options:
-      show_root_heading: true
+```{eval-rst}
+.. autofunction:: objdet.data.base.detection_collate_fn
+```
+
+---
 
 ## Data Preprocessing
 
 ### convert_to_litdata
 
-::: objdet.data.preprocessing.litdata_converter.convert_to_litdata
-    options:
-      show_root_heading: true
+```{eval-rst}
+.. autofunction:: objdet.data.preprocessing.litdata_converter.convert_to_litdata
+```
 
 ### LitDataConverter
 
-::: objdet.data.preprocessing.litdata_converter.LitDataConverter
-    options:
-      show_root_heading: true
+```{eval-rst}
+.. autoclass:: objdet.data.preprocessing.litdata_converter.LitDataConverter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+```

@@ -159,8 +159,7 @@ class BaseLightningDetector(L.LightningModule):
 
         Returns:
             During training (targets provided): Dictionary of losses.
-            During inference (no targets): List of prediction dictionaries
-                containing 'boxes', 'labels', and 'scores'.
+            During inference (no targets): List of prediction dicts.
         """
         ...
 

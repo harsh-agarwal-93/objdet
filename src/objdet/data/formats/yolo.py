@@ -197,14 +197,15 @@ class YOLODataset(Dataset):
 class YOLODataModule(BaseDataModule):
     """Lightning DataModule for YOLO format datasets.
 
-    Expected directory structure:
-    data_dir/
-    ├── images/
-    │   ├── train/
-    │   └── val/
-    └── labels/
-        ├── train/
-        └── val/
+    Expected directory structure::
+
+        data_dir/
+        ├── images/
+        │   ├── train/
+        │   └── val/
+        └── labels/
+            ├── train/
+            └── val/
 
     Args:
         data_dir: Root dataset directory.
