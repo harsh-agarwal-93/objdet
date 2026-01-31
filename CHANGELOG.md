@@ -43,3 +43,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added preprocessing documentation with CLI and Python API examples.
 - Added comprehensive data formats guide with LitData streaming, COCO, VOC, and YOLO format details.
 - Added data API reference with full documentation for all data modules and utilities.
+- **API Documentation**: Updated all API docs with Sphinx/MyST autodoc syntax:
+    - `inference.md`: Documented `Predictor` and `SlicedInference` (SAHI).
+    - `models.md`: Documented model registry, base class, and all model implementations.
+    - `pipelines.md`: Documented SDK functions, Job models, and Celery tasks.
+    - `serving.md`: Documented `DetectionAPI` and `ABTestingAPI` with examples.
+    - `training.md`: Documented callbacks and metrics.
+
+### 🛠 Build Automation
+
+- **Makefile**: Added convenience scripts for common development tasks:
+    - `make docs` / `docs-serve` / `docs-check` / `docs-linkcheck` for documentation.
+    - `make lint` / `format` / `pre-commit` for code quality.
+    - `make test` / `test-unit` / `test-cov` for testing.
+    - `make clean` for artifact cleanup.
+- **CI**: Updated docs job to use `make docs-check` for stricter validation (warnings as errors).
