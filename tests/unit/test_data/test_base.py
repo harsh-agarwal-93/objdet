@@ -2,11 +2,29 @@
 
 from __future__ import annotations
 
-import pytest
+from typing import Any
+
 import torch
 from torch import Tensor
 
+from objdet.core.types import DetectionTarget
 from objdet.data.base import detection_collate_fn
+
+
+def _make_target(
+    boxes: Tensor,
+    labels: Tensor,
+    **kwargs: Any,
+) -> DetectionTarget:
+    """Create a properly typed DetectionTarget for tests."""
+    target: DetectionTarget = {
+        "boxes": boxes,
+        "labels": labels,
+        "area": kwargs.get("area", torch.zeros(boxes.shape[0])),
+        "iscrowd": kwargs.get("iscrowd", torch.zeros(boxes.shape[0], dtype=torch.int64)),
+        "image_id": kwargs.get("image_id", 0),
+    }
+    return target
 
 
 class TestDetectionCollateFn:
@@ -14,21 +32,20 @@ class TestDetectionCollateFn:
 
     def test_collate_fn_basic(self) -> None:
         """Test basic collation of images and targets."""
-        # Create sample batch
-        batch = [
+        batch: list[tuple[Tensor, DetectionTarget]] = [
             (
                 torch.rand(3, 224, 224),
-                {
-                    "boxes": torch.tensor([[10.0, 20.0, 30.0, 40.0]]),
-                    "labels": torch.tensor([1]),
-                },
+                _make_target(
+                    boxes=torch.tensor([[10.0, 20.0, 30.0, 40.0]]),
+                    labels=torch.tensor([1]),
+                ),
             ),
             (
                 torch.rand(3, 224, 224),
-                {
-                    "boxes": torch.tensor([[50.0, 60.0, 70.0, 80.0], [90.0, 100.0, 110.0, 120.0]]),
-                    "labels": torch.tensor([2, 3]),
-                },
+                _make_target(
+                    boxes=torch.tensor([[50.0, 60.0, 70.0, 80.0], [90.0, 100.0, 110.0, 120.0]]),
+                    labels=torch.tensor([2, 3]),
+                ),
             ),
         ]
 
@@ -45,9 +62,9 @@ class TestDetectionCollateFn:
         img1 = torch.rand(3, 100, 100)
         img2 = torch.rand(3, 150, 150)
 
-        batch = [
-            (img1, {"boxes": torch.empty(0, 4), "labels": torch.empty(0, dtype=torch.int64)}),
-            (img2, {"boxes": torch.empty(0, 4), "labels": torch.empty(0, dtype=torch.int64)}),
+        batch: list[tuple[Tensor, DetectionTarget]] = [
+            (img1, _make_target(boxes=torch.empty(0, 4), labels=torch.empty(0, dtype=torch.int64))),
+            (img2, _make_target(boxes=torch.empty(0, 4), labels=torch.empty(0, dtype=torch.int64))),
         ]
 
         images, targets = detection_collate_fn(batch)
@@ -57,18 +74,18 @@ class TestDetectionCollateFn:
 
     def test_collate_fn_preserves_targets(self) -> None:
         """Test that target dictionaries are preserved."""
-        target1 = {
-            "boxes": torch.tensor([[10.0, 20.0, 30.0, 40.0]]),
-            "labels": torch.tensor([1]),
-            "area": torch.tensor([200.0]),
-        }
-        target2 = {
-            "boxes": torch.tensor([[50.0, 60.0, 70.0, 80.0]]),
-            "labels": torch.tensor([2]),
-            "area": torch.tensor([200.0]),
-        }
+        target1 = _make_target(
+            boxes=torch.tensor([[10.0, 20.0, 30.0, 40.0]]),
+            labels=torch.tensor([1]),
+            area=torch.tensor([200.0]),
+        )
+        target2 = _make_target(
+            boxes=torch.tensor([[50.0, 60.0, 70.0, 80.0]]),
+            labels=torch.tensor([2]),
+            area=torch.tensor([200.0]),
+        )
 
-        batch = [
+        batch: list[tuple[Tensor, DetectionTarget]] = [
             (torch.rand(3, 224, 224), target1),
             (torch.rand(3, 224, 224), target2),
         ]
@@ -80,7 +97,7 @@ class TestDetectionCollateFn:
 
     def test_collate_fn_empty_batch(self) -> None:
         """Test collation of empty batch."""
-        batch: list = []
+        batch: list[tuple[Tensor, DetectionTarget]] = []
 
         images, targets = detection_collate_fn(batch)
 
@@ -89,13 +106,13 @@ class TestDetectionCollateFn:
 
     def test_collate_fn_single_item(self) -> None:
         """Test collation with single item batch."""
-        batch = [
+        batch: list[tuple[Tensor, DetectionTarget]] = [
             (
                 torch.rand(3, 224, 224),
-                {
-                    "boxes": torch.tensor([[10.0, 20.0, 30.0, 40.0]]),
-                    "labels": torch.tensor([1]),
-                },
+                _make_target(
+                    boxes=torch.tensor([[10.0, 20.0, 30.0, 40.0]]),
+                    labels=torch.tensor([1]),
+                ),
             ),
         ]
 
@@ -106,27 +123,18 @@ class TestDetectionCollateFn:
 
     def test_collate_fn_variable_box_counts(self) -> None:
         """Test collation with different number of boxes per image."""
-        batch = [
+        batch: list[tuple[Tensor, DetectionTarget]] = [
             (
                 torch.rand(3, 224, 224),
-                {
-                    "boxes": torch.empty(0, 4),
-                    "labels": torch.empty(0, dtype=torch.int64),
-                },
+                _make_target(boxes=torch.empty(0, 4), labels=torch.empty(0, dtype=torch.int64)),
             ),
             (
                 torch.rand(3, 224, 224),
-                {
-                    "boxes": torch.rand(5, 4),
-                    "labels": torch.randint(0, 10, (5,)),
-                },
+                _make_target(boxes=torch.rand(5, 4), labels=torch.randint(0, 10, (5,))),
             ),
             (
                 torch.rand(3, 224, 224),
-                {
-                    "boxes": torch.rand(2, 4),
-                    "labels": torch.randint(0, 10, (2,)),
-                },
+                _make_target(boxes=torch.rand(2, 4), labels=torch.randint(0, 10, (2,))),
             ),
         ]
 
@@ -139,10 +147,10 @@ class TestDetectionCollateFn:
 
     def test_collate_fn_returns_tuple(self) -> None:
         """Test that collate_fn returns a tuple."""
-        batch = [
+        batch: list[tuple[Tensor, DetectionTarget]] = [
             (
                 torch.rand(3, 224, 224),
-                {"boxes": torch.empty(0, 4), "labels": torch.empty(0, dtype=torch.int64)},
+                _make_target(boxes=torch.empty(0, 4), labels=torch.empty(0, dtype=torch.int64)),
             ),
         ]
 
