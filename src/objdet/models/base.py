@@ -165,7 +165,7 @@ class BaseLightningDetector(L.LightningModule):
 
     def training_step(  # type: ignore
         self,
-        batch: tuple[list[Tensor], list[DetectionTarget]],
+        batch: tuple[list[Tensor], list[DetectionTarget]] | list,
         batch_idx: int,
     ) -> Tensor:
         """Perform a single training step.
@@ -194,7 +194,7 @@ class BaseLightningDetector(L.LightningModule):
 
     def validation_step(  # type: ignore
         self,
-        batch: tuple[list[Tensor], list[DetectionTarget]],
+        batch: tuple[list[Tensor], list[DetectionTarget]] | list,
         batch_idx: int,
     ) -> None:
         """Perform a single validation step.
@@ -234,7 +234,7 @@ class BaseLightningDetector(L.LightningModule):
 
     def test_step(  # type: ignore
         self,
-        batch: tuple[list[Tensor], list[DetectionTarget]],
+        batch: tuple[list[Tensor], list[DetectionTarget]] | list,
         batch_idx: int,
     ) -> None:
         """Perform a single test step.

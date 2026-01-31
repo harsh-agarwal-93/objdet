@@ -141,28 +141,6 @@ class DetectionStreamingDataset:
         return dataset
 
 
-def _streaming_collate_fn(
-    batch: list[tuple[Tensor, DetectionTarget]],
-) -> tuple[list[Tensor], list[DetectionTarget]]:
-    """Collate function for StreamingDataLoader that ensures tuple output.
-
-    StreamingDataLoader may convert tuples to lists internally, so this
-    wrapper ensures we always return a tuple for consistency with the
-    standard PyTorch DataLoader behavior.
-
-    Args:
-        batch: List of (image, target) tuples.
-
-    Returns:
-        Tuple of (list of images, list of targets).
-    """
-    result = detection_collate_fn(batch)
-    # Ensure we return a tuple even if the result was converted to list
-    if isinstance(result, list):
-        return tuple(result)  # type: ignore[return-value]
-    return result
-
-
 def create_streaming_dataloader(
     dataset: Any,
     batch_size: int,
@@ -174,6 +152,10 @@ def create_streaming_dataloader(
 
     Uses LitData's StreamingDataLoader with a custom collate function
     for handling variable-length detection targets.
+
+    Note: StreamingDataLoader may convert the collate output from tuple to list
+    internally (in pin_memory workers). This is handled by the model's *_step
+    methods which accept both formats.
 
     Args:
         dataset: A StreamingDataset instance.
@@ -200,7 +182,7 @@ def create_streaming_dataloader(
         num_workers=num_workers,
         pin_memory=pin_memory,
         drop_last=drop_last,
-        collate_fn=_streaming_collate_fn,
+        collate_fn=detection_collate_fn,
     )
 
 
