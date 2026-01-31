@@ -10,7 +10,7 @@ have the functionality to deploy optimized models for inference
 have pipelines that users can submit training jobs too
 uv (https://github.com/astral-sh/uv) should be used as the python package manager
 use ruff (https://github.com/astral-sh/ruff) for code formatting and linting
-use ty (https://github.com/astral-sh/ty) for type checking
+use pyreflyfor type checking
 doc strings for all classes and functions written in google format
 documentation should be automatically generated (ex. using sphinx)
 pre-commit should be configured

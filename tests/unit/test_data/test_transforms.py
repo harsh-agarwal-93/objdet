@@ -2,6 +2,7 @@
 
 import pytest
 import torch
+
 from objdet.data.transforms.base import (
     Compose,
     Normalize,

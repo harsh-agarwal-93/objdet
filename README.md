@@ -199,7 +199,7 @@ docker-compose up -d
 
 ## 📖 Documentation
 
-Full documentation is available at [https://objdet.readthedocs.io](https://objdet.readthedocs.io)
+Full documentation is available at [https://harsh-agarwal-93.github.io/objdet/](https://harsh-agarwal-93.github.io/objdet/)
 
 ## 🤝 Contributing
 
