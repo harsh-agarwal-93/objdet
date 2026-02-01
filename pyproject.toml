@@ -252,3 +252,6 @@ show_missing = true
 # Git-cliff Configuration (Changelog)
 # ============================================================================
 # Note: Full git-cliff config is in cliff.toml
+
+[tool.pyright]
+extraPaths = ["tests"]

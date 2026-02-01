@@ -2,19 +2,12 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 import torch
 
-# Add tests directory to path for mock imports
-tests_dir = Path(__file__).parent.parent.parent
-if str(tests_dir) not in sys.path:
-    sys.path.insert(0, str(tests_dir))
-
-from unit.mocks.mock_ultralytics import MockResults, MockYOLO  # noqa: E402, type: ignore
+from tests.unit.mocks.mock_ultralytics import MockResults, MockYOLO  # type: ignore
 
 
 class TestMockYOLO:
