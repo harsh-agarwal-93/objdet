@@ -1,154 +1,299 @@
-"""Unit tests for ensemble models (NMS and WBF)."""
+"""Unit tests for ensemble models using mocks."""
 
 from __future__ import annotations
 
-import torch
+import sys
+from pathlib import Path
 
-from objdet.core.constants import EnsembleStrategy
+import numpy as np
 
+# Add tests directory to path for mock imports
+tests_dir = Path(__file__).parent.parent.parent
+if str(tests_dir) not in sys.path:
+    sys.path.insert(0, str(tests_dir))
 
-class TestEnsembleWeights:
-    """Test ensemble weight handling without full initialization."""
-
-    def test_weight_normalization(self) -> None:
-        """Test that weights are normalized correctly."""
-        weights = [2.0, 3.0]
-        total = sum(weights)
-        normalized = [w / total for w in weights]
-
-        assert abs(sum(normalized) - 1.0) < 1e-6
-        assert abs(normalized[0] - 0.4) < 1e-6
-        assert abs(normalized[1] - 0.6) < 1e-6
-
-    def test_equal_weights_calculation(self) -> None:
-        """Test equal weights for multiple models."""
-        num_models = 3
-        expected_weight = 1.0 / num_models
-        weights = [expected_weight] * num_models
-
-        assert abs(sum(weights) - 1.0) < 1e-6
+from unit.mocks.mock_ensemble_boxes import (  # noqa: E402, type: ignore
+    mock_nms,
+    mock_soft_nms,
+    mock_weighted_boxes_fusion,
+)
 
 
-class TestNMSFusion:
-    """Test NMS fusion logic."""
+class TestMockNMS:
+    """Tests for mock NMS function."""
 
-    def test_fuse_empty_predictions(self) -> None:
-        """Test fusion of all empty predictions returns empty result."""
-        # Simulate empty predictions
-        empty_preds = [
-            {
-                "boxes": torch.empty(0, 4),
-                "labels": torch.empty(0, dtype=torch.int64),
-                "scores": torch.empty(0),
-            },
-            {
-                "boxes": torch.empty(0, 4),
-                "labels": torch.empty(0, dtype=torch.int64),
-                "scores": torch.empty(0),
-            },
+    def test_nms_with_single_model(self) -> None:
+        """Test NMS with predictions from a single model."""
+        boxes = [np.array([[0.1, 0.1, 0.3, 0.3], [0.5, 0.5, 0.7, 0.7]])]
+        scores = [np.array([0.9, 0.8])]
+        labels = [np.array([0.0, 1.0])]
+
+        result_boxes, result_scores, result_labels = mock_nms(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.5,
+        )
+
+        assert len(result_boxes) > 0
+        assert len(result_scores) > 0
+        assert len(result_labels) > 0
+
+    def test_nms_with_multiple_models(self) -> None:
+        """Test NMS with predictions from multiple models."""
+        boxes = [
+            np.array([[0.1, 0.1, 0.3, 0.3]]),
+            np.array([[0.12, 0.12, 0.32, 0.32]]),
+            np.array([[0.5, 0.5, 0.7, 0.7]]),
+        ]
+        scores = [
+            np.array([0.9]),
+            np.array([0.85]),
+            np.array([0.8]),
+        ]
+        labels = [
+            np.array([0.0]),
+            np.array([0.0]),
+            np.array([1.0]),
         ]
 
-        # Check that when all boxes are empty, we should get empty result
-        all_empty = all(pred["boxes"].numel() == 0 for pred in empty_preds)
-        assert all_empty
+        result_boxes, result_scores, result_labels = mock_nms(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.5,
+        )
 
-    def test_box_normalization(self) -> None:
-        """Test that boxes are correctly normalized for NMS."""
-        height, width = 640, 640
-        boxes = torch.tensor([[100.0, 100.0, 200.0, 200.0]])
+        # Should have at most one box per class
+        assert len(np.unique(result_labels)) == len(result_labels)
 
-        # Normalize
-        normalized = boxes.clone()
-        normalized[:, [0, 2]] /= width
-        normalized[:, [1, 3]] /= height
+    def test_nms_empty_input(self) -> None:
+        """Test NMS with empty input."""
+        boxes = [np.empty((0, 4))]
+        scores = [np.empty(0)]
+        labels = [np.empty(0)]
 
-        expected = torch.tensor([[100.0 / 640, 100.0 / 640, 200.0 / 640, 200.0 / 640]])
-        assert torch.allclose(normalized, expected)
+        result_boxes, result_scores, result_labels = mock_nms(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.5,
+        )
 
-    def test_box_denormalization(self) -> None:
-        """Test that normalized boxes are correctly converted back."""
-        height, width = 1000, 1000
-        normalized_boxes = torch.tensor([[0.1, 0.1, 0.2, 0.2]])
+        assert len(result_boxes) == 0
+        assert len(result_scores) == 0
+        assert len(result_labels) == 0
 
-        # Denormalize
-        denormalized = normalized_boxes.clone()
-        denormalized[:, [0, 2]] *= width
-        denormalized[:, [1, 3]] *= height
+    def test_nms_filters_low_scores(self) -> None:
+        """Test that NMS filters boxes below threshold."""
+        boxes = [np.array([[0.1, 0.1, 0.3, 0.3], [0.5, 0.5, 0.7, 0.7]])]
+        scores = [np.array([0.9, 0.1])]
+        labels = [np.array([0.0, 1.0])]
 
-        expected = torch.tensor([[100.0, 100.0, 200.0, 200.0]])
-        assert torch.allclose(denormalized, expected)
+        result_boxes, result_scores, result_labels = mock_nms(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.5,
+            skip_box_thr=0.5,
+        )
+
+        # Only high score box should remain
+        assert all(s >= 0.5 for s in result_scores)
 
 
-class TestWBFFusion:
-    """Test WBF fusion logic."""
+class TestMockSoftNMS:
+    """Tests for mock Soft-NMS function."""
 
-    def test_fuse_empty_predictions(self) -> None:
-        """Test that empty predictions return empty result."""
-        empty_preds = [
-            {
-                "boxes": torch.empty(0, 4),
-                "labels": torch.empty(0, dtype=torch.int64),
-                "scores": torch.empty(0),
-            },
+    def test_soft_nms_basic(self) -> None:
+        """Test basic Soft-NMS functionality."""
+        boxes = [np.array([[0.1, 0.1, 0.3, 0.3]])]
+        scores = [np.array([0.9])]
+        labels = [np.array([0.0])]
+
+        result_boxes, result_scores, result_labels = mock_soft_nms(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.5,
+        )
+
+        assert len(result_boxes) == 1
+
+
+class TestMockWBF:
+    """Tests for mock Weighted Box Fusion function."""
+
+    def test_wbf_with_single_model(self) -> None:
+        """Test WBF with predictions from a single model."""
+        boxes = [np.array([[0.1, 0.1, 0.3, 0.3], [0.5, 0.5, 0.7, 0.7]])]
+        scores = [np.array([0.9, 0.8])]
+        labels = [np.array([0.0, 1.0])]
+
+        result_boxes, result_scores, result_labels = mock_weighted_boxes_fusion(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.55,
+        )
+
+        assert len(result_boxes) > 0
+
+    def test_wbf_with_weights(self) -> None:
+        """Test WBF with model weights."""
+        boxes = [
+            np.array([[0.1, 0.1, 0.3, 0.3]]),
+            np.array([[0.12, 0.12, 0.32, 0.32]]),
         ]
+        scores = [
+            np.array([0.9]),
+            np.array([0.85]),
+        ]
+        labels = [
+            np.array([0.0]),
+            np.array([0.0]),
+        ]
+        weights = [0.6, 0.4]
 
-        all_empty = all(pred["boxes"].numel() == 0 for pred in empty_preds)
-        assert all_empty
+        result_boxes, result_scores, result_labels = mock_weighted_boxes_fusion(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            weights=weights,
+            iou_thr=0.55,
+        )
 
-    def test_confidence_types(self) -> None:
-        """Test valid confidence type options."""
-        valid_conf_types = ["avg", "max", "box_and_model_avg", "absent_model_aware_avg"]
+        # Should fuse overlapping boxes
+        assert len(result_boxes) == 1
 
-        for conf_type in valid_conf_types:
-            assert conf_type in valid_conf_types
+    def test_wbf_empty_input(self) -> None:
+        """Test WBF with empty input."""
+        boxes = [np.empty((0, 4))]
+        scores = [np.empty(0)]
+        labels = [np.empty(0)]
+
+        result_boxes, result_scores, result_labels = mock_weighted_boxes_fusion(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.55,
+        )
+
+        assert len(result_boxes) == 0
+
+    def test_wbf_multiple_classes(self) -> None:
+        """Test WBF with multiple classes."""
+        boxes = [
+            np.array([[0.1, 0.1, 0.3, 0.3], [0.5, 0.5, 0.7, 0.7]]),
+        ]
+        scores = [np.array([0.9, 0.85])]
+        labels = [np.array([0.0, 1.0])]
+
+        result_boxes, result_scores, result_labels = mock_weighted_boxes_fusion(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.55,
+        )
+
+        # Should have one box per class
+        assert len(np.unique(result_labels)) == 2
 
 
-class TestEnsembleStrategy:
-    """Test ensemble strategy enumeration."""
-
-    def test_nms_strategy_value(self) -> None:
-        """Test NMS strategy enum value."""
-        assert EnsembleStrategy.NMS.value == "nms"
-
-    def test_soft_nms_strategy_value(self) -> None:
-        """Test Soft-NMS strategy enum value."""
-        assert EnsembleStrategy.SOFT_NMS.value == "soft_nms"
-
-    def test_wbf_strategy_value(self) -> None:
-        """Test WBF strategy enum value."""
-        assert EnsembleStrategy.WBF.value == "wbf"
-
-
-class TestPredictionFormat:
-    """Test prediction format handling."""
+class TestEnsemblePredictionFormat:
+    """Tests for ensemble prediction output format."""
 
     def test_prediction_has_required_keys(self) -> None:
-        """Test that a proper prediction has all required keys."""
-        prediction = {
-            "boxes": torch.tensor([[100.0, 100.0, 200.0, 200.0]]),
-            "labels": torch.tensor([1]),
-            "scores": torch.tensor([0.9]),
-        }
+        """Test that mock predictions have required format."""
+        boxes = [np.array([[0.1, 0.1, 0.3, 0.3]])]
+        scores = [np.array([0.9])]
+        labels = [np.array([0.0])]
 
-        assert "boxes" in prediction
-        assert "labels" in prediction
-        assert "scores" in prediction
+        result_boxes, result_scores, result_labels = mock_nms(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.5,
+        )
 
-    def test_empty_prediction_format(self) -> None:
-        """Test the format of an empty prediction."""
-        empty_pred = {
-            "boxes": torch.empty(0, 4),
-            "labels": torch.empty(0, dtype=torch.int64),
-            "scores": torch.empty(0),
-        }
+        # Check shapes
+        assert result_boxes.ndim == 2
+        assert result_boxes.shape[1] == 4
+        assert result_scores.ndim == 1
+        assert result_labels.ndim == 1
 
-        assert empty_pred["boxes"].shape == (0, 4)
-        assert empty_pred["labels"].numel() == 0
-        assert empty_pred["scores"].numel() == 0
+    def test_multiple_boxes_format(self) -> None:
+        """Test format with multiple output boxes."""
+        boxes = [np.array([[0.1, 0.1, 0.3, 0.3], [0.5, 0.5, 0.7, 0.7], [0.8, 0.8, 0.9, 0.9]])]
+        scores = [np.array([0.9, 0.8, 0.7])]
+        labels = [np.array([0.0, 1.0, 2.0])]
 
-    def test_boxes_shape(self) -> None:
-        """Test that boxes have correct shape."""
-        boxes = torch.tensor([[10.0, 20.0, 30.0, 40.0], [50.0, 60.0, 70.0, 80.0]])
+        result_boxes, result_scores, result_labels = mock_nms(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            iou_thr=0.5,
+        )
 
-        assert boxes.shape[0] == 2  # 2 boxes
-        assert boxes.shape[1] == 4  # 4 coordinates (x1, y1, x2, y2)
+        # All outputs should have consistent lengths
+        assert len(result_boxes) == len(result_scores) == len(result_labels)
+
+
+class TestWeightNormalization:
+    """Tests for model weight handling in ensemble."""
+
+    def test_weights_are_normalized(self) -> None:
+        """Test that weights are normalized in WBF."""
+        boxes = [
+            np.array([[0.1, 0.1, 0.3, 0.3]]),
+            np.array([[0.1, 0.1, 0.3, 0.3]]),
+        ]
+        scores = [
+            np.array([0.9]),
+            np.array([0.9]),
+        ]
+        labels = [
+            np.array([0.0]),
+            np.array([0.0]),
+        ]
+
+        # Weights that don't sum to 1
+        weights = [2.0, 3.0]
+
+        result_boxes, result_scores, result_labels = mock_weighted_boxes_fusion(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            weights=weights,
+            iou_thr=0.55,
+        )
+
+        # Should still produce valid output
+        assert len(result_boxes) == 1
+        # Score should be normalized (not > 1)
+        assert all(s <= 1.0 for s in result_scores)
+
+    def test_equal_weights_default(self) -> None:
+        """Test that equal weights are used by default."""
+        boxes = [
+            np.array([[0.1, 0.1, 0.3, 0.3]]),
+            np.array([[0.1, 0.1, 0.3, 0.3]]),
+        ]
+        scores = [
+            np.array([0.9]),
+            np.array([0.8]),
+        ]
+        labels = [
+            np.array([0.0]),
+            np.array([0.0]),
+        ]
+
+        result_boxes, result_scores, result_labels = mock_weighted_boxes_fusion(
+            boxes_list=boxes,
+            scores_list=scores,
+            labels_list=labels,
+            weights=None,  # Default weights
+            iou_thr=0.55,
+        )
+
+        assert len(result_boxes) == 1

@@ -63,6 +63,7 @@ updates:
           - "pytest*"
           - "ruff"
           - "pre-commit"
+          - "pyrefly"
           - "sphinx*"
     ignore:
       # Ignore major version updates for core ML libs (review manually)
