@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI/CD**:
     - Updated `pre-commit` hooks to use `uv` and `pyrefly`.
     - Enforced strict `ruff` linting and formatting rules.
+    - Enhanced `dependabot.yml` for comprehensive `uv` and Docker dependency tracking.
 - **Build System**: Fully migrated to `uv` for package management and project synchronization.
 
 ### 📚 Documentation

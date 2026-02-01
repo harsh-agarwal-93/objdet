@@ -25,6 +25,7 @@ updates:
           - "lightning*"
           - "torchvision"
           - "torchmetrics"
+          - "lightning-thunder"
       # Group ML/data processing updates
       ml-tools:
         patterns:
@@ -36,6 +37,7 @@ updates:
           - "litdata"
           - "onnx*"
           - "safetensors"
+          - "tensorrt"
       # Group MLOps tools
       mlops:
         patterns:
@@ -65,6 +67,8 @@ updates:
           - "pre-commit"
           - "pyrefly"
           - "sphinx*"
+          - "furo"
+          - "myst-parser"
     ignore:
       # Ignore major version updates for core ML libs (review manually)
       - dependency-name: "torch"

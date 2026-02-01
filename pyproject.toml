@@ -77,9 +77,7 @@ dependencies = [
 tensorrt = ["tensorrt>=8.6.0"]
 thunder = ["lightning-thunder>=0.2.0"]
 all = ["objdet[tensorrt,thunder]"]
-onnx = [
-    "onnxscript>=0.6.0",
-]
+onnx = ["onnxscript>=0.6.0"]
 
 [dependency-groups]
 dev = [
@@ -252,6 +250,3 @@ show_missing = true
 # Git-cliff Configuration (Changelog)
 # ============================================================================
 # Note: Full git-cliff config is in cliff.toml
-
-[tool.pyright]
-extraPaths = ["tests"]
