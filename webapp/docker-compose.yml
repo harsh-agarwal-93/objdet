@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-rpc://}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5000}
+      - MLFLOW_EXPERIMENT_NAME=${MLFLOW_EXPERIMENT_NAME:-objdet}
+    depends_on:
+      - rabbitmq
+      - mlflow
+    networks:
+      - webapp-network
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - webapp-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - webapp-network
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    ports:
+      - "5000:5000"
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts
+    volumes:
+      - mlflow-data:/mlflow
+    networks:
+      - webapp-network
+
+networks:
+  webapp-network:
+    driver: bridge
+
+volumes:
+  mlflow-data:

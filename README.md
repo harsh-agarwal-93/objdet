@@ -21,6 +21,7 @@ A production-grade MLOps framework for training, optimizing, and deploying objec
 - **Large Image Inference**: SAHI integration for sliced inference
 - **Job Pipelines**: Celery + RabbitMQ for distributed job submission
 - **Hyperparameter Tuning**: Optuna integration for automated optimization
+- **Web Application**: Streamlit + FastAPI web interface for training management
 
 ## 📋 Requirements
 
@@ -156,9 +157,39 @@ objdet/
 ├── tests/                # Unit and integration tests
 │   ├── unit/             # Unit tests for individual modules
 │   └── integration/      # End-to-end integration tests
+├── webapp/               # Web application (Streamlit + FastAPI)
+│   ├── backend/          # FastAPI REST API
+│   ├── frontend/         # Streamlit UI
+│   └── docker-compose.yml # Multi-container deployment
 ├── docs/                 # Documentation
 └── scripts/              # Utility scripts
 ```
+
+## 🌐 Web Application
+
+A modern web interface for managing training jobs, viewing experiments, and monitoring model performance.
+
+### Quick Start
+
+```bash
+cd webapp
+docker-compose up
+```
+
+**Access:**
+- **Frontend UI**: http://localhost:8501
+- **Backend API**: http://localhost:8000/api/docs
+- **MLFlow**: http://localhost:5000
+
+### Features
+
+- **Training Management**: Submit and monitor training jobs through an intuitive UI
+- **MLFlow Integration**: Browse experiments, view metrics, and download artifacts
+- **Real-time Monitoring**: Live progress tracking with auto-refresh
+- **Job Queue**: Celery integration for distributed training
+- **API Documentation**: Automatic OpenAPI (Swagger) docs
+
+See [webapp/README.md](webapp/README.md) for detailed documentation.
 
 ## ⚠️ Class Index Handling
 
