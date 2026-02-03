@@ -13,7 +13,8 @@ st.title("📦 Synthetic Data Generation")
 
 st.info(
     """
-    **Note:** Synthetic data generation integration is coming soon. This page demonstrates the planned UI structure.
+    **Note:** Synthetic data generation integration is coming soon.
+    This page demonstrates the planned UI structure.
     """
 )
 

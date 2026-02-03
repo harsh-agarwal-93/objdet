@@ -13,7 +13,8 @@ st.title("⚡ Effects Training")
 
 st.info(
     """
-    **Note:** Effect training integration is coming soon. This page demonstrates the planned UI structure.
+    **Note:** Effect training integration is coming soon. This page
+    demonstrates the planned UI structure.
     """
 )
 

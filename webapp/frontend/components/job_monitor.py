@@ -42,11 +42,12 @@ def job_monitor() -> None:
                     status_badge(current_status)
 
                 with col3:
-                    if current_status in ["PENDING", "STARTED"]:
-                        if st.button("Cancel", key=f"cancel_{task_id}"):
-                            client.cancel_task(task_id)
-                            remove_active_job(task_id)
-                            st.rerun()
+                    if current_status in ["PENDING", "STARTED"] and st.button(
+                        "Cancel", key=f"cancel_{task_id}"
+                    ):
+                        client.cancel_task(task_id)
+                        remove_active_job(task_id)
+                        st.rerun()
 
                 # Show progress if available
                 if current_status == "STARTED" and "progress" in status_data:

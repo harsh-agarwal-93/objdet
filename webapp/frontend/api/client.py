@@ -12,7 +12,7 @@ import polars as pl
 class BackendClient:
     """Client for interacting with FastAPI backend."""
 
-    def __init__(self, base_url: str | None = None):
+    def __init__(self, base_url: str | None = None) -> None:
         """Initialize backend client.
 
         Args:
@@ -181,7 +181,7 @@ def get_client() -> BackendClient:
     Returns:
         Backend client instance.
     """
-    global _client
+    global _client  # noqa: PLW0603
     if _client is None:
         _client = BackendClient()
     return _client

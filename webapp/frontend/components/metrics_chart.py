@@ -33,8 +33,8 @@ def plot_metrics_chart(df: pl.DataFrame, title: str = "Training Metrics") -> Non
                 y=metric_data["value"].to_list(),
                 mode="lines+markers",
                 name=metric,
-                line=dict(width=2),
-                marker=dict(size=6),
+                line={"width": 2},
+                marker={"size": 6},
             )
         )
 

@@ -137,7 +137,7 @@ def get_run_metrics(run_id: str) -> pl.DataFrame:
 
     # Get metric history
     metrics_data = []
-    for metric_key in run.data.metrics.keys():
+    for metric_key in run.data.metrics:
         history = client.get_metric_history(run_id, metric_key)
         for metric in history:
             metrics_data.append(

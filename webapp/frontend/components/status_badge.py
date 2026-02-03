@@ -9,7 +9,8 @@ def status_badge(status: str) -> None:
     """Display a colored status badge.
 
     Args:
-        status: Status string (queued, running, completed, failed, pending, started, success, failure).
+        status: Status string (queued, running, completed, failed, pending,
+            started, success, failure).
     """
     status_lower = status.lower()
 

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import os
 from datetime import UTC, datetime
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
@@ -33,7 +33,7 @@ def submit_training_job(config: TrainingConfig) -> TrainingJobResponse:
     try:
         # Create output directory
         output_dir = config.output_dir or f"/tmp/objdet_training/{config.name}"
-        os.makedirs(output_dir, exist_ok=True)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
 
         # For now, use a dummy config path (in production, generate from config model)
         config_path = config.config_path or "/tmp/default_config.yaml"
@@ -43,7 +43,7 @@ def submit_training_job(config: TrainingConfig) -> TrainingJobResponse:
             config_path=config_path,
             output_dir=output_dir,
             max_epochs=config.epochs,
-            devices=1 if config.gpu == "auto" else 1,
+            devices=1,
             accelerator="auto" if config.gpu == "auto" else "gpu",
         )
 
