@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   backend:
@@ -41,6 +41,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  celery-worker:
+    build:
+      context: ./backend
+    command: uv run celery -A backend.celery_app worker --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-rpc://}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - webapp-network
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
