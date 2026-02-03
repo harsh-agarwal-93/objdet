@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **data:** Add LITDATA enum value to DatasetFormat
 - **tests:** Add comprehensive integration tests for CLI, serving, callbacks, and export
 - Improve test coverage with integration tests and mocks
+- **webapp:** Add Streamlit + FastAPI web application for training management
+- **webapp:** Create standalone Celery app independent from main objdet package
+- **webapp:** Add Celery worker container to docker-compose
 
 ### 🐛 Bug Fixes
 
@@ -41,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update LitData batch format test for StreamingDataLoader compatibility
 - Add proper type annotations to test_base.py
 - Resolve pyrefly and ruff issues
+- **webapp:** Address pre-commit hook errors in webapp files
+- **webapp:** Fix Docker build issues with uv.lock files and module imports
 
 ### 📚 Documentation
 
@@ -53,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update API documentation and add build automation
 - Update changelog with API docs and build automation entries
 - Update changelog and README with comprehensive test coverage
+- **webapp:** Create comprehensive README for web application
+- **webapp:** Document E2E testing and standalone Celery architecture
 
 ### 🔧 Refactoring
 
