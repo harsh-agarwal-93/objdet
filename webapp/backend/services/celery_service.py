@@ -2,18 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from typing import Any
 
 from celery.result import AsyncResult
 
-from backend.core.config import settings
-
-# Access the existing Celery app from objdet
-os.environ["CELERY_BROKER_URL"] = settings.celery_broker_url
-os.environ["CELERY_RESULT_BACKEND"] = settings.celery_result_backend
-
-from objdet.pipelines.celery_app import app as celery_app  # noqa: E402
+from backend.celery_app import app as celery_app
 
 
 def submit_training_job(
@@ -35,7 +28,7 @@ def submit_training_job(
     Returns:
         Celery task ID.
     """
-    from objdet.pipelines.tasks import train_model
+    from backend.tasks import train_model
 
     result = train_model.delay(
         config_path=config_path,

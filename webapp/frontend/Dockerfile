@@ -3,7 +3,7 @@ FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 WORKDIR /app
 
 # Copy dependency files
-COPY pyproject.toml .
+COPY pyproject.toml uv.lock ./
 
 # Install dependencies
 RUN uv sync --frozen
