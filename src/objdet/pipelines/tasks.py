@@ -27,6 +27,10 @@ from objdet.pipelines.celery_app import app
 if TYPE_CHECKING:
     from lightning.pytorch.loggers import Logger
 
+from lightning.pytorch import Trainer
+from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+from lightning.pytorch.loggers import MLFlowLogger, TensorBoardLogger
+
 logger = get_logger(__name__)
 
 
@@ -64,9 +68,6 @@ def train_model(
         Dictionary with training results (best metrics, checkpoint path).
     """
     import yaml
-    from lightning.pytorch import Trainer
-    from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-    from lightning.pytorch.loggers import MLFlowLogger, TensorBoardLogger
 
     logger.info(f"Starting training task: config={config_path}")
 
@@ -144,8 +145,6 @@ def train_model(
         # Get best checkpoint
         checkpoint_callback = callbacks[0]
         # We know it's a ModelCheckpoint because we created it first in the list
-        from lightning.pytorch.callbacks import ModelCheckpoint
-
         if isinstance(checkpoint_callback, ModelCheckpoint):
             best_ckpt = checkpoint_callback.best_model_path
             best_score = checkpoint_callback.best_model_score
