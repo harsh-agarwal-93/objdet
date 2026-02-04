@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 if TYPE_CHECKING:
     from fastapi.testclient import TestClient
 
@@ -66,3 +68,122 @@ def test_openapi_schema(test_client: TestClient) -> None:
     assert "/api/training/submit" in schema["paths"]
     assert "/api/mlflow/experiments" in schema["paths"]
     assert "/health" in schema["paths"]
+
+
+def test_get_system_status(test_client: TestClient) -> None:
+    """Test system status endpoint returns service health."""
+    response = test_client.get("/api/system/status")
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Verify response structure
+    assert "services" in data
+    assert "api" in data
+    assert "celery" in data["services"]
+    assert "mlflow" in data["services"]
+
+    # Verify service info
+    assert "status" in data["services"]["celery"]
+    assert "status" in data["services"]["mlflow"]
+
+
+def test_get_system_config(test_client: TestClient) -> None:
+    """Test system config endpoint returns configuration."""
+    response = test_client.get("/api/system/config")
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Verify config structure
+    assert "celery" in data
+    assert "mlflow" in data
+    assert "api" in data
+
+    # Verify celery config
+    assert "broker_url" in data["celery"]
+
+    # Verify mlflow config
+    assert "tracking_uri" in data["mlflow"]
+    assert "experiment_name" in data["mlflow"]
+
+    # Verify API config
+    assert "title" in data["api"]
+    assert "version" in data["api"]
+
+
+def test_system_status_mlflow_error(
+    test_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test system status when MLFlow connection fails.
+
+    Args:
+        test_client: FastAPI test client.
+        monkeypatch: Pytest monkeypatch fixture.
+    """
+    from unittest.mock import Mock
+
+    # Mock MLFlow client to raise exception
+    mock_client = Mock()
+    mock_client.search_experiments.side_effect = ConnectionError("MLFlow unavailable")
+
+    monkeypatch.setattr(
+        "backend.services.mlflow_service.MlflowClient",
+        lambda tracking_uri: mock_client,
+        raising=False,
+    )
+
+    response = test_client.get("/api/system/status")
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Should handle error gracefully
+    assert "services" in data
+
+
+def test_concurrent_status_requests(test_client: TestClient) -> None:
+    """Test multiple simultaneous status requests.
+
+    Args:
+        test_client: FastAPI test client.
+    """
+    import concurrent.futures
+
+    def make_request() -> object:
+        return test_client.get("/api/system/status")
+
+    # Make 10 concurrent requests
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(make_request) for _ in range(10)]
+        responses = [f.result() for f in futures]
+
+    # All should succeed
+    assert all(r.status_code == 200 for r in responses)
+
+    # All should have valid structure
+    for response in responses:
+        data = response.json()
+        assert "services" in data
+        assert "api" in data
+
+
+def test_config_endpoint_no_secrets(test_client: TestClient) -> None:
+    """Test config endpoint doesn't expose sensitive information.
+
+    Args:
+        test_client: FastAPI test client.
+    """
+    response = test_client.get("/api/system/config")
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Verify only non-sensitive config is returned
+    assert "celery" in data
+    assert "mlflow" in data
+
+    # Should not contain sensitive fields (if any exist in settings)
+    data_str = str(data).lower()
+    assert "password" not in data_str
+    assert "secret" not in data_str
