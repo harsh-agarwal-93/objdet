@@ -191,6 +191,71 @@ docker-compose up
 
 See [webapp/README.md](webapp/README.md) for detailed documentation.
 
+## 🧪 Testing
+
+The project includes comprehensive unit and integration tests to ensure code quality.
+
+### Running Unit Tests
+
+**Core Framework Tests:**
+
+```bash
+# Run all unit tests
+uv run pytest tests/unit/ -v
+
+# Run with coverage report
+uv run pytest tests/unit/ --cov=src/objdet --cov-report=term-missing
+
+# Run specific test module
+uv run pytest tests/unit/test_models/ -v
+
+# Run integration tests (requires running services)
+uv run pytest tests/integration/ -v
+```
+
+**Webapp Backend Tests:**
+
+```bash
+cd webapp/backend
+
+# Run unit tests
+uv run pytest tests/unit/ -v
+
+# Run with coverage
+uv run pytest tests/unit/ --cov=backend --cov-report=term-missing
+```
+
+**Current Coverage:**
+- **Backend API**: 51 tests, 82% coverage (100% for API routes and services)
+- **Frontend Client**: 15 tests for HTTP client with full endpoint coverage
+
+**Webapp Frontend Tests:**
+
+```bash
+cd webapp/frontend
+
+# Run unit tests
+uv run pytest tests/unit/ -v
+```
+
+### Test Categories
+
+- **Unit Tests** (`tests/unit/`): Test individual modules and functions in isolation
+- **Integration Tests** (`tests/integration/`): Test end-to-end workflows with running services
+- **Webapp Tests** (`webapp/*/tests/`): Test web application backend and frontend components
+
+### CI/CD Integration
+
+Tests are configured with pytest markers for selective execution:
+
+```bash
+# Skip integration tests (for CI without services)
+uv run pytest -m "not integration"
+
+# Run only integration tests
+uv run pytest -m integration
+```
+
 ## ⚠️ Class Index Handling
 
 > **Important**: This framework makes class indexing **explicit** to avoid confusion between model formats.

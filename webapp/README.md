@@ -40,11 +40,15 @@ A  modern web application for managing object detection model training, MLFlow e
 - **Home Dashboard:** System status, quick navigation
 - **Placeholder Pages:** Effects, Synthetic Data, SceneForge, Loadset with planned UI structure
 
+**Testing:**
+- **Backend:** 51 unit tests with 82% code coverage
+- **Frontend:** 15 unit tests for HTTP client
+- Integration test structure in place
+
 ### 🚧 Coming Soon
 
 - Effects training (Workflow 2)
 - Synthetic data generation (Workflow 3)
-- Unit and integration tests
 - WebSocket support for real-time updates
 
 ## Quick Start
@@ -248,19 +252,61 @@ webapp/
 
 ## Testing
 
-**Backend Unit Tests:**
+The webapp has comprehensive unit tests for both backend and frontend components.
+
+### Backend Unit Tests
+
+**Run all unit tests:**
 
 ```bash
 cd webapp/backend
 uv run pytest tests/unit/ -v
 ```
 
+**Run with coverage:**
+
+```bash
+cd webapp/backend
+uv run pytest tests/unit/ -v --cov=backend --cov-report=term-missing
+```
+
+**Current test coverage:**
+- **51 unit tests** covering service layer and API endpoints
+- **82% code coverage** with 100% coverage for API routes and services
+- Tests for: Celery task management, MLFlow integration, all API endpoints, error handling
+
 **Integration Tests** (requires running RabbitMQ, MLFlow, Celery):
 
 ```bash
 cd webapp/backend
+# Start dependencies first
+docker run -d -p 5672:5672 rabbitmq:3
+mlflow server --host 0.0.0.0 --port 5000 &
+celery -A objdet.pipelines.celery_app worker --loglevel=info &
+
+# Run integration tests
 uv run pytest tests/integration/ -v -m integration
 ```
+
+### Frontend Unit Tests
+
+**Run all frontend tests:**
+
+```bash
+cd webapp/frontend
+uv run pytest tests/unit/ -v
+```
+
+**Current test coverage:**
+- **15 unit tests** for HTTP client (`BackendClient`)
+- Tests for: All API endpoints, error handling, HTTP mocking, singleton pattern
+- Uses `respx` library for HTTP mocking (no actual backend required)
+
+### Continuous Integration
+
+Tests are marked with pytest markers for selective execution:
+- Skip integration tests: `pytest -v -m "not integration"`
+- Run only integration tests: `pytest -v -m integration`
 
 ## Deployment
 

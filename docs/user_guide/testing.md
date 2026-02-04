@@ -160,6 +160,79 @@ class TestTrainingWorkflow:
         trainer.fit(model, datamodule=datamodule)
 ```
 
+## Web Application Testing
+
+The webapp has comprehensive unit tests for both backend (FastAPI) and frontend (Streamlit) components.
+
+### Running Webapp Tests
+
+**Backend Unit Tests:**
+
+```bash
+cd webapp/backend
+
+# Run all unit tests
+uv run pytest tests/unit/ -v
+
+# Run with coverage
+uv run pytest tests/unit/ --cov=backend --cov-report=term-missing
+```
+
+**Coverage:** 51 tests, 82% coverage (100% for API routes and services)
+
+**Frontend Unit Tests:**
+
+```bash
+cd webapp/frontend
+
+# Run unit tests
+uv run pytest tests/unit/ -v
+```
+
+**Coverage:** 15 tests for HTTP client with full endpoint coverage
+
+### Webapp Test Structure
+
+```
+webapp/
+├── backend/
+│   ├── tests/
+│   │   ├── conftest.py          # Test fixtures (FastAPI client, mocks)
+│   │   ├── unit/
+│   │   │   ├── test_celery_service.py    # Celery service tests
+│   │   │   ├── test_mlflow_service.py    # MLFlow service tests
+│   │   │   ├── test_training_api.py      # Training API tests
+│   │   │   ├── test_mlflow_api.py        # MLFlow API tests
+│   │   │   └── test_system_api.py        # System API tests
+│   │   └── integration/
+│   │       └── test_integration.py       # E2E integration tests
+│   └── pytest.ini
+└── frontend/
+    ├── tests/
+    │   └── unit/
+    │       └── test_client.py    # HTTP client tests with respx
+    └── pytest.ini
+```
+
+### Integration Tests
+
+Integration tests require running RabbitMQ, MLFlow, and Celery services:
+
+```bash
+cd webapp/backend
+
+# Start dependencies with Docker
+docker run -d -p 5672:5672 rabbitmq:3
+mlflow server --host 0.0.0.0 --port 5000 &
+celery -A objdet.pipelines.celery_app worker --loglevel=info &
+
+# Run integration tests
+uv run pytest tests/integration/ -v -m integration
+
+# Skip integration tests
+uv run pytest -v -m "not integration"
+```
+
 ## Known Issues
 
 ```{warning}
