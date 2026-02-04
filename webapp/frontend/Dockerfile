@@ -8,9 +8,11 @@ COPY pyproject.toml uv.lock ./
 # Install dependencies
 RUN uv sync --frozen
 
-# Copy application code
-COPY . .
+# Copy application code into frontend subdirectory
+COPY . frontend/
 
 EXPOSE 8501
 
-CMD ["uv", "run", "streamlit", "run", "app.py", "--server.headless", "true"]
+ENV PYTHONPATH=/app
+
+CMD ["uv", "run", "streamlit", "run", "frontend/app.py", "--server.headless", "true"]

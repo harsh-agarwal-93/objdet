@@ -170,3 +170,89 @@ def sample_training_config() -> dict[str, Any]:
         "output_dir": None,
         "config_path": None,
     }
+
+
+# Integration test fixtures (require live services)
+
+
+@pytest.fixture(scope="session")
+def check_services_available() -> bool:
+    """Check if integration test services are available.
+
+    Returns:
+        True if services are available, False otherwise.
+    """
+    import os
+    import socket
+
+    # Check if we're in CI or explicitly skipping integration tests
+    if os.getenv("SKIP_INTEGRATION_TESTS") == "1":
+        return False
+
+    # Check if RabbitMQ is accessible
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(("localhost", 5672))
+        sock.close()
+        if result != 0:
+            return False
+    except Exception:
+        return False
+
+    # Check if MLFlow is accessible
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(("localhost", 5000))
+        sock.close()
+        if result != 0:
+            return False
+    except Exception:
+        return False
+
+    return True
+
+
+@pytest.fixture
+def live_celery_app(check_services_available: bool) -> Any:
+    """Get live Celery application for integration tests.
+
+    Args:
+        check_services_available: Fixture to check service availability.
+
+    Returns:
+        Live Celery app instance.
+
+    Raises:
+        pytest.skip: If services are not available.
+    """
+    if not check_services_available:
+        pytest.skip("Integration test services not available")
+
+    from backend.celery_app import app
+
+    return app
+
+
+@pytest.fixture
+def live_mlflow_client(check_services_available: bool) -> Any:
+    """Get live MLFlow client for integration tests.
+
+    Args:
+        check_services_available: Fixture to check service availability.
+
+    Returns:
+        Live MLFlow client instance.
+
+    Raises:
+        pytest.skip: If services are not available.
+    """
+    if not check_services_available:
+        pytest.skip("Integration test services not available")
+
+    from mlflow.client import MlflowClient
+
+    from backend.core.config import settings
+
+    return MlflowClient(tracking_uri=settings.mlflow_tracking_uri)
