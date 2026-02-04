@@ -5,6 +5,8 @@ from __future__ import annotations
 
 def test_train_model_task_registered() -> None:
     """Test train_model task is registered with Celery."""
+    # Import tasks to trigger registration
+    import backend.tasks  # noqa: F401
     from backend.celery_app import app
 
     # Verify task is registered
@@ -14,6 +16,7 @@ def test_train_model_task_registered() -> None:
 
 def test_export_model_task_registered() -> None:
     """Test export_model task is registered with Celery."""
+    import backend.tasks  # noqa: F401
     from backend.celery_app import app
 
     # Verify task is registered
@@ -23,6 +26,7 @@ def test_export_model_task_registered() -> None:
 
 def test_preprocess_data_task_registered() -> None:
     """Test preprocess_data task is registered with Celery."""
+    import backend.tasks  # noqa: F401
     from backend.celery_app import app
 
     # Verify task is registered
