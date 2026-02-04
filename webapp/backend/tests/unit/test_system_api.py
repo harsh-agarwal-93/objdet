@@ -123,13 +123,14 @@ def test_system_status_mlflow_error(
     """
     from unittest.mock import Mock
 
-    # Mock MLFlow client to raise exception
+    # Mock get_mlflow_client to return a client that raises error
     mock_client = Mock()
-    mock_client.search_experiments.side_effect = ConnectionError("MLFlow unavailable")
+    mock_client.search_experiments.side_effect = Exception("MLFlow unavailable")
 
+    # We must patch get_mlflow_client because it is already patched by autouse fixture
     monkeypatch.setattr(
-        "backend.services.mlflow_service.MlflowClient",
-        lambda tracking_uri: mock_client,
+        "backend.services.mlflow_service.get_mlflow_client",
+        lambda tracking_uri=None: mock_client,
         raising=False,
     )
 
@@ -140,6 +141,43 @@ def test_system_status_mlflow_error(
 
     # Should handle error gracefully
     assert "services" in data
+    assert data["services"]["mlflow"]["status"] == "error"
+
+
+def test_system_status_celery_error(
+    test_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test system status when Celery connection fails.
+
+    Args:
+        test_client: FastAPI test client.
+        monkeypatch: Pytest monkeypatch fixture.
+    """
+    from unittest.mock import Mock
+
+    # Mock celery control inspect
+    mock_inspect = Mock()
+    mock_inspect.stats.side_effect = Exception("Celery unavailable")
+
+    mock_control = Mock()
+    mock_control.inspect.return_value = mock_inspect
+
+    # Patch the control object on the app
+    # Note: control is accessed via celery_app.control
+    monkeypatch.setattr(
+        "backend.services.celery_service.celery_app.control",
+        mock_control,
+        raising=False,
+    )
+
+    response = test_client.get("/api/system/status")
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Should handle error gracefully
+    assert "services" in data
+    assert data["services"]["celery"]["status"] == "error"
 
 
 def test_concurrent_status_requests(test_client: TestClient) -> None:
