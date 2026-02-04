@@ -34,6 +34,64 @@ def mock_mlflow_client() -> Mock:
     return Mock()
 
 
+@pytest.fixture(autouse=True)
+def mock_celery_inspect(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Automatically mock Celery inspection to prevent slow network calls.
+
+    This fixture runs automatically for all tests to prevent real Celery
+    broker connections during unit tests.
+
+    Args:
+        request: Pytest request fixture.
+        monkeypatch: Pytest monkeypatch fixture.
+    """
+    mock_inspect = Mock()
+    mock_inspect.stats.return_value = {"worker1@host": {"uptime": 1000}}
+    mock_inspect.active.return_value = {}
+
+    mock_control = Mock()
+    mock_control.inspect.return_value = mock_inspect
+
+    # Mock the celery_app.control object to prevent real broker connections
+    monkeypatch.setattr(
+        "backend.services.celery_service.celery_app.control",
+        mock_control,
+        raising=False,
+    )
+
+
+@pytest.fixture(autouse=True)
+def mock_mlflow_client_creation(
+    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Automatically mock MLFlow client creation to prevent network calls.
+
+    This fixture runs automatically for all tests to prevent real MLFlow
+    connections during unit tests. It skips tests that explicitly test
+    the client creation itself.
+
+    Args:
+        request: Pytest request fixture.
+        monkeypatch: Pytest monkeypatch fixture.
+    """
+    # Skip for tests that explicitly test the get_mlflow_client function
+    if request.node.name == "test_get_mlflow_client":
+        return
+
+    mock_client = Mock()
+    mock_client.search_experiments.return_value = []
+
+    def mock_get_client(tracking_uri: str | None = None) -> Mock:
+        """Mock get_mlflow_client function."""
+        return mock_client
+
+    monkeypatch.setattr(
+        "backend.services.mlflow_service.get_mlflow_client",
+        mock_get_client,
+        raising=False,
+    )
+
+
 @pytest.fixture
 def test_client() -> Generator[TestClient, None, None]:
     """FastAPI test client.
