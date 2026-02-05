@@ -1,0 +1,162 @@
+{
+    "v": 1,
+    "name": "ObjDet API",
+    "folders": [
+        {
+            "v": 1,
+            "name": "Training",
+            "folders": [],
+            "requests": [
+                {
+                    "v": "1",
+                    "name": "Submit Training Job",
+                    "endpoint": "<<BACKEND_URL>>/api/training/submit",
+                    "method": "POST",
+                    "params": [],
+                    "headers": [
+                        {
+                            "key": "Content-Type",
+                            "value": "application/json",
+                            "active": true
+                        }
+                    ],
+                    "body": {
+                        "contentType": "application/json",
+                        "body": "{\n  \"name\": \"YOLOv8 Training Run\",\n  \"model_architecture\": \"yolov8\",\n  \"dataset\": \"coco2017\",\n  \"epochs\": 100,\n  \"batch_size\": 32,\n  \"learning_rate\": 0.001,\n  \"optimizer\": \"adam\",\n  \"gpu\": \"auto\",\n  \"mixed_precision\": \"fp16\",\n  \"save_checkpoints\": true,\n  \"early_stopping\": true,\n  \"log_to_mlflow\": true,\n  \"data_augmentation\": true\n}"
+                    }
+                },
+                {
+                    "v": "1",
+                    "name": "Get Task Status",
+                    "endpoint": "<<BACKEND_URL>>/api/training/status/<<TASK_ID>>",
+                    "method": "GET",
+                    "params": [],
+                    "headers": []
+                },
+                {
+                    "v": "1",
+                    "name": "Cancel Task",
+                    "endpoint": "<<BACKEND_URL>>/api/training/cancel/<<TASK_ID>>",
+                    "method": "POST",
+                    "params": [],
+                    "headers": []
+                },
+                {
+                    "v": "1",
+                    "name": "List Active Tasks",
+                    "endpoint": "<<BACKEND_URL>>/api/training/active",
+                    "method": "GET",
+                    "params": [],
+                    "headers": []
+                }
+            ]
+        },
+        {
+            "v": 1,
+            "name": "MLFlow",
+            "folders": [],
+            "requests": [
+                {
+                    "v": "1",
+                    "name": "List Experiments",
+                    "endpoint": "<<BACKEND_URL>>/api/mlflow/experiments",
+                    "method": "GET",
+                    "params": [],
+                    "headers": []
+                },
+                {
+                    "v": "1",
+                    "name": "List Runs",
+                    "endpoint": "<<BACKEND_URL>>/api/mlflow/runs",
+                    "method": "GET",
+                    "params": [
+                        {
+                            "key": "max_results",
+                            "value": "50",
+                            "active": true
+                        }
+                    ],
+                    "headers": []
+                },
+                {
+                    "v": "1",
+                    "name": "Get Run Details",
+                    "endpoint": "<<BACKEND_URL>>/api/mlflow/runs/<<RUN_ID>>",
+                    "method": "GET",
+                    "params": [],
+                    "headers": []
+                },
+                {
+                    "v": "1",
+                    "name": "Get Run Metrics",
+                    "endpoint": "<<BACKEND_URL>>/api/mlflow/runs/<<RUN_ID>>/metrics",
+                    "method": "GET",
+                    "params": [],
+                    "headers": []
+                },
+                {
+                    "v": "1",
+                    "name": "List Artifacts",
+                    "endpoint": "<<BACKEND_URL>>/api/mlflow/runs/<<RUN_ID>>/artifacts",
+                    "method": "GET",
+                    "params": [],
+                    "headers": []
+                }
+            ]
+        },
+        {
+            "v": 1,
+            "name": "System",
+            "folders": [],
+            "requests": [
+                {
+                    "v": "1",
+                    "name": "Get System Status",
+                    "endpoint": "<<BACKEND_URL>>/api/system/status",
+                    "method": "GET",
+                    "params": [],
+                    "headers": []
+                }
+            ]
+        }
+    ],
+    "requests": [],
+    "environments": [
+        {
+            "v": 1,
+            "name": "Local Development",
+            "variables": [
+                {
+                    "key": "BACKEND_URL",
+                    "value": "http://localhost:8000"
+                },
+                {
+                    "key": "TASK_ID",
+                    "value": ""
+                },
+                {
+                    "key": "RUN_ID",
+                    "value": ""
+                }
+            ]
+        },
+        {
+            "v": 1,
+            "name": "Docker Compose",
+            "variables": [
+                {
+                    "key": "BACKEND_URL",
+                    "value": "http://backend:8000"
+                },
+                {
+                    "key": "TASK_ID",
+                    "value": ""
+                },
+                {
+                    "key": "RUN_ID",
+                    "value": ""
+                }
+            ]
+        }
+    ]
+}
