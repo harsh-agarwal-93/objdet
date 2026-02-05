@@ -1,7 +1,7 @@
 # ObjDet Makefile
 # Convenience scripts for development tasks
 
-.PHONY: help install lint format test test-unit test-integration docs docs-serve docs-clean clean
+.PHONY: help install lint format test test-unit test-functional test-integration docs docs-serve docs-clean clean
 
 # Default target
 help:
@@ -18,6 +18,8 @@ help:
 	@echo "Testing:"
 	@echo "  make test             Run all tests"
 	@echo "  make test-unit        Run unit tests only"
+	@echo "  make test-functional  Run functional tests"
+	@echo "  make test-integration Run integration tests"
 	@echo "  make test-cov         Run tests with coverage report"
 	@echo ""
 	@echo "Documentation:"
@@ -60,6 +62,12 @@ test:
 
 test-unit:
 	uv run pytest tests/unit -v
+
+test-functional:
+	uv run pytest tests/functional -v
+
+test-integration:
+	uv run pytest tests/integration -v
 
 test-cov:
 	uv run pytest tests/unit -v --cov=src/objdet --cov-report=html --cov-report=term-missing
