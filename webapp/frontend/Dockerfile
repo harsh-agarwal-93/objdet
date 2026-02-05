@@ -1,18 +1,38 @@
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+# Build stage
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy dependency files
-COPY pyproject.toml uv.lock ./
+# Copy package files
+COPY package*.json ./
 
 # Install dependencies
-RUN uv sync --frozen
+RUN npm ci
 
-# Copy application code into frontend subdirectory
-COPY . frontend/
+# Copy source code
+COPY . .
 
-EXPOSE 8501
+# Build the application
+RUN npm run build
 
-ENV PYTHONPATH=/app
+# Production stage
+FROM nginx:alpine
 
-CMD ["uv", "run", "streamlit", "run", "frontend/app.py", "--server.headless", "true"]
+# Copy built assets from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Create non-root user for security
+RUN adduser -D -u 1000 appuser && \
+    chown -R appuser:appuser /var/cache/nginx /var/run /var/log/nginx
+
+# Use non-root user
+USER appuser
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

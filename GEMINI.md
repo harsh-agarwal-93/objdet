@@ -107,7 +107,7 @@ The `objdet` CLI (via `LightningCLI`) is the primary interface for production:
 
 #### Webapp Infrastructure (`webapp/docker-compose.yml`)
 - **Backend**: FastAPI app (`webapp/backend`).
-- **Frontend**: Streamlit app (`webapp/frontend`).
+- **Frontend**: React app with Vite (`webapp/frontend`).
 - **Services**: Has its own isolated `rabbitmq` and `celery-worker` for web-specific tasks.
 
 ## 🚀 CI/CD (GitHub Actions)

@@ -180,16 +180,22 @@ uv run pytest tests/unit/ --cov=backend --cov-report=term-missing
 
 **Coverage:** 51 tests, 82% coverage (100% for API routes and services)
 
-**Frontend Unit Tests:**
+**Frontend Tests:**
 
 ```bash
 cd webapp/frontend
 
-# Run unit tests
-uv run pytest tests/unit/ -v
+# Run unit tests with Vitest
+npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Run E2E tests with Playwright
+npm run test:e2e
 ```
 
-**Coverage:** 15 tests for HTTP client with full endpoint coverage
+**Coverage:** React Testing Library unit tests, MSW for API mocking, Playwright E2E
 
 ### Webapp Test Structure
 
@@ -208,10 +214,11 @@ webapp/
 │   │       └── test_integration.py       # E2E integration tests
 │   └── pytest.ini
 └── frontend/
-    ├── tests/
-    │   └── unit/
-    │       └── test_client.py    # HTTP client tests with respx
-    └── pytest.ini
+    ├── src/
+    │   ├── components/          # Component tests (*.test.jsx)
+    │   └── mocks/               # MSW handlers for API mocking
+    ├── e2e/                     # Playwright E2E tests
+    └── package.json
 ```
 
 ### Integration Tests

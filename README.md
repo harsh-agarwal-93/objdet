@@ -21,7 +21,7 @@ A production-grade MLOps framework for training, optimizing, and deploying objec
 - **Large Image Inference**: SAHI integration for sliced inference
 - **Job Pipelines**: Celery + RabbitMQ for distributed job submission
 - **Hyperparameter Tuning**: Optuna integration for automated optimization
-- **Web Application**: Streamlit + FastAPI web interface for training management
+- **Web Application**: React + FastAPI web interface for training management
 
 ## 📋 Requirements
 
@@ -157,9 +157,9 @@ objdet/
 ├── tests/                # Unit and integration tests
 │   ├── unit/             # Unit tests for individual modules
 │   └── integration/      # End-to-end integration tests
-├── webapp/               # Web application (Streamlit + FastAPI)
+├── webapp/               # Web application (React + FastAPI)
 │   ├── backend/          # FastAPI REST API
-│   ├── frontend/         # Streamlit UI
+│   ├── frontend/         # React UI (Vite + Tailwind)
 │   └── docker-compose.yml # Multi-container deployment
 ├── docs/                 # Documentation
 └── scripts/              # Utility scripts
@@ -177,7 +177,7 @@ docker-compose up
 ```
 
 **Access:**
-- **Frontend UI**: http://localhost:8501
+- **Frontend UI**: http://localhost:3000
 - **Backend API**: http://localhost:8000/api/docs
 - **MLFlow**: http://localhost:5000
 
@@ -235,7 +235,10 @@ uv run pytest tests/unit/ --cov=backend --cov-report=term-missing
 cd webapp/frontend
 
 # Run unit tests
-uv run pytest tests/unit/ -v
+npm test
+
+# Run with coverage
+npm run test:coverage
 ```
 
 ### Test Categories

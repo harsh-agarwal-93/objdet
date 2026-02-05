@@ -6,8 +6,8 @@ A  modern web application for managing object detection model training, MLFlow e
 
 ```
 ┌─────────────────────┐
-│  Streamlit Frontend │  (Port 8501)
-│   (User Interface)  │
+│   React Frontend    │  (Port 3000)
+│   (Vite + Tailwind) │
 └──────────┬──────────┘
            │ HTTP/REST
            ▼
@@ -35,14 +35,14 @@ A  modern web application for managing object detection model training, MLFlow e
 - System health monitoring
 - CORS support for Streamlit frontend
 
-**Frontend (Streamlit):**
-- **Models Page (Workflow 1):** Full training job submission, MLFlow run browsing, active job monitoring
-- **Home Dashboard:** System status, quick navigation
-- **Placeholder Pages:** Effects, Synthetic Data, SceneForge, Loadset with planned UI structure
+**Frontend (React + Vite):**
+- **Dashboard:** System status, quick navigation
+- **Models Page:** Training job submission, MLFlow run browsing, active job monitoring
+- **Modern UI:** Tailwind CSS, Framer Motion animations, Lucide icons
 
 **Testing:**
-- **Backend:** 51 unit tests with 82% code coverage
-- **Frontend:** 15 unit tests for HTTP client
+- **Backend:** Unit tests with pytest and coverage
+- **Frontend:** Vitest + React Testing Library, Playwright E2E tests
 - Integration test structure in place
 
 ### 🚧 Coming Soon
@@ -67,7 +67,7 @@ docker-compose up
 ```
 
 This starts all services:
-- **Frontend:** http://localhost:8501
+- **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:8000
 - **API Docs:** http://localhost:8000/api/docs
 - **MLFlow UI:** http://localhost:5000
@@ -86,7 +86,7 @@ uv sync
 
 ```bash
 cd webapp/frontend
-uv sync
+npm install
 ```
 
 **3. Start Services:**
@@ -106,14 +106,14 @@ celery -A objdet.pipelines.celery_app worker --loglevel=info
 cd webapp/backend
 uv run uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 
-# Terminal 5: Start Streamlit frontend
+# Terminal 5: Start React frontend
 cd webapp/frontend
-uv run streamlit run app.py
+npm run dev
 ```
 
 **4. Access the Application:**
 
-- Frontend: http://localhost:8501
+- Frontend: http://localhost:5173 (Vite dev server)
 - Backend API Docs: http://localhost:8000/api/docs
 
 ## Environment Variables
@@ -142,7 +142,7 @@ Create a `.env` file in `webapp/frontend/`:
 
 ```bash
 # Backend URL
-BACKEND_URL=http://localhost:8000
+VITE_API_URL=http://localhost:8000
 ```
 
 ## API Documentation
@@ -190,24 +190,19 @@ webapp/
 │   │   └── config.py
 │   ├── main.py              # FastAPI app
 │   └── Dockerfile
-├── frontend/                 # Streamlit frontend
-│   ├── pages/               # Streamlit pages
-│   │   ├── 2_🧠_Models.py
-│   │   ├── 3_⚡_Effects.py
-│   │   ├── 4_📦_Synthetic_Data.py
-│   │   ├── 5_🎬_SceneForge.py
-│   │   └── 6_📁_Loadset.py
-│   ├── components/          # Reusable UI components
-│   │   ├── status_badge.py
-│   │   ├── metrics_chart.py
-│   │   └── job_monitor.py
-│   ├── api/                 # Backend HTTP client
-│   │   └── client.py
-│   ├── utils/               # Utilities
-│   │   ├── formatting.py
-│   │   └── session.py
-│   ├── app.py               # Main Streamlit app
-│   └── Dockerfile
+├── frontend/                 # React frontend (Vite + Tailwind)
+│   ├── src/                 # Source code
+│   │   ├── components/      # React components
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── services/        # API client services
+│   │   ├── mocks/           # MSW mock handlers
+│   │   └── App.jsx          # Main React app
+│   ├── e2e/                 # Playwright E2E tests
+│   ├── docs/                # API documentation
+│   ├── package.json         # Node.js dependencies
+│   ├── vite.config.js       # Vite configuration
+│   ├── tailwind.config.js   # Tailwind CSS config
+│   └── Dockerfile           # Production container
 └── docker-compose.yml        # Multi-container deployment
 ```
 
@@ -288,19 +283,30 @@ celery -A objdet.pipelines.celery_app worker --loglevel=info &
 uv run pytest tests/integration/ -v -m integration
 ```
 
-### Frontend Unit Tests
+### Frontend Tests
 
 **Run all frontend tests:**
 
 ```bash
 cd webapp/frontend
-uv run pytest tests/unit/ -v
+
+# Run unit tests with Vitest
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run with coverage
+npm run test:coverage
+
+# Run E2E tests with Playwright
+npm run test:e2e
 ```
 
 **Current test coverage:**
-- **15 unit tests** for HTTP client (`BackendClient`)
-- Tests for: All API endpoints, error handling, HTTP mocking, singleton pattern
-- Uses `respx` library for HTTP mocking (no actual backend required)
+- React Testing Library unit tests for components
+- MSW (Mock Service Worker) for API mocking
+- Playwright for end-to-end browser testing
 
 ### Continuous Integration
 
