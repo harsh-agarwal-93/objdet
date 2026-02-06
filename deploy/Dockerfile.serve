@@ -2,6 +2,15 @@
 # Optimized for inference with LitServe
 
 # =============================================================================
+# Build stage to create wheel
+# =============================================================================
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+WORKDIR /app
+COPY pyproject.toml uv.lock LICENSE README.md ./
+COPY ml/ ml/
+RUN uv build
+
+# =============================================================================
 # Base stage with CUDA runtime (smaller than full CUDA)
 # =============================================================================
 FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04 AS base
@@ -29,50 +38,39 @@ COPY .python-version .
 RUN uv python install
 
 # =============================================================================
-# Dependencies stage
-# =============================================================================
-FROM base AS dependencies
-
-# Copy dependency files
-COPY pyproject.toml uv.lock LICENSE README.md ./
-
-# Copy ML source code for local package installation
-COPY ml/src/ ml/src/
-
-# Install dependencies (no dev, no docs, include tensorrt for inference)
-RUN uv sync --frozen --no-dev --no-editable --extra tensorrt
-
-# =============================================================================
 # Final stage
 # =============================================================================
 FROM base AS final
 
-# Copy installed dependencies from dependencies stage
-COPY --from=dependencies /app/.venv /app/.venv
+# Create non-root user for security
+# Create non-root user for security and switch ownership
+RUN useradd --create-home --shell /bin/bash appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+# Copy dependency files
+COPY --chown=appuser:appuser pyproject.toml uv.lock LICENSE README.md ./
+
+# Install dependencies (only dependencies, not the project itself)
+RUN uv sync --frozen --no-dev --no-install-project --extra tensorrt
 
 # Set up virtual environment
 ENV PATH="/app/.venv/bin:$PATH"
 ENV VIRTUAL_ENV="/app/.venv"
 
-# Copy only necessary source code for serving
-COPY ml/src/objdet/core/ ml/src/objdet/core/
-COPY ml/src/objdet/models/ ml/src/objdet/models/
-COPY ml/src/objdet/inference/ ml/src/objdet/inference/
-COPY ml/src/objdet/serving/ ml/src/objdet/serving/
-COPY ml/src/objdet/optimization/ ml/src/objdet/optimization/
-COPY ml/src/objdet/__init__.py ml/src/objdet/__init__.py
-COPY ml/src/objdet/version.py ml/src/objdet/version.py
-COPY ml/configs/serving/ ml/configs/serving/
+# Copy wheel from builder
+COPY --from=builder --chown=appuser:appuser /app/dist /app/dist
 
-ENV PYTHONPATH="${PYTHONPATH}:/app/ml/src"
+# Install the package from wheel
+RUN uv pip install /app/dist/*.whl
 
-# Create non-root user for security
-RUN useradd --create-home --shell /bin/bash appuser && \
-    chown -R appuser:appuser /app
+# Copy configs (needed for runtime configuration)
+COPY --chown=appuser:appuser ml/configs/ ml/configs/
 
-# Create directory for models
+# Create directory for models (as appuser)
+USER root
 RUN mkdir -p /app/models && chown appuser:appuser /app/models
-
 USER appuser
 
 # Expose LitServe port

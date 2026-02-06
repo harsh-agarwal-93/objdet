@@ -29,13 +29,13 @@ services:
     ports:
       - "5000:5000"
     environment:
-      MLFLOW_BACKEND_STORE_URI: sqlite:///mlflow.db
+      MLFLOW_BACKEND_STORE_URI: sqlite:////mlflow/mlflow.db
       MLFLOW_DEFAULT_ARTIFACT_ROOT: /mlartifacts
     volumes:
-      - mlflow_data:/mlflow.db
+      - mlflow_data:/mlflow
       - mlflow_artifacts:/mlartifacts
     command: >
-      mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlartifacts --host 0.0.0.0 --port 5000
+      mlflow server --backend-store-uri sqlite:////mlflow/mlflow.db --default-artifact-root /mlartifacts --host 0.0.0.0 --port 5000
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
       interval: 30s

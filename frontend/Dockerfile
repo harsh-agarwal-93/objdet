@@ -29,7 +29,7 @@ COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 # 2. Change pid file location to /tmp/nginx.pid
 # 3. Create cache directories and set permissions
 RUN sed -i 's/^user/#user/' /etc/nginx/nginx.conf && \
-    sed -i 's|/var/run/nginx.pid|/tmp/nginx.pid|' /etc/nginx/nginx.conf && \
+    sed -i 's|/run/nginx.pid|/tmp/nginx.pid|' /etc/nginx/nginx.conf && \
     mkdir -p /var/cache/nginx /var/log/nginx /tmp/nginx && \
     chown -R 1000:0 /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /tmp/nginx /usr/share/nginx/html
 
