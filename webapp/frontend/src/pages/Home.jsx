@@ -67,12 +67,19 @@ export default function Home({ onNavigate }) {
                     value={celeryStatus === 'connected' ? 'Online' : 'Offline'}
                     className={loading ? 'animate-pulse' : ''}
                 />
-                <StatCard
-                    icon={Brain}
-                    label="MLFlow Status"
-                    value={mlflowStatus === 'connected' ? 'Online' : 'Offline'}
-                    className={loading ? 'animate-pulse' : ''}
-                />
+                <a
+                    href={import.meta.env.VITE_MLFLOW_URL || 'http://localhost:5000'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                >
+                    <StatCard
+                        icon={Brain}
+                        label="MLFlow Status"
+                        value={mlflowStatus === 'connected' ? 'Online' : 'Offline'}
+                        className={`h-full ${loading ? 'animate-pulse' : ''}`}
+                    />
+                </a>
                 <StatCard
                     icon={CheckCircle2}
                     label="Active Jobs"
