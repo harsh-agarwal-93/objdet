@@ -15,4 +15,10 @@ EXPOSE 8000
 
 ENV PYTHONPATH=/app
 
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
 CMD ["uv", "run", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

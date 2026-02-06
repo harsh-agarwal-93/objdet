@@ -24,17 +24,22 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create non-root user for security
-RUN adduser -D -u 1000 appuser && \
-    chown -R appuser:appuser /var/cache/nginx /var/run /var/log/nginx && \
-    touch /run/nginx.pid && \
-    chown appuser:appuser /run/nginx.pid
+# Configure Nginx for non-root execution
+# 1. Remove the 'user' directive from the main config to avoid warnings
+# 2. Change pid file location to /tmp/nginx.pid
+# 3. Create cache directories and set permissions
+RUN sed -i 's/^user/#user/' /etc/nginx/nginx.conf && \
+    sed -i 's|/var/run/nginx.pid|/tmp/nginx.pid|' /etc/nginx/nginx.conf && \
+    mkdir -p /var/cache/nginx /var/log/nginx /tmp/nginx && \
+    chown -R 1000:0 /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /tmp/nginx /usr/share/nginx/html
 
-# Use non-root user
-USER appuser
+# Create non-root user for security (reuse existing user or create new)
+# nginx:alpine already has 'nginx' user, but we can stick to the plan or use generic ID
+# using numeric ID is safer for k8s/etc.
+USER 1000
 
-# Expose port 80
-EXPOSE 80
+# Expose port 8080
+EXPOSE 8080
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
