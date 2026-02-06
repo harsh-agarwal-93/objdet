@@ -73,7 +73,10 @@ export const api = {
         if (params.maxResults) searchParams.set('max_results', String(params.maxResults))
 
         const queryString = searchParams.toString()
-        const url = `${BASE_URL}/api/mlflow/runs${queryString ? `?${queryString}` : ''}`
+        let url = `${BASE_URL}/api/mlflow/runs`
+        if (queryString) {
+            url += `?${queryString}`
+        }
         return fetch(url).then(handleResponse)
     },
 
