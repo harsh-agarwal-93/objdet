@@ -10,21 +10,23 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 # Install system dependencies (minimal for serving)
+# We do not need python here as we install it via uv
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.12 \
-    python3.12-venv \
-    python3-pip \
     curl \
     libgl1-mesa-glx \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
-
 # Set working directory
 WORKDIR /app
+
+# Install Python via uv
+COPY .python-version .
+RUN uv python install
 
 # =============================================================================
 # Dependencies stage
@@ -32,7 +34,7 @@ WORKDIR /app
 FROM base AS dependencies
 
 # Copy dependency files
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock LICENSE README.md ./
 
 # Copy ML source code for local package installation
 COPY ml/src/ ml/src/
@@ -52,7 +54,6 @@ COPY --from=dependencies /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 ENV VIRTUAL_ENV="/app/.venv"
 
-# Copy only necessary source code for serving
 # Copy only necessary source code for serving
 COPY ml/src/objdet/core/ ml/src/objdet/core/
 COPY ml/src/objdet/models/ ml/src/objdet/models/
