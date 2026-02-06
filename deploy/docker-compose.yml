@@ -1,0 +1,179 @@
+services:
+  # ==========================================================================
+  # Core Infrastructure
+  # ==========================================================================
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: objdet-rabbitmq
+    ports:
+      - "5672:5672" # AMQP protocol
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-objdet}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-objdet_dev}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - objdet-network
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.10.0
+    container_name: objdet-mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      MLFLOW_BACKEND_STORE_URI: sqlite:///mlflow.db
+      MLFLOW_DEFAULT_ARTIFACT_ROOT: /mlartifacts
+    volumes:
+      - mlflow_data:/mlflow.db
+      - mlflow_artifacts:/mlartifacts
+    command: >
+      mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlartifacts --host 0.0.0.0 --port 5000
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - objdet-network
+
+  # ==========================================================================
+  # ML Services
+  # ==========================================================================
+
+  # Runs ML training jobs
+  ml-worker:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.train
+    container_name: objdet-ml-worker
+    command: >
+      celery -A objdet.pipelines.celery_app worker --loglevel=info --concurrency=1
+    environment:
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER:-objdet}:${RABBITMQ_PASS:-objdet_dev}@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: rpc://
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      PYTHONPATH: /app/ml/src
+    volumes:
+      - ../ml/src:/app/ml/src:ro
+      - ../data:/app/data:ro
+      - ../checkpoints:/app/checkpoints
+      - ../ml/configs:/app/ml/configs:ro
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    restart: unless-stopped
+    networks:
+      - objdet-network
+
+  # Runs ML inference (LitServe)
+  serve:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.serve
+    container_name: objdet-serve
+    ports:
+      - "8001:8000" # Mapped to 8001 to avoid conflict with backend
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      PYTHONPATH: /app/ml/src
+    volumes:
+      - ../models:/app/models:ro
+      - ../ml/configs/serving:/app/ml/configs/serving:ro
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - objdet-network
+
+  # ==========================================================================
+  # Webapp Services
+  # ==========================================================================
+
+  # Web API Backend
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: objdet-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - CELERY_BROKER_URL=amqp://${RABBITMQ_USER:-objdet}:${RABBITMQ_PASS:-objdet_dev}@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=rpc://
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - MLFLOW_EXPERIMENT_NAME=objdet
+    depends_on:
+      - rabbitmq
+      - mlflow
+    networks:
+      - objdet-network
+
+  # Webapp Worker (if needed distinct from ML worker)
+  webapp-worker:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: objdet-webapp-worker
+    command: uv run celery -A backend.celery_app worker --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=amqp://${RABBITMQ_USER:-objdet}:${RABBITMQ_PASS:-objdet_dev}@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=rpc://
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - objdet-network
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    container_name: objdet-frontend
+    ports:
+      - "3000:8080"
+    depends_on:
+      - backend
+    networks:
+      - objdet-network
+
+volumes:
+  rabbitmq_data:
+  mlflow_data:
+  mlflow_artifacts:
+
+
+networks:
+  objdet-network:
+    driver: bridge

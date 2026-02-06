@@ -71,6 +71,7 @@ dependencies = [
     "pillow>=10.2.0",
     "tqdm>=4.66.0",
     "ensemble-boxes>=1.0.9",
+    "pydantic-settings>=2.12.0",
 ]
 
 [project.optional-dependencies]
@@ -115,10 +116,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "src/objdet/version.py"
+path = "ml/src/objdet/version.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/objdet"]
+packages = ["ml/src/objdet"]
 
 # ============================================================================
 # Ruff Configuration
@@ -127,7 +128,7 @@ packages = ["src/objdet"]
 target-version = "py312"
 line-length = 100
 indent-width = 4
-src = ["src", "tests"]
+src = ["ml/src", "backend", "tests"]
 
 [tool.ruff.lint]
 select = [
@@ -190,6 +191,7 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D", "ANN", "PLR2004"]
+"backend/*" = ["D", "ANN"]
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
@@ -237,9 +239,10 @@ markers = [
     "gpu: marks tests requiring GPU",
 ]
 asyncio_mode = "auto"
+pythonpath = ["ml/src"]
 
 [tool.coverage.run]
-source = ["src/objdet"]
+source = ["ml/src/objdet"]
 branch = true
 omit = ["*/tests/*", "*/__main__.py"]
 

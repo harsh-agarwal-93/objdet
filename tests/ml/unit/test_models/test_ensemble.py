@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from tests.unit.mocks.mock_ensemble_boxes import (  # type: ignore
+from tests.ml.unit.mocks.mock_ensemble_boxes import (  # type: ignore
     mock_nms,
     mock_soft_nms,
     mock_weighted_boxes_fusion,

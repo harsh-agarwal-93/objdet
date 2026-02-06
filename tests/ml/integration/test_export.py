@@ -190,7 +190,7 @@ class TestExportFromCheckpoint:
         assert result.parent.exists()
 
     @pytest.mark.slow
-    @pytest.mark.xfail(reason="Checkpoint fixture lacks model class info", strict=True)
+    @pytest.mark.slow
     def test_export_from_real_checkpoint(self, trained_checkpoint: Path, temp_dir: Path) -> None:
         """Test exporting from a real checkpoint file."""
         # This tests the ability to load state dict from checkpoint and export

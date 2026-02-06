@@ -309,8 +309,7 @@ def live_mlflow_client(check_services_available: bool) -> Any:
     if not check_services_available:
         pytest.skip("Integration test services not available")
 
-    from mlflow.client import MlflowClient
-
     from backend.core.config import settings
+    from mlflow.client import MlflowClient
 
     return MlflowClient(tracking_uri=settings.mlflow_tracking_uri)

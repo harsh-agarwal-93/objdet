@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 import torch
 
-from tests.unit.mocks.mock_ultralytics import MockResults, MockYOLO  # type: ignore
+from tests.ml.unit.mocks.mock_ultralytics import MockResults, MockYOLO  # type: ignore
 
 
 class TestMockYOLO:

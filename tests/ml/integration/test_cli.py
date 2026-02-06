@@ -56,11 +56,11 @@ model:
     pretrained_backbone: false
 
 data:
-  class_path: objdet.data.datamodules.litdata.LitDataDataModule
+  class_path: objdet.data.formats.voc.VOCDataModule
   init_args:
-    clean_split_path: {voc_dataset_dir / "ImageSets/Main/train.txt"}
-    noisy_split_path: {voc_dataset_dir / "ImageSets/Main/val.txt"}
-    base_dir: {voc_dataset_dir / "JPEGImages"}
+    data_dir: {voc_dataset_dir}
+    train_split: "train"
+    val_split: "val"
     batch_size: 2
     num_workers: 0
 

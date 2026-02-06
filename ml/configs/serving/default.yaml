@@ -1,0 +1,14 @@
+# Default serving configuration
+model:
+  class_path: ml.src.objdet.models.yolo.YOLOv8
+  init_args:
+    model_name: yolov8n.pt
+    task: detect
+
+input:
+  class_path: ml.src.objdet.serving.input.ImageInput
+  init_args:
+    shape: [640, 640]
+
+server:
+  port: 8000

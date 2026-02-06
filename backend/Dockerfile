@@ -5,11 +5,14 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
 
+# Copy ML source code for local package installation
+COPY ml/src/ ml/src/
+
 # Install dependencies
 RUN uv sync --frozen
 
 # Copy application code into backend subdirectory
-COPY . backend/
+COPY backend/ backend/
 
 EXPOSE 8000
 

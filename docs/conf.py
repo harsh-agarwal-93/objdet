@@ -7,7 +7,7 @@ from pathlib import Path
 import whenever
 
 # Add source directory to path
-sys.path.insert(0, str(Path("../src").resolve()))
+sys.path.insert(0, str(Path(__file__).parents[1] / "ml" / "src"))
 
 # Project information
 project = "ObjDet"

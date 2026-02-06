@@ -43,13 +43,16 @@ install-dev:
 # ============================================================================
 # Code Quality
 # ============================================================================
+# ============================================================================
+# Code Quality
+# ============================================================================
 lint:
-	uv run ruff check src tests
-	uv run pyrefly check src
+	uv run ruff check ml/src backend tests
+	uv run pyrefly check ml/src
 
 format:
-	uv run ruff format src tests
-	uv run ruff check --fix src tests
+	uv run ruff format ml/src backend tests
+	uv run ruff check --fix ml/src backend tests
 
 pre-commit:
 	uv run pre-commit run --all-files
@@ -61,16 +64,30 @@ test:
 	uv run pytest tests -v
 
 test-unit:
-	uv run pytest tests/unit -v
+	uv run pytest tests/ml/unit -v
 
 test-functional:
-	uv run pytest tests/functional -v
+	uv run pytest tests/ml/functional -v
 
 test-integration:
-	uv run pytest tests/integration -v
+	uv run pytest tests/ml/integration -v
+
+test-ml:
+	uv run pytest tests/ml -v
+
+test-backend:
+	uv run pytest tests/backend -v
+
+test-frontend:
+	cd frontend && npm test
+
+test-e2e:
+	cd frontend && npm run test:e2e
+
+test-all: test-ml test-backend test-frontend test-e2e
 
 test-cov:
-	uv run pytest tests/unit -v --cov=src/objdet --cov-report=html --cov-report=term-missing
+	uv run pytest tests/ml/unit -v --cov=ml/src/objdet --cov-report=html --cov-report=term-missing
 	@echo "Coverage report: htmlcov/index.html"
 
 # ============================================================================

@@ -1,8 +1,8 @@
-# Serving container for ObjDet
-# Optimized for inference with LitServe
+# Training container for ObjDet
+# Multi-stage build for optimized image size
 
 # =============================================================================
-# Base stage with CUDA runtime (smaller than full CUDA)
+# Base stage with CUDA and Python
 # =============================================================================
 FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04 AS base
 
@@ -10,14 +10,18 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Install system dependencies (minimal for serving)
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.12 \
     python3.12-venv \
     python3-pip \
+    git \
     curl \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -34,8 +38,11 @@ FROM base AS dependencies
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies (no dev, no docs, include tensorrt for inference)
-RUN uv sync --frozen --no-dev --no-editable --extra tensorrt
+# Copy ML source code for local package installation
+COPY ml/src/ ml/src/
+
+# Install dependencies (no dev, no docs)
+RUN uv sync --frozen --no-dev --no-editable
 
 # =============================================================================
 # Final stage
@@ -49,38 +56,24 @@ COPY --from=dependencies /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 ENV VIRTUAL_ENV="/app/.venv"
 
-# Copy only necessary source code for serving
-COPY src/objdet/core/ src/objdet/core/
-COPY src/objdet/models/ src/objdet/models/
-COPY src/objdet/inference/ src/objdet/inference/
-COPY src/objdet/serving/ src/objdet/serving/
-COPY src/objdet/optimization/ src/objdet/optimization/
-COPY src/objdet/__init__.py src/objdet/__init__.py
-COPY src/objdet/version.py src/objdet/version.py
-COPY configs/serving/ configs/serving/
+# Copy source code
+# Copy source code
+COPY ml/src/ ml/src/
+COPY ml/configs/ ml/configs/
+ENV PYTHONPATH="${PYTHONPATH}:/app/ml/src"
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash appuser && \
     chown -R appuser:appuser /app
 
-# Create directory for models
-RUN mkdir -p /app/models && chown appuser:appuser /app/models
-
 USER appuser
 
-# Expose LitServe port
-EXPOSE 8000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
-
-# Default command starts serving
+# Default command
 ENTRYPOINT ["python", "-m", "objdet"]
-CMD ["serve", "--config", "configs/serving/default.yaml"]
+CMD ["--help"]
 
 # Labels
-LABEL org.opencontainers.image.title="ObjDet Serving"
-LABEL org.opencontainers.image.description="Object detection inference API"
+LABEL org.opencontainers.image.title="ObjDet Training"
+LABEL org.opencontainers.image.description="Object detection training framework"
 LABEL org.opencontainers.image.source="https://github.com/harsh-agarwal-93/objdet"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
