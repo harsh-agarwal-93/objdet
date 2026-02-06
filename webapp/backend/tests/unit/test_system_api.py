@@ -36,7 +36,7 @@ def test_cors_headers(test_client: TestClient) -> None:
     response = test_client.options(
         "/api/mlflow/experiments",
         headers={
-            "Origin": "http://localhost:8501",
+            "Origin": "http://localhost:3000",
             "Access-Control-Request-Method": "GET",
         },
     )
@@ -44,6 +44,17 @@ def test_cors_headers(test_client: TestClient) -> None:
     # Verify CORS headers are present
     assert "access-control-allow-origin" in response.headers
     assert "access-control-allow-methods" in response.headers
+
+
+def test_cors_required_origins() -> None:
+    """Test that Docker-required origins are in CORS config."""
+    from backend.core.config import settings
+
+    required_origins = [
+        "http://localhost:3000",  # React frontend (dev)
+    ]
+    for origin in required_origins:
+        assert origin in settings.allowed_origins, f"Missing required CORS origin: {origin}"
 
 
 def test_api_docs_available(test_client: TestClient) -> None:

@@ -26,7 +26,9 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create non-root user for security
 RUN adduser -D -u 1000 appuser && \
-    chown -R appuser:appuser /var/cache/nginx /var/run /var/log/nginx
+    chown -R appuser:appuser /var/cache/nginx /var/run /var/log/nginx && \
+    touch /run/nginx.pid && \
+    chown appuser:appuser /run/nginx.pid
 
 # Use non-root user
 USER appuser

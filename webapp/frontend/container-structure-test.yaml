@@ -1,0 +1,22 @@
+schemaVersion: 2.0.0
+
+fileExistenceTests:
+  - name: "nginx.pid file exists with correct ownership"
+    path: "/run/nginx.pid"
+    shouldExist: true
+    uid: 1000
+    gid: 1000
+
+  - name: "nginx cache directory has correct ownership"
+    path: "/var/cache/nginx"
+    shouldExist: true
+    uid: 1000
+    gid: 1000
+
+  - name: "static files directory exists"
+    path: "/usr/share/nginx/html/index.html"
+    shouldExist: true
+
+metadataTest:
+  user: "appuser"
+  exposedPorts: ["80"]

@@ -33,7 +33,7 @@ A  modern web application for managing object detection model training, MLFlow e
 - Celery task submission and monitoring
 - MLFlow data retrieval (experiments, runs, metrics, artifacts)
 - System health monitoring
-- CORS support for Streamlit frontend
+- CORS support for React frontend
 
 **Frontend (React + Vite):**
 - **Dashboard:** System status, quick navigation
@@ -210,7 +210,7 @@ webapp/
 
 ### Training a Model
 
-1. Navigate to the **Models** page in the Streamlit UI
+1. Navigate to the **Models** page in the UI
 2. Click the **New Training** tab
 3. Fill out the training configuration:
    - Run name, model architecture, dataset

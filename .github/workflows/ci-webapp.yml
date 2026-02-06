@@ -1,0 +1,97 @@
+name: Webapp CI
+
+on:
+  pull_request:
+    paths:
+      - "webapp/**"
+  push:
+    branches: [main]
+    paths:
+      - "webapp/**"
+
+jobs:
+  backend-tests:
+    name: Backend Unit Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: webapp/backend
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: latest
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run Tests
+        run: uv run pytest tests/unit -v --cov=backend --cov-report=term-missing
+
+  docker-health:
+    name: Docker Compose Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build and start services
+        run: docker compose -f webapp/docker-compose.yml up -d --build
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services..."
+          sleep 20
+
+      - name: Check backend health
+        run: |
+          curl -f http://localhost:8000/health || exit 1
+          echo "Backend is healthy"
+
+      - name: Check frontend serves content
+        run: |
+          curl -f http://localhost:3000/ || exit 1
+          echo "Frontend is serving"
+
+      - name: Check API via frontend proxy
+        run: |
+          response=$(curl -s http://localhost:3000/api/system/status)
+          echo "API response: $response"
+          echo "$response" | grep -q "services" || exit 1
+          echo "API proxy is working"
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose -f webapp/docker-compose.yml logs
+
+      - name: Cleanup
+        if: always()
+        run: docker compose -f webapp/docker-compose.yml down -v
+
+  container-structure:
+    name: Container Structure Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build frontend image
+        run: docker build -t webapp-frontend webapp/frontend
+
+      - name: Install container-structure-test
+        run: |
+          curl -LO https://github.com/GoogleContainerTools/container-structure-test/releases/latest/download/container-structure-test-linux-amd64
+          chmod +x container-structure-test-linux-amd64
+          sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+
+      - name: Run container structure tests
+        run: |
+          container-structure-test test \
+            --image webapp-frontend \
+            --config webapp/frontend/container-structure-test.yaml

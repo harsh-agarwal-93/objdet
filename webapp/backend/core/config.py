@@ -25,7 +25,10 @@ class Settings(BaseSettings):
     api_redoc_url: str = "/api/redoc"
 
     # CORS Configuration
-    allowed_origins: list[str] = ["http://localhost:8501"]
+    allowed_origins: list[str] = [
+        "http://localhost:3000",
+        "http://frontend:80",
+    ]
 
 
 settings = Settings()
