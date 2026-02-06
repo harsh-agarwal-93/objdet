@@ -4,7 +4,7 @@ unit-tests:
   stage: test
   extends: .base-job
   script:
-    - uv run pytest tests/unit -v --cov=src/objdet --cov-report=xml --cov-report=term-missing
+    - uv run pytest -n auto tests/ml/unit -v --cov=src/objdet --cov-report=xml --cov-report=term-missing
   coverage: '/TOTAL.*\s+(\d+%)/'
   artifacts:
     reports:
@@ -17,7 +17,6 @@ unit-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
 # Integration tests (future)
 # integration-tests:
 #   stage: test

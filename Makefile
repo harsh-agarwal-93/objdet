@@ -61,13 +61,13 @@ pre-commit:
 # Testing
 # ============================================================================
 test:
-	uv run pytest tests -v
+	uv run pytest -n auto tests -v
 
 test-unit:
-	uv run pytest tests/ml/unit -v
+	uv run pytest -n auto tests/ml/unit -v
 
 test-functional:
-	uv run pytest tests/ml/functional -v
+	uv run pytest -n auto tests/ml/functional -v
 
 test-integration:
 	uv run pytest tests/ml/integration -v
