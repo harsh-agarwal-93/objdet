@@ -28,7 +28,7 @@ def test_train_model_execution() -> None:
     # Simple execution via apply()
     # We patch time.sleep to speed up test
     with patch("time.sleep"):
-        result = train_model.apply(
+        result = train_model.apply(  # type: ignore[not-callable]
             kwargs={
                 "config_path": "config.yaml",
                 "output_dir": "output",
@@ -48,7 +48,7 @@ def test_export_model_execution() -> None:
     from backend.tasks import export_model
 
     with patch("time.sleep"):
-        result = export_model.apply(
+        result = export_model.apply(  # type: ignore[not-callable]
             kwargs={"checkpoint_path": "model.pt", "export_format": "onnx"}
         ).result
 
@@ -63,7 +63,7 @@ def test_preprocess_data_execution() -> None:
     from backend.tasks import preprocess_data
 
     with patch("time.sleep"):
-        result = preprocess_data.apply(
+        result = preprocess_data.apply(  # type: ignore[not-callable]
             kwargs={"input_dir": "input", "output_dir": "output", "format_name": "coco"}
         ).result
 

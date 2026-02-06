@@ -22,6 +22,7 @@ def test_experiment_model() -> None:
     assert exp.experiment_id == "1"
     assert exp.name == "test_experiment"
     assert exp.lifecycle_stage == "active"
+    assert exp.tags is not None
     assert exp.tags["env"] == "test"
 
 
@@ -167,7 +168,7 @@ def test_model_validation_error() -> None:
 
     # Missing required field
     with pytest.raises(ValidationError) as exc_info:
-        Run(run_id="abc123")  # Missing experiment_id and status
+        Run(run_id="abc123")  # type: ignore[call-arg]
 
     error = exc_info.value
     assert len(error.errors()) >= 2  # At least 2 missing fields

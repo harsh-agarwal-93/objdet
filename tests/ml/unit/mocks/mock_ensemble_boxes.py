@@ -6,14 +6,16 @@ This module provides mock implementations of ensemble_boxes functions
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 import numpy as np
 from numpy.typing import NDArray
 
 
 def mock_nms(
-    boxes_list: list[NDArray[np.floating]],
-    scores_list: list[NDArray[np.floating]],
-    labels_list: list[NDArray[np.floating]],
+    boxes_list: Sequence[NDArray[np.floating]],
+    scores_list: Sequence[NDArray[np.floating]],
+    labels_list: Sequence[NDArray[np.floating]],
     iou_thr: float = 0.5,
     weights: list[float] | None = None,
     skip_box_thr: float = 0.0,
@@ -91,9 +93,9 @@ def mock_nms(
 
 
 def mock_soft_nms(
-    boxes_list: list[NDArray[np.floating]],
-    scores_list: list[NDArray[np.floating]],
-    labels_list: list[NDArray[np.floating]],
+    boxes_list: Sequence[NDArray[np.floating]],
+    scores_list: Sequence[NDArray[np.floating]],
+    labels_list: Sequence[NDArray[np.floating]],
     iou_thr: float = 0.5,
     sigma: float = 0.5,
     thresh: float = 0.001,
@@ -128,9 +130,9 @@ def mock_soft_nms(
 
 
 def mock_weighted_boxes_fusion(
-    boxes_list: list[NDArray[np.floating]],
-    scores_list: list[NDArray[np.floating]],
-    labels_list: list[NDArray[np.floating]],
+    boxes_list: Sequence[NDArray[np.floating]],
+    scores_list: Sequence[NDArray[np.floating]],
+    labels_list: Sequence[NDArray[np.floating]],
     iou_thr: float = 0.55,
     skip_box_thr: float = 0.0,
     weights: list[float] | None = None,

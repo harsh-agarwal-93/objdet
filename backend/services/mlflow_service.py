@@ -62,7 +62,7 @@ def list_runs(
     if status:
         filter_parts.append(f"attributes.status = '{status}'")
 
-    filter_string = " AND ".join(filter_parts) if filter_parts else None
+    filter_string = " AND ".join(filter_parts) if filter_parts else ""
 
     # Search runs
     if experiment_id:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -199,7 +199,7 @@ def test_concurrent_status_requests(test_client: TestClient) -> None:
     """
     import concurrent.futures
 
-    def make_request() -> object:
+    def make_request() -> Any:
         return test_client.get("/api/system/status")
 
     # Make 10 concurrent requests

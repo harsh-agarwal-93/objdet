@@ -256,6 +256,7 @@ def test_mlflow_runs_api_e2e(test_client: TestClient, live_mlflow_client: Mlflow
         # Query runs via API (using experiment name)
         # First, we need to get experiment by name
         exp = live_mlflow_client.get_experiment_by_name(exp_name)
+        assert exp is not None
 
         # Query runs for this experiment
         response = test_client.get(f"/api/mlflow/runs?experiment_id={exp.experiment_id}")

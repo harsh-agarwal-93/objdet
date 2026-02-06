@@ -30,7 +30,7 @@ def submit_training_job(
     """
     from backend.tasks import train_model
 
-    result = train_model.delay(
+    result = train_model.delay(  # type: ignore[not-callable]
         config_path=config_path,
         output_dir=output_dir,
         max_epochs=max_epochs,
