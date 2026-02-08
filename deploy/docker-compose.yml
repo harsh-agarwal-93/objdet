@@ -24,7 +24,7 @@ services:
       - objdet-network
 
   mlflow:
-    image: ghcr.io/mlflow/mlflow:v2.10.0
+    image: ghcr.io/mlflow/mlflow:v3.9.0
     container_name: objdet-mlflow
     ports:
       - "5000:5000"
