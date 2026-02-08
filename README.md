@@ -288,14 +288,14 @@ mlflow ui --backend-store-uri mlruns
 ## 🐳 Docker
 
 ```bash
-# Build training container
-docker build -f Dockerfile.train -t objdet:train .
+# Build training container (target: train)
+docker build -f deploy/docker/ml.Dockerfile --target train -t objdet:train .
 
-# Build serving container
-docker build -f Dockerfile.serve -t objdet:serve .
+# Build serving container (target: serve)
+docker build -f deploy/docker/ml.Dockerfile --target serve -t objdet:serve .
 
 # Run with docker-compose (includes RabbitMQ, MLflow)
-docker-compose up -d
+docker-compose -f deploy/docker-compose.yml up -d
 ```
 
 ## 📖 Documentation
