@@ -12,13 +12,10 @@ RUN uv build
 # =============================================================================
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
-# Create non-root user for security
-RUN useradd --create-home --shell /bin/bash appuser
-
+# Create non-root user for security and switch
 WORKDIR /app
-
-# Switch to non-root user
-RUN chown -R appuser:appuser /app
+RUN useradd --create-home --shell /bin/bash appuser && \
+    chown -R appuser:appuser /app
 USER appuser
 
 # Copy dependency files
@@ -26,7 +23,7 @@ COPY --chown=appuser:appuser pyproject.toml uv.lock LICENSE README.md ./
 
 # Install dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-install-project
+    uv sync --frozen --no-dev --no-install-project
 
 # Set up virtual environment
 ENV PATH="/app/.venv/bin:$PATH"
