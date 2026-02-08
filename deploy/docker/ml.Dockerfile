@@ -1,8 +1,8 @@
-# Serving container for ObjDet
-# Optimized for inference with LitServe
+# Consolidating Training and Serving into one Dockerfile
+# Based on: deploy/Dockerfile.train and deploy/Dockerfile.serve
 
 # =============================================================================
-# Build stage to create wheel
+# Build stage: Create wheel
 # =============================================================================
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY ml/ ml/
 RUN uv build
 
 # =============================================================================
-# Base stage with CUDA runtime (smaller than full CUDA)
+# Base stage: CUDA runtime + System Ops
 # =============================================================================
 FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04 AS base
 
@@ -19,18 +19,21 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Install uv
+# Install uv to correct location
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Install system dependencies (minimal for serving)
-# We do not need python here as we install it via uv
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install system dependencies
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    git \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
 # Install Python via uv
@@ -38,12 +41,9 @@ COPY .python-version .
 RUN uv python install
 
 # =============================================================================
-# Final stage
+# Intermediate: install common dependencies
 # =============================================================================
-FROM base AS final
-
-# Create non-root user for security
-# Create non-root user for security and switch ownership
+# Create non-root user
 RUN useradd --create-home --shell /bin/bash appuser && \
     chown -R appuser:appuser /app
 
@@ -52,40 +52,65 @@ USER appuser
 # Copy dependency files
 COPY --chown=appuser:appuser pyproject.toml uv.lock LICENSE README.md ./
 
-# Install dependencies (only dependencies, not the project itself)
-RUN uv sync --frozen --no-dev --no-install-project --extra tensorrt
+# =============================================================================
+# Stage: Train
+# =============================================================================
+FROM base AS train
 
-# Set up virtual environment
+USER appuser
+
+# Install dependencies (frozen) - only production deps
+# Note: we might need dev deps for running tests inside container if needed
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-editable --no-install-project
+
 ENV PATH="/app/.venv/bin:$PATH"
 ENV VIRTUAL_ENV="/app/.venv"
 
-# Copy wheel from builder
+# Copy wheel and install
 COPY --from=builder --chown=appuser:appuser /app/dist /app/dist
-
-# Install the package from wheel
 RUN uv pip install /app/dist/*.whl
 
-# Copy configs (needed for runtime configuration)
+# Copy configs
 COPY --chown=appuser:appuser ml/configs/ ml/configs/
 
-# Create directory for models (as appuser)
+ENTRYPOINT ["python", "-m", "objdet"]
+CMD ["--help"]
+
+LABEL org.opencontainers.image.title="ObjDet Training"
+
+# =============================================================================
+# Stage: Serve
+# =============================================================================
+FROM base AS serve
+
+USER appuser
+
+# Install dependencies with tensorrt extra
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project --extra tensorrt
+
+ENV PATH="/app/.venv/bin:$PATH"
+ENV VIRTUAL_ENV="/app/.venv"
+
+# Copy wheel and install
+COPY --from=builder --chown=appuser:appuser /app/dist /app/dist
+RUN uv pip install /app/dist/*.whl
+
+# Copy configs
+COPY --chown=appuser:appuser ml/configs/ ml/configs/
+
+# Create directory for models
 USER root
 RUN mkdir -p /app/models && chown appuser:appuser /app/models
 USER appuser
 
-# Expose LitServe port
 EXPOSE 8000
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Default command starts serving
 ENTRYPOINT ["python", "-m", "objdet"]
 CMD ["serve", "--config", "configs/serving/default.yaml"]
 
-# Labels
 LABEL org.opencontainers.image.title="ObjDet Serving"
-LABEL org.opencontainers.image.description="Object detection inference API"
-LABEL org.opencontainers.image.source="https://github.com/harsh-agarwal-93/objdet"
-LABEL org.opencontainers.image.licenses="Apache-2.0"

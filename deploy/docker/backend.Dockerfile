@@ -24,8 +24,9 @@ USER appuser
 # Copy dependency files
 COPY --chown=appuser:appuser pyproject.toml uv.lock LICENSE README.md ./
 
-# Install dependencies (only dependencies, not the project itself)
-RUN uv sync --frozen --no-install-project
+# Install dependencies
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project
 
 # Set up virtual environment
 ENV PATH="/app/.venv/bin:$PATH"

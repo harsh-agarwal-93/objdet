@@ -93,9 +93,12 @@ The `objdet` CLI (via `LightningCLI`) is the primary interface for production:
 ### Docker Strategy
 1.  **Multi-Stage Builds:** Use `base` -> `dependencies` -> `final` stages to minimize image size.
 2.  **Image Separation:**
-    - `Dockerfile.train`: Full environment for training (Celery worker).
-    - `Dockerfile.serve`: Optimized for inference (LitServe, TensorRT).
-3.  **Webapp:** `webapp/backend` and `webapp/frontend` have their own Dockerfiles, confirming strict separation.
+    - `deploy/docker/ml.Dockerfile`: Consolidated Dockerfile for ML.
+        - `target: train`: Full environment for training (Celery worker).
+        - `target: serve`: Optimized for inference (LitServe, TensorRT).
+    - `deploy/docker/backend.Dockerfile`: FastAPI backend.
+    - `deploy/docker/frontend.Dockerfile`: React frontend.
+3.  **Context:** All builds run from project root context to ensure access to shared modules `ml/`, `backend/`, etc.
 
 ### Services (Docker Compose)
 
