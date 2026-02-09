@@ -6,7 +6,7 @@ values used throughout the framework.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Final
 
 # =============================================================================
@@ -14,7 +14,7 @@ from typing import Final
 # =============================================================================
 
 
-class ClassIndexMode(str, Enum):
+class ClassIndexMode(StrEnum):
     """Mode for handling class indices between different model formats.
 
     CRITICAL: This explicitly handles the difference between:
@@ -61,7 +61,7 @@ class ClassIndexMode(str, Enum):
 # =============================================================================
 
 
-class DatasetFormat(str, Enum):
+class DatasetFormat(StrEnum):
     """Supported dataset annotation formats.
 
     Each format has different file structures and annotation schemas.
@@ -89,7 +89,7 @@ class DatasetFormat(str, Enum):
 # =============================================================================
 
 
-class ModelType(str, Enum):
+class ModelType(StrEnum):
     """Types of object detection models supported."""
 
     FASTER_RCNN = "faster_rcnn"
@@ -108,7 +108,7 @@ class ModelType(str, Enum):
     """Ensemble of multiple models."""
 
 
-class EnsembleStrategy(str, Enum):
+class EnsembleStrategy(StrEnum):
     """Ensemble strategies for combining predictions."""
 
     WBF = "wbf"
@@ -129,7 +129,7 @@ class EnsembleStrategy(str, Enum):
 # =============================================================================
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """Supported model export formats."""
 
     ONNX = "onnx"
@@ -150,7 +150,7 @@ class ExportFormat(str, Enum):
 # =============================================================================
 
 
-class ServingMode(str, Enum):
+class ServingMode(StrEnum):
     """Serving modes for inference API."""
 
     SINGLE = "single"
@@ -168,7 +168,7 @@ class ServingMode(str, Enum):
 # =============================================================================
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     """Status of a pipeline job."""
 
     PENDING = "pending"

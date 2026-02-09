@@ -192,10 +192,37 @@ services:
     networks:
       - objdet-network
 
+  # ==========================================================================
+  # Code Quality
+  # ==========================================================================
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: objdet-sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - objdet-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9000/api/system/status || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 volumes:
   rabbitmq_data:
   mlflow_data:
   mlflow_artifacts:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
 
 
 networks:

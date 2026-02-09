@@ -125,17 +125,7 @@ class ConfusionMatrixCallback(Callback):
 
         # Match predictions to ground truth
         for p_box, p_label in zip(pred_boxes, pred_labels, strict=True):
-            best_iou = 0.0
-            best_gt_idx = -1
-
-            for gt_idx, (gt_box, gt_label) in enumerate(zip(gt_boxes, gt_labels, strict=True)):
-                if gt_matched[gt_idx]:
-                    continue
-
-                iou = self._compute_iou(p_box, gt_box)
-                if iou > best_iou and iou >= self.iou_threshold:
-                    best_iou = iou
-                    best_gt_idx = gt_idx
+            best_gt_idx = self._find_best_match(p_box, gt_boxes, gt_matched)
 
             if best_gt_idx >= 0:
                 # True positive: matched GT
@@ -150,11 +140,27 @@ class ConfusionMatrixCallback(Callback):
             self._confusion_matrix[int(true_class), int(pred_class)] += 1  # type: ignore[index]
 
         # False negatives: unmatched GT
-        for gt_idx, (matched, gt_label) in enumerate(zip(gt_matched, gt_labels, strict=True)):
+        for matched, gt_label in zip(gt_matched, gt_labels, strict=True):
             if not matched:
                 true_class = gt_label.item()
                 pred_class = self.num_classes  # Not detected
                 self._confusion_matrix[int(true_class), int(pred_class)] += 1  # type: ignore[index]
+
+    def _find_best_match(self, p_box: Tensor, gt_boxes: Tensor, gt_matched: Tensor) -> int:
+        """Find best matching ground truth box."""
+        best_iou = 0.0
+        best_gt_idx = -1
+
+        for gt_idx, gt_box in enumerate(gt_boxes):
+            if gt_matched[gt_idx]:
+                continue
+
+            iou = self._compute_iou(p_box, gt_box)
+            if iou > best_iou and iou >= self.iou_threshold:
+                best_iou = iou
+                best_gt_idx = gt_idx
+
+        return best_gt_idx
 
     def _compute_iou(self, box1: Tensor, box2: Tensor) -> float:
         """Compute IoU between two boxes in xyxy format."""
@@ -220,7 +226,7 @@ class ConfusionMatrixCallback(Callback):
         cm = np.nan_to_num(cm)
 
         # Create plot
-        fig, ax = plt.subplots(figsize=(12, 10))
+        _, ax = plt.subplots(figsize=(12, 10))
         im = ax.imshow(cm, cmap="Blues")
 
         # Labels

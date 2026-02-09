@@ -14,7 +14,7 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage",
-        "test:e2e": "playwright test"
+        "sonar": "sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.projectKey=objdet-frontend"
     },
     "dependencies": {
         "framer-motion": "^10.16.5",
@@ -25,6 +25,7 @@
     },
     "devDependencies": {
         "@playwright/test": "^1.40.0",
+        "@sonar/scan": "^4.3.4",
         "@testing-library/jest-dom": "^6.1.5",
         "@testing-library/react": "^14.1.2",
         "@vitejs/plugin-react": "^4.2.0",

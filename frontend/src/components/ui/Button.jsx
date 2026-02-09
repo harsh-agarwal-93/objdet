@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import PropTypes from 'prop-types'
+
 
 const variants = {
     primary: 'bg-neon-teal text-midnight-950 hover:bg-neon-green btn-glow',
@@ -38,4 +40,12 @@ export default function Button({
             {children}
         </motion.button>
     )
+}
+
+Button.propTypes = {
+    children: PropTypes.node.isRequired,
+    variant: PropTypes.oneOf(['primary', 'secondary', 'ghost', 'danger']),
+    size: PropTypes.oneOf(['sm', 'md', 'lg']),
+    className: PropTypes.string,
+    disabled: PropTypes.bool,
 }

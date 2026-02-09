@@ -1,4 +1,7 @@
+import PropTypes from 'prop-types'
+
 export default function Input({
+
     label,
     className = '',
     ...props
@@ -22,4 +25,9 @@ export default function Input({
             />
         </div>
     )
+}
+
+Input.propTypes = {
+    label: PropTypes.string,
+    className: PropTypes.string,
 }

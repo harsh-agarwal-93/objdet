@@ -7,14 +7,14 @@ status and results.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
 from whenever import Instant
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     """Status of a pipeline job."""
 
     PENDING = "pending"
@@ -26,7 +26,7 @@ class JobStatus(str, Enum):
     RETRYING = "retrying"
 
 
-class JobType(str, Enum):
+class JobType(StrEnum):
     """Type of pipeline job."""
 
     TRAIN = "train"
@@ -177,6 +177,15 @@ class JobDAG:
             if job.status == JobStatus.PENDING and job.is_ready(completed)
         ]
 
+    def _calculate_in_degrees(self) -> dict[str, int]:
+        """Calculate in-degrees for all jobs."""
+        in_degree = dict.fromkeys(self.jobs, 0)
+        for job in self.jobs.values():
+            for dep_id in job.dependencies:
+                if dep_id in in_degree:
+                    in_degree[job.id] += 1
+        return in_degree
+
     def get_execution_order(self) -> list[str]:
         """Get topological order for job execution.
 
@@ -184,12 +193,7 @@ class JobDAG:
             List of job IDs in execution order.
         """
         # Kahn's algorithm
-        in_degree = dict.fromkeys(self.jobs, 0)
-        for job in self.jobs.values():
-            for dep_id in job.dependencies:
-                if dep_id in in_degree:
-                    in_degree[job.id] += 1
-
+        in_degree = self._calculate_in_degrees()
         queue = [jid for jid, deg in in_degree.items() if deg == 0]
         order = []
 

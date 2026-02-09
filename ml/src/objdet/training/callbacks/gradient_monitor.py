@@ -7,6 +7,7 @@ useful for debugging training issues.
 from __future__ import annotations
 
 import lightning as L
+import torch
 from lightning.pytorch.callbacks import Callback
 from torch.optim import Optimizer
 
@@ -46,37 +47,9 @@ class GradientMonitorCallback(Callback):
         optimizer: Optimizer,
     ) -> None:
         """Monitor gradients before optimizer step."""
-        if trainer.global_step % self.log_every_n_steps != 0:
-            return
-
-        grad_norms = []
-        grad_max = []
-        has_nan = False
-        has_inf = False
-
-        for name, param in pl_module.named_parameters():
-            if param.grad is not None:
-                grad = param.grad.data
-
-                # Check for anomalies
-                if grad.isnan().any():
-                    has_nan = True
-                    if self.detect_anomalies:
-                        logger.warning(f"NaN gradient detected in {name}")
-
-                if grad.isinf().any():
-                    has_inf = True
-                    if self.detect_anomalies:
-                        logger.warning(f"Inf gradient detected in {name}")
-
-                # Collect statistics
-                grad_norm = grad.norm(2).item()
-                grad_norms.append(grad_norm)
-                grad_max.append(grad.abs().max().item())
+        grad_norms, grad_max, has_nan, has_inf = self._process_gradients(pl_module)
 
         if grad_norms:
-            import torch
-
             total_norm = torch.tensor(grad_norms).norm(2).item()
             max_grad = max(grad_max)
             mean_norm = sum(grad_norms) / len(grad_norms)
@@ -90,3 +63,40 @@ class GradientMonitorCallback(Callback):
                 pl_module.log("train/grad_has_nan", 1.0, prog_bar=False)
             if has_inf:
                 pl_module.log("train/grad_has_inf", 1.0, prog_bar=False)
+
+    def _process_gradients(
+        self, pl_module: L.LightningModule
+    ) -> tuple[list[float], list[float], bool, bool]:
+        """Process gradients and collect statistics."""
+        grad_norms = []
+        grad_max = []
+        has_nan = False
+        has_inf = False
+
+        for name, param in pl_module.named_parameters():
+            if param.grad is None:
+                continue
+
+            grad = param.grad.data
+            is_nan, is_inf = self._check_anomalies(grad, name)
+            has_nan = has_nan or is_nan
+            has_inf = has_inf or is_inf
+
+            # Collect statistics
+            grad_norms.append(grad.norm(2).item())
+            grad_max.append(grad.abs().max().item())
+
+        return grad_norms, grad_max, has_nan, has_inf
+
+    def _check_anomalies(self, grad: torch.Tensor, name: str) -> tuple[bool, bool]:
+        """Check for NaN and Inf in gradients."""
+        is_nan = bool(grad.isnan().any())
+        is_inf = bool(grad.isinf().any())
+
+        if is_nan and self.detect_anomalies:
+            logger.warning(f"NaN gradient detected in {name}")
+
+        if is_inf and self.detect_anomalies:
+            logger.warning(f"Inf gradient detected in {name}")
+
+        return is_nan, is_inf

@@ -153,3 +153,9 @@ secrets/
 
 # uv
 .uv/
+
+# SonarQube
+.scannerwork/
+.sonar/
+ruff-report.json
+issues_*.json

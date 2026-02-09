@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, TypedDict, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, TypedDict, TypeVar, runtime_checkable
 
 from torch import Tensor
 
@@ -22,24 +22,24 @@ if TYPE_CHECKING:
 # =============================================================================
 
 # Tensor types
-BatchTensor: TypeAlias = Tensor  # (N, C, H, W) image batch
-ImageTensor: TypeAlias = Tensor  # (C, H, W) single image
-BoxTensor: TypeAlias = Tensor  # (N, 4) bounding boxes
-LabelTensor: TypeAlias = Tensor  # (N,) class labels
-ScoreTensor: TypeAlias = Tensor  # (N,) confidence scores
-MaskTensor: TypeAlias = Tensor  # (N, H, W) segmentation masks
+type BatchTensor = Tensor  # (N, C, H, W) image batch
+type ImageTensor = Tensor  # (C, H, W) single image
+type BoxTensor = Tensor  # (N, 4) bounding boxes
+type LabelTensor = Tensor  # (N,) class labels
+type ScoreTensor = Tensor  # (N,) confidence scores
+type MaskTensor = Tensor  # (N, H, W) segmentation masks
 
 # Numpy types
 if TYPE_CHECKING:
-    NumpyImage: TypeAlias = NDArray[np.uint8]  # (H, W, C) image array
-    NumpyBoxes: TypeAlias = NDArray[np.float32]  # (N, 4) bounding boxes
+    type NumpyImage = NDArray[np.uint8]  # (H, W, C) image array
+    type NumpyBoxes = NDArray[np.float32]  # (N, 4) bounding boxes
 
 # Path types
-PathLike: TypeAlias = str | Path
+type PathLike = str | Path
 
 # Config types
-ConfigDict: TypeAlias = dict[str, Any]
-HyperParams: TypeAlias = Mapping[str, int | float | str | bool]
+type ConfigDict = dict[str, Any]
+type HyperParams = Mapping[str, int | float | str | bool]
 
 # =============================================================================
 # Detection Types
@@ -88,15 +88,15 @@ class DetectionPrediction(TypedDict):
 
 
 # Batch types
-DetectionBatch: TypeAlias = tuple[list[Tensor], list[DetectionTarget]]
-PredictionBatch: TypeAlias = list[DetectionPrediction]
+type DetectionBatch = tuple[list[Tensor], list[DetectionTarget]]
+type PredictionBatch = list[DetectionPrediction]
 
 # =============================================================================
 # Callback Types
 # =============================================================================
 
-MetricValue: TypeAlias = float | Tensor
-MetricsDict: TypeAlias = dict[str, MetricValue]
+type MetricValue = float | Tensor
+type MetricsDict = dict[str, MetricValue]
 
 # =============================================================================
 # Protocols

@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import PropTypes from 'prop-types'
+
 
 export default function Card({
     children,
@@ -20,4 +22,10 @@ export default function Card({
             {children}
         </motion.div>
     )
+}
+
+Card.propTypes = {
+    children: PropTypes.node.isRequired,
+    className: PropTypes.string,
+    hover: PropTypes.bool,
 }

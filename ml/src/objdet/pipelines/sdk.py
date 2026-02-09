@@ -86,7 +86,7 @@ def submit_job(
     # Check dependencies
     if dependencies:
         # Wait for dependencies before submitting
-        _wait_and_submit(job, queue)
+        _wait_and_submit(job)
         logger.info(f"Job {job.id} queued with dependencies: {dependencies}")
     else:
         # Submit immediately
@@ -123,7 +123,7 @@ def _submit_task(job: Job, queue: str) -> None:
     logger.info(f"Submitted job {job.id} to queue {queue}: task_id={result.id}")
 
 
-def _wait_and_submit(job: Job, queue: str) -> None:
+def _wait_and_submit(job: Job) -> None:
     """Submit job after dependencies complete."""
     # Create chain that waits for dependencies
     job.status = JobStatus.PENDING

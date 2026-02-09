@@ -129,3 +129,22 @@ clean:
 	rm -rf *.egg-info
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@echo "Cleaned all build artifacts"
+
+# ============================================================================
+# SonarQube
+# ============================================================================
+lint-report:
+	uv run ruff check --output-format=json --output-file=ruff-report.json ml/src backend tests
+
+test-cov-xml:
+	-uv run pytest tests/ml/unit -v --cov=ml/src/objdet --cov-report=xml:coverage.xml
+
+sonar: lint-report test-cov-xml
+	docker run \
+		--rm \
+		--network deploy_objdet-network \
+		-v "$(PWD):/usr/src" \
+		sonarsource/sonar-scanner-cli \
+		-Dsonar.projectKey=objdet \
+		-Dsonar.host.url=http://objdet-sonarqube:9000 \
+		-Dsonar.login=$(SONAR_TOKEN)
