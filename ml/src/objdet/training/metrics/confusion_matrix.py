@@ -79,64 +79,99 @@ class ConfusionMatrix(Metric):
         target: dict[str, Tensor],
     ) -> None:
         """Update with single image predictions."""
+        from torchvision.ops import box_iou
+
+        pred_boxes, pred_labels = self._filter_predictions(pred)
+        gt_boxes = target["boxes"]
+        gt_labels = target["labels"]
+
+        if len(gt_boxes) == 0:
+            self._update_false_positives(pred_labels)
+            return
+
+        if len(pred_boxes) == 0:
+            self._update_false_negatives(gt_labels)
+            return
+
+        iou_matrix = box_iou(pred_boxes, gt_boxes)
+        valid_mask = iou_matrix >= self.iou_threshold
+
+        if not valid_mask.any():
+            self._update_false_positives(pred_labels)
+            self._update_false_negatives(gt_labels)
+            return
+
+        self._process_matches(
+            pred_boxes,
+            pred_labels,
+            gt_boxes,
+            gt_labels,
+            iou_matrix,
+            valid_mask,
+        )
+
+    def _filter_predictions(self, pred: dict[str, Tensor]) -> tuple[Tensor, Tensor]:
+        """Filter predictions based on confidence threshold."""
         pred_boxes = pred["boxes"]
         pred_labels = pred["labels"]
         pred_scores = pred["scores"]
 
-        gt_boxes = target["boxes"]
-        gt_labels = target["labels"]
+        keep = pred_scores >= self.confidence_threshold
+        return pred_boxes[keep], pred_labels[keep]
 
-        # Filter predictions by confidence
-        mask = pred_scores >= self.confidence_threshold
-        pred_boxes = pred_boxes[mask]
-        pred_labels = pred_labels[mask]
+    def _update_false_positives(self, pred_labels: Tensor) -> None:
+        """Mark all predictions as false positives."""
+        for p_label in pred_labels:
+            self.matrix[self.num_classes, p_label] += 1
 
-        # Track matched GT
+    def _update_false_negatives(self, gt_labels: Tensor) -> None:
+        """Mark all ground truths as false negatives."""
+        for gt_label in gt_labels:
+            self.matrix[gt_label, self.num_classes] += 1
+
+    def _process_matches(
+        self,
+        pred_boxes: Tensor,
+        pred_labels: Tensor,
+        gt_boxes: Tensor,
+        gt_labels: Tensor,
+        iou_matrix: Tensor,
+        valid_mask: Tensor,
+    ) -> None:
+        """Process matches greedily based on IoU."""
+        pairs = torch.nonzero(valid_mask)
+        pred_indices = pairs[:, 0]
+        gt_indices = pairs[:, 1]
+
+        # Sort by IoU descending
+        img_ious = iou_matrix[pred_indices, gt_indices]
+        sorted_indices = torch.argsort(img_ious, descending=True)
+        pred_indices = pred_indices[sorted_indices]
+        gt_indices = gt_indices[sorted_indices]
+
         gt_matched = torch.zeros(len(gt_boxes), dtype=torch.bool, device=gt_boxes.device)
+        pred_matched = torch.zeros(len(pred_boxes), dtype=torch.bool, device=pred_boxes.device)
 
-        # Match predictions
-        for p_box, p_label in zip(pred_boxes, pred_labels, strict=True):
-            best_iou = 0.0
-            best_idx = -1
+        for p_idx, g_idx in zip(pred_indices, gt_indices, strict=True):
+            p_idx_item = p_idx.item()
+            g_idx_item = g_idx.item()
 
-            for idx, gt_box in enumerate(gt_boxes):
-                if gt_matched[idx]:
-                    continue
+            if gt_matched[g_idx_item] or pred_matched[p_idx_item]:
+                continue
 
-                iou = self._box_iou(p_box, gt_box)
-                if iou > best_iou and iou >= self.iou_threshold:
-                    best_iou = iou
-                    best_idx = idx
+            gt_matched[g_idx_item] = True
+            pred_matched[p_idx_item] = True
 
-            if best_idx >= 0:
-                gt_matched[best_idx] = True
-                self.matrix[gt_labels[best_idx], p_label] += 1
-            else:
-                # False positive
-                self.matrix[self.num_classes, p_label] += 1
+            gt_cls = gt_labels[g_idx_item]
+            pred_cls = pred_labels[p_idx_item]
+            self.matrix[gt_cls, pred_cls] += 1
 
-        # False negatives (missed GT)
-        for idx, (matched, gt_label) in enumerate(zip(gt_matched, gt_labels, strict=True)):
-            if not matched:
-                self.matrix[gt_label, self.num_classes] += 1
+        # Handle unmatched
+        unmatched_preds_mask = ~pred_matched
+        self._update_false_positives(pred_labels[unmatched_preds_mask])
 
-    def _box_iou(self, box1: Tensor, box2: Tensor) -> float:
-        """Compute IoU between two boxes."""
-        x1 = torch.max(box1[0], box2[0])
-        y1 = torch.max(box1[1], box2[1])
-        x2 = torch.min(box1[2], box2[2])
-        y2 = torch.min(box1[3], box2[3])
-
-        inter = torch.clamp(x2 - x1, min=0) * torch.clamp(y2 - y1, min=0)
-
-        area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
-        area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
-        union = area1 + area2 - inter
-
-        if union == 0:
-            return 0.0
-
-        return (inter / union).item()
+        unmatched_gt_mask = ~gt_matched
+        self._update_false_negatives(gt_labels[unmatched_gt_mask])
 
     def compute(self) -> Tensor:
         """Compute confusion matrix.

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 import pytest
 import torch
 
@@ -27,8 +29,8 @@ class TestConfusionMatrix:
         )
 
         assert cm.num_classes == 5
-        assert cm.iou_threshold == 0.6
-        assert cm.confidence_threshold == 0.3
+        assert math.isclose(cm.iou_threshold, 0.6)
+        assert math.isclose(cm.confidence_threshold, 0.3)
         # Matrix should be (num_classes+1) x (num_classes+1) for background
         assert cm.matrix.shape == (6, 6)
 
@@ -38,8 +40,8 @@ class TestConfusionMatrix:
 
         cm = ConfusionMatrix(num_classes=10)
 
-        assert cm.iou_threshold == 0.5
-        assert cm.confidence_threshold == 0.25
+        assert math.isclose(cm.iou_threshold, 0.5)
+        assert math.isclose(cm.confidence_threshold, 0.25)
 
     def test_update_single_image(self, confusion_matrix) -> None:
         """Test updating with a single image prediction."""
@@ -92,33 +94,6 @@ class TestConfusionMatrix:
         # Should have two true positives
         assert confusion_matrix.matrix[0, 0] == 1
         assert confusion_matrix.matrix[1, 1] == 1
-
-    def test_box_iou_computation(self, confusion_matrix) -> None:
-        """Test IoU computation between two boxes."""
-        box1 = torch.tensor([0.0, 0.0, 100.0, 100.0])
-        box2 = torch.tensor([50.0, 50.0, 150.0, 150.0])
-
-        iou = confusion_matrix._box_iou(box1, box2)
-
-        expected_iou = 2500 / 17500
-        assert abs(iou - expected_iou) < 1e-4
-
-    def test_box_iou_no_overlap(self, confusion_matrix) -> None:
-        """Test IoU for non-overlapping boxes."""
-        box1 = torch.tensor([0.0, 0.0, 50.0, 50.0])
-        box2 = torch.tensor([100.0, 100.0, 150.0, 150.0])
-
-        iou = confusion_matrix._box_iou(box1, box2)
-
-        assert iou == 0.0
-
-    def test_box_iou_perfect_overlap(self, confusion_matrix) -> None:
-        """Test IoU for identical boxes."""
-        box = torch.tensor([10.0, 10.0, 50.0, 50.0])
-
-        iou = confusion_matrix._box_iou(box, box)
-
-        assert abs(iou - 1.0) < 1e-6
 
     def test_compute_returns_matrix(self, confusion_matrix) -> None:
         """Test that compute returns the confusion matrix."""
