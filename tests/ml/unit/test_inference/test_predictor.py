@@ -1,135 +1,168 @@
-"""Unit tests for inference predictor."""
+"""Unit tests for the Predictor class."""
 
+import math
+from pathlib import Path
+from typing import cast
 from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
+from PIL import Image
+from torch import Tensor
 
+from objdet.core.exceptions import InferenceError, ModelError
+from objdet.core.types import DetectionPrediction
 from objdet.inference.predictor import Predictor
 
 
-class MockModel:
-    """Mock detection model for testing."""
+@pytest.fixture
+def mock_model() -> MagicMock:
+    """Create a mock detection model."""
+    model = MagicMock()
+    model.to.return_value = model
+    model.eval.return_value = model
 
-    def __init__(self):
-        self.training = True
+    # Mock forward pass
+    def forward_side_effect(images: list[Tensor]) -> list[dict[str, Tensor]]:
+        return [
+            {
+                "boxes": torch.tensor([[0.0, 0.0, 1.0, 1.0], [2.0, 2.0, 3.0, 3.0]]),
+                "labels": torch.tensor([1, 2]),
+                "scores": torch.tensor([0.9, 0.1]),
+            }
+            for _ in images
+        ]
 
-    def to(self, device):
-        return self
-
-    def eval(self):
-        self.training = False
-        return self
-
-    def __call__(self, images):
-        """Return mock predictions."""
-        predictions = []
-        for img in images:
-            predictions.append(
-                {
-                    "boxes": torch.tensor([[100, 100, 200, 200]]),
-                    "labels": torch.tensor([1]),
-                    "scores": torch.tensor([0.9]),
-                }
-            )
-        return predictions
+    model.side_effect = forward_side_effect
+    return model
 
 
 @pytest.fixture
-def mock_model():
-    """Create mock model."""
-    return MockModel()
-
-
-@pytest.fixture
-def predictor(mock_model):
-    """Create predictor with mock model."""
+def predictor(mock_model: MagicMock) -> Predictor:
+    """Create a Predictor instance."""
     return Predictor(
         model=mock_model,
         device="cpu",
-        confidence_threshold=0.25,
+        confidence_threshold=0.5,
     )
 
 
-class TestPredictor:
-    """Tests for Predictor class."""
-
-    def test_init_sets_eval_mode(self, predictor, mock_model):
-        """Predictor should set model to eval mode."""
-        assert not mock_model.training
-
-    def test_predict_single_image(self, predictor):
-        """Test prediction on single image tensor."""
-        image = torch.rand(3, 480, 640)
-        result = predictor.predict(image)
-
-        assert "boxes" in result
-        assert "labels" in result
-        assert "scores" in result
-
-    def test_predict_filters_by_confidence(self):
-        """Test that low confidence predictions are filtered."""
-        # Create mock model
-        mock_model = MagicMock()
-        mock_model.to.return_value = mock_model
-        mock_model.eval.return_value = mock_model
-        mock_model.return_value = [
-            {
-                "boxes": torch.tensor([[100, 100, 200, 200]]),
-                "labels": torch.tensor([1]),
-                "scores": torch.tensor([0.1]),  # Below threshold
-            }
-        ]
-
-        predictor = Predictor(
-            model=mock_model,
-            device="cpu",
-            confidence_threshold=0.5,
-        )
-
-        image = torch.rand(3, 480, 640)
-        result = predictor.predict(image)
-
-        from typing import cast
-
-        result = cast("dict", result)
-        assert len(result["boxes"]) == 0
-
-    def test_predict_batch(self, predictor):
-        """Test batch prediction."""
-        images = [torch.rand(3, 480, 640) for _ in range(3)]
-        results = predictor.predict_batch(images, batch_size=2)
-
-        assert len(results) == 3
-        for result in results:
-            assert "boxes" in result
+def test_init(mock_model: MagicMock) -> None:
+    """Test predictor initialization."""
+    predictor = Predictor(mock_model, device="cpu")
+    assert predictor.model == mock_model
+    assert predictor.device == torch.device("cpu")
+    assert mock_model.to.called
+    assert mock_model.eval.called
 
 
-class TestPredictorLoadImage:
-    """Tests for image loading in Predictor."""
+@patch("torch.load")
+def test_from_checkpoint_success(mock_torch_load: MagicMock, tmp_path: Path) -> None:
+    """Test loading predictor from checkpoint."""
+    ckpt_path = tmp_path / "model.ckpt"
+    ckpt_path.touch()
 
-    def test_load_tensor(self, predictor):
-        """Tensor input should pass through."""
-        image = torch.rand(3, 480, 640)
-        result = predictor._load_image(image)
+    mock_torch_load.return_value = {"hyper_parameters": {"model_type": "mock_model"}}
 
-        assert torch.equal(result, image)
+    mock_model_class = MagicMock()
+    mock_model_instance = MagicMock()
+    mock_model_class.load_from_checkpoint.return_value = mock_model_instance
 
-    @patch("PIL.Image.open")
-    def test_load_path(self, mock_open, predictor):
-        """Path input should load image."""
-        import numpy as np
+    with patch("objdet.models.MODEL_REGISTRY") as mock_registry:
+        mock_registry.__contains__.return_value = True
+        mock_registry.get.return_value = mock_model_class
 
-        # Mock PIL image
-        mock_img = MagicMock()
-        mock_img.convert.return_value = mock_img
-        # Fix: Accept any arguments for __array__ as np.array calls it with args
-        mock_img.__array__ = lambda *args, **kwargs: (np.random.rand(480, 640, 3) * 255).astype(
-            np.uint8
-        )
-        mock_open.return_value = mock_img
+        predictor = Predictor.from_checkpoint(ckpt_path, device="cpu")
+        assert isinstance(predictor, Predictor)
+        assert predictor.model == mock_model_instance
 
-        result = predictor._load_image("/path/to/image.jpg")
 
-        assert isinstance(result, torch.Tensor)
-        assert result.shape[0] == 3  # Channels first
+def test_from_checkpoint_not_found() -> None:
+    """Test from_checkpoint with missing file."""
+    with pytest.raises(ModelError, match="Checkpoint not found"):
+        Predictor.from_checkpoint("nonexistent.ckpt")
+
+
+def test_predict_tensor(predictor: Predictor) -> None:
+    """Test prediction with tensor input."""
+    img = torch.randn(3, 100, 100)
+    res = predictor.predict(img)
+    assert isinstance(res, dict)
+    assert "boxes" in res
+    assert len(res["boxes"]) == 1  # One above 0.5 threshold
+    assert math.isclose(res["scores"][0], 0.9)
+
+
+def test_predict_pil(predictor: Predictor) -> None:
+    """Test prediction with PIL image input."""
+    img = Image.new("RGB", (100, 100))
+    res = predictor.predict(img)
+    assert isinstance(res, dict)
+    assert len(res["boxes"]) == 1
+
+
+@patch("PIL.Image.open")
+def test_predict_path(mock_open: MagicMock, predictor: Predictor, tmp_path: Path) -> None:
+    """Test prediction with image path."""
+    img_path = tmp_path / "test.jpg"
+    img_path.touch()
+
+    mock_img = Image.new("RGB", (100, 100))
+    mock_open.return_value = mock_img
+
+    res = predictor.predict(img_path)
+    assert isinstance(res, dict)
+    assert len(res["boxes"]) == 1
+
+
+def test_predict_return_image(predictor: Predictor) -> None:
+    """Test prediction returning image tensor."""
+    img = torch.randn(3, 100, 100)
+    res, img_tensor = predictor.predict(img, return_image=True)
+    assert isinstance(res, dict)
+    assert isinstance(img_tensor, Tensor)
+
+
+def test_predict_batch(predictor: Predictor) -> None:
+    """Test batch prediction."""
+    imgs = [torch.randn(3, 100, 100) for _ in range(5)]
+    results = predictor.predict_batch(cast("list[str | Path | Tensor]", imgs), batch_size=2)
+    assert len(results) == 5
+    assert len(results[0]["boxes"]) == 1
+
+
+def test_predict_directory(predictor: Predictor, tmp_path: Path) -> None:
+    """Test prediction on directory of images."""
+    (tmp_path / "img1.jpg").touch()
+    (tmp_path / "img2.png").touch()
+    (tmp_path / "other.txt").touch()
+
+    with patch(
+        "objdet.inference.predictor.Predictor._load_image", return_value=torch.randn(3, 10, 10)
+    ):
+        results = predictor.predict_directory(tmp_path)
+        assert len(results) == 2
+        assert "img1.jpg" in results
+        assert "img2.png" in results
+
+
+def test_predict_directory_error(predictor: Predictor, tmp_path: Path) -> None:
+    """Test predict_directory with non-existent directory."""
+    with pytest.raises(InferenceError, match="Not a directory"):
+        predictor.predict_directory(tmp_path / "ghost")
+
+
+def test_postprocess(predictor: Predictor) -> None:
+    """Test post-processing thresholding."""
+    pred = cast(
+        "DetectionPrediction",
+        {
+            "boxes": torch.tensor([[0.0, 0.0, 1.0, 1.0], [2.0, 2.0, 3.0, 3.0]]),
+            "labels": torch.tensor([1, 2]),
+            "scores": torch.tensor([0.6, 0.4]),
+        },
+    )
+    # Predictor has threshold 0.5
+    processed = predictor._postprocess(pred)
+    assert len(processed["boxes"]) == 1
+    assert processed["scores"][0] == 0.6
