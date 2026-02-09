@@ -32,6 +32,7 @@ You act as a **Principal ML Engineer & Full-Stack Architect**.
     - Use `httpx` instead of `requests`.
     - Use `whenever` instead of `datetime`.
     - Use `albumentations` for image augmentations.
+6.  **Numerics:** Do not perform equality checks with floating point values.
 
 ### Machine Learning (PyTorch + Lightning)
 1.  **Module Structure:** `LightningModule` for logic, `LightningDataModule` for data.
@@ -63,6 +64,7 @@ You act as a **Principal ML Engineer & Full-Stack Architect**.
 
 Prefer `make` commands over direct shell execution.
 
+- **Environment:** Use `uv run` to enable the environment.
 - **Setup:** `make install` (Syncs `uv.lock`)
 - **Quality:** `make lint` (Ruff + pyrefly) & `make format`
 - **Testing:** `make test-unit` (unit), `make test-functional` (functional), `make test-integration` (integration)
