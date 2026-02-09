@@ -1,3 +1,5 @@
+"""Unit tests for NMSEnsemble."""
+
 from typing import cast
 
 import pytest

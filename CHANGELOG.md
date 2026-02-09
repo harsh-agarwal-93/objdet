@@ -75,6 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update changelog and README with comprehensive test coverage
 - Update CHANGELOG and rebuild Sphinx documentation
 - Create GEMINI.md context guide and update test commands
+- Update testing documentation with 84% aggregate coverage stats
+- Add comprehensive docstrings to all new unit test modules
 
 ### ⚡ Performance
 
@@ -101,6 +103,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Get all unit test to run
 - **cli:** Add functional tests for training, inference, and preprocessing
+- **coverage:** Boost aggregate coverage to 84% with 90+ new unit tests
+- **logging:** Achieve 100% code coverage for core logging module
+- **tests:** Add unit tests for NMSEnsemble, WBFEnsemble, BaseLightningDetector, COCODataset, Predictor, CLI, and DetectionTransforms
 - Add 62 unit tests to improve code coverage
 - Add comprehensive system API tests and update config format
 - **backend:** Improve test coverage for tasks and system api

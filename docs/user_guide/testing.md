@@ -178,7 +178,7 @@ uv run pytest tests/unit/ -v
 uv run pytest tests/unit/ --cov=backend --cov-report=term-missing
 ```
 
-**Coverage:** 51 tests, 82% coverage (100% for API routes and services)
+**Coverage:** 152 tests, 84% aggregate coverage (100% for logging module)
 
 **Frontend Tests:**
 
