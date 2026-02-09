@@ -140,28 +140,28 @@ class JobDAG:
 
     def _validate_no_cycles(self, new_job: Job) -> None:
         """Validate adding job doesn't create cycles."""
-        # Simple DFS to detect cycles
         visited = set()
 
-        def dfs(job_id: str) -> bool:
-            if job_id == new_job.id:
-                return True  # Cycle found
+        for dep_id in new_job.dependencies:
+            if self._has_cycle(dep_id, new_job.id, visited):
+                raise ValueError(f"Adding job would create cycle: {new_job.id}")
 
-            if job_id in visited:
-                return False
+    def _has_cycle(self, current_id: str, target_id: str, visited: set[str]) -> bool:
+        """Check for cycles recursively using DFS."""
+        if current_id == target_id:
+            return True  # Cycle found
 
-            visited.add(job_id)
-
-            if job_id in self.jobs:
-                for dep_id in self.jobs[job_id].dependencies:
-                    if dfs(dep_id):
-                        return True
-
+        if current_id in visited:
             return False
 
-        for dep_id in new_job.dependencies:
-            if dfs(dep_id):
-                raise ValueError(f"Adding job would create cycle: {new_job.id}")
+        visited.add(current_id)
+
+        if current_id in self.jobs:
+            for dep_id in self.jobs[current_id].dependencies:
+                if self._has_cycle(dep_id, target_id, visited):
+                    return True
+
+        return False
 
     def get_ready_jobs(self) -> list[Job]:
         """Get jobs that are ready to execute.

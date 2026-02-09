@@ -81,6 +81,18 @@ repos:
       - id: hadolint-docker
         args: [--ignore, DL3008, --ignore, DL3013]
 
+  # - repo: local
+  #   hooks:
+  #     - id: pysonar
+  #       name: pysonar
+  #       entry: uv run pysonar
+  #       language: system
+  #       types: [python]
+  #       pass_filenames: false
+  #       args:
+  #         - --sonar-host-url=http://localhost:9000
+  #         - --sonar-project-key=objdet
+
 ci:
   autofix_commit_msg: "style: auto-fix by pre-commit hooks"
   autoupdate_commit_msg: "chore: update pre-commit hooks"

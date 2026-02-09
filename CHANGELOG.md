@@ -91,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **webapp:** Simplify listArtifacts url construction
 - **structure:** Restructure project into ml and tests directories
 - **deploy:** Use uv for python installation in dockerfiles
+- **job:** Refactor `_validate_no_cycles` to reduce cognitive complexity by extracting helper method
 
 ### 💄 Styling
 
@@ -114,6 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove YAML formatting in pre-commit
 - Migrate from GitLab CI to GitHub Actions
 - Use 'group' flag for docs dependencies in uv sync command
+- **config:** Add local pysonar hook to pre-commit config
 
 ### 🧹 Miscellaneous
 

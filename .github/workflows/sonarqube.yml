@@ -1,0 +1,49 @@
+name: SonarQube
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarqube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run Ruff (Generate Report)
+        run: uv run ruff check --output-format=json --output-file=ruff-report.json ml/src backend tests
+        continue-on-error: true
+
+      - name: Run Pytest (Generate Coverage)
+        run: |
+          uv run pytest -n auto tests \
+            --cov=ml/src \
+            --cov=backend \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term
+        continue-on-error: true
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

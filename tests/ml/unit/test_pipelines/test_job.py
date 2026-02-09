@@ -1,3 +1,4 @@
+import pytest
 from whenever import Instant
 
 from objdet.pipelines.job import Job, JobDAG, JobStatus, JobType
@@ -139,3 +140,20 @@ class TestJobDAG:
         # job1 should come before job2, job2 before job3
         assert order.index(job1.id) < order.index(job2.id)
         assert order.index(job2.id) < order.index(job3.id)
+
+    def test_add_job_cycle(self):
+        """Test cycle detection."""
+        dag = JobDAG()
+
+        # job1 depends on job2
+        job1 = Job(job_type=JobType.TRAIN, config={}, dependencies=["job-2"], id="job-1")
+
+        # job2 depends on job1
+        job2 = Job(job_type=JobType.TRAIN, config={}, dependencies=["job-1"], id="job-2")
+
+        # Add job1 (job2 not in DAG yet, so no checks on it)
+        dag.add_job(job1)
+
+        # Add job2 (should detect cycle: job2 -> job1 -> job2)
+        with pytest.raises(ValueError, match="Adding job would create cycle"):
+            dag.add_job(job2)
