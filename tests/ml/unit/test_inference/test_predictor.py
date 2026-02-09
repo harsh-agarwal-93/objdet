@@ -90,7 +90,7 @@ def test_predict_tensor(predictor: Predictor) -> None:
     assert isinstance(res, dict)
     assert "boxes" in res
     assert len(res["boxes"]) == 1  # One above 0.5 threshold
-    assert math.isclose(res["scores"][0], 0.9)
+    assert math.isclose(res["scores"][0].item(), 0.9, rel_tol=1e-5)
 
 
 def test_predict_pil(predictor: Predictor) -> None:
@@ -165,4 +165,4 @@ def test_postprocess(predictor: Predictor) -> None:
     # Predictor has threshold 0.5
     processed = predictor._postprocess(pred)
     assert len(processed["boxes"]) == 1
-    assert processed["scores"][0] == 0.6
+    assert math.isclose(processed["scores"][0].item(), 0.6, rel_tol=1e-5)
