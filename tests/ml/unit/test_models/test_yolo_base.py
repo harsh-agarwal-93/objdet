@@ -1,146 +1,126 @@
-"""Unit tests for YOLO models using mocks."""
+"""Unit tests for YOLOBaseLightning."""
 
-from __future__ import annotations
-
-from unittest.mock import patch
+from typing import cast
+from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
+from torch import nn
 
-from tests.ml.unit.mocks.mock_ultralytics import MockResults, MockYOLO  # type: ignore
-
-
-class TestMockYOLO:
-    """Tests for the MockYOLO class itself."""
-
-    def test_mock_yolo_init(self) -> None:
-        """Test MockYOLO initialization."""
-        yolo = MockYOLO("yolov8n.pt")
-
-        assert yolo.model_path == "yolov8n.pt"
-        assert yolo.task == "detect"
-
-    def test_mock_yolo_predict(self) -> None:
-        """Test MockYOLO prediction returns results."""
-        yolo = MockYOLO("yolov8n.pt")
-
-        results = yolo.predict("image.jpg")
-
-        assert isinstance(results, list)
-        assert len(results) == 1
-        assert results[0].boxes is not None
-
-    def test_mock_yolo_train(self) -> None:
-        """Test MockYOLO training returns metrics."""
-        yolo = MockYOLO("yolov8n.pt")
-
-        metrics = yolo.train(epochs=10)
-
-        assert isinstance(metrics, dict)
-        assert "mAP50" in metrics
-
-    def test_mock_yolo_export(self) -> None:
-        """Test MockYOLO export returns path."""
-        yolo = MockYOLO("yolov8n.pt")
-
-        output = yolo.export(format="onnx")
-
-        assert output == "yolov8n.onnx"
-
-    def test_mock_yolo_info(self) -> None:
-        """Test MockYOLO info returns dict."""
-        yolo = MockYOLO("yolov8n.pt")
-
-        info = yolo.info()
-
-        assert isinstance(info, dict)
-        assert "layers" in info
-        assert "parameters" in info
+from objdet.core.exceptions import ModelError
+from objdet.core.types import DetectionTarget
+from objdet.models.yolo.base import YOLOBaseLightning
 
 
-class TestMockResults:
-    """Tests for MockResults class."""
+class MockYOLO(YOLOBaseLightning):
+    """Concrete implementation of abstract base class for testing."""
 
-    def test_mock_results_empty(self) -> None:
-        """Test MockResults with no detections."""
-        results = MockResults()
+    def _get_model_variant(self) -> str:
+        return "yolov8n.pt"
 
-        assert len(results.boxes) == 0
 
-    def test_mock_results_with_detections(self) -> None:
-        """Test MockResults with sample detections."""
-        boxes = torch.tensor([[10.0, 20.0, 100.0, 150.0]])
-        scores = torch.tensor([0.95])
-        labels = torch.tensor([1.0])
+@pytest.fixture
+def mock_ultralytics():
+    """Mock the ultralytics YOLO class."""
+    with patch("objdet.models.yolo.base.YOLO") as mock:
+        # Mock the underlying PyTorch model
+        mock_model = MagicMock(spec=nn.Module)
+        mock_model.loss = MagicMock(return_value=(torch.tensor(1.0), torch.tensor([1.0, 0.0, 0.0])))
+        # Mock the head structure for modification tests
+        mock_head = MagicMock()
+        mock_head.nc = 80
+        mock_model.model = [MagicMock(), mock_head]  # Mock modules list
 
-        results = MockResults.with_detections(
-            boxes=boxes,
-            scores=scores,
-            labels=labels,
+        # Mock the predict method
+        mock_result = MagicMock()
+        mock_result.boxes.xyxy = torch.tensor([[0, 0, 10, 10]])
+        mock_result.boxes.cls = torch.tensor([0])
+        mock_result.boxes.conf = torch.tensor([0.9])
+
+        mock_instance = mock.return_value
+        mock_instance.model = mock_model
+        mock_instance.predict.return_value = [mock_result]
+
+        yield mock
+
+
+class TestYOLOBase:
+    """Tests for YOLOBaseLightning."""
+
+    def test_init_validates_size(self):
+        """Test initialization validates model size."""
+        MockYOLO.MODEL_VARIANTS = {"n": "yolov8n.pt"}
+
+        # Valid size
+        model = MockYOLO(num_classes=80, model_size="n", pretrained=False)
+        assert model.model_size == "n"
+
+        # Invalid size
+        with pytest.raises(ModelError):
+            MockYOLO(num_classes=80, model_size="z", pretrained=False)
+
+    def test_build_model_custom_classes(self, mock_ultralytics):
+        """Test model building with custom classes modifies head."""
+        MockYOLO.MODEL_VARIANTS = {"n": "yolov8n.pt"}
+
+        # Initialize should trigger build_model
+        MockYOLO(num_classes=10, model_size="n", pretrained=True)
+
+        # Should call YOLO constructor
+        mock_ultralytics.assert_called_with("yolov8n.pt")
+
+        # Check if head modification was attempted
+        # access the mock model created in fixture
+        mock_instance = mock_ultralytics.return_value
+        head = mock_instance.model.model[-1]
+        assert head.nc == 10
+
+    def test_forward_inference(self, mock_ultralytics):
+        """Test forward pass in inference mode."""
+        MockYOLO.MODEL_VARIANTS = {"n": "yolov8n.pt"}
+        model = MockYOLO(num_classes=80, model_size="n")
+        model.eval()
+
+        images = [torch.rand(3, 640, 640)]
+        predictions = model(images)
+
+        assert len(predictions) == 1
+        assert "boxes" in predictions[0]
+        assert "labels" in predictions[0]
+        assert "scores" in predictions[0]
+
+    def test_forward_training(self, mock_ultralytics):
+        """Test forward pass in training mode."""
+        MockYOLO.MODEL_VARIANTS = {"n": "yolov8n.pt"}
+        model = MockYOLO(num_classes=80, model_size="n")
+        model.train()
+
+        images = [torch.rand(3, 640, 640)]
+        targets = [{"boxes": torch.tensor([[0, 0, 100, 100]]), "labels": torch.tensor([1])}]
+
+        # Mock model call to return some output
+        mock_ultralytics.return_value.model.return_value = torch.zeros(1, 10)
+
+        losses = model(images, cast("list[DetectionTarget]", targets))
+
+        assert "loss" in losses
+        assert "loss_box" in losses
+
+    def test_convert_targets(self, mock_ultralytics):
+        """Test target conversion to YOLO format."""
+        MockYOLO.MODEL_VARIANTS = {"n": "yolov8n.pt"}
+        model = MockYOLO(num_classes=80, model_size="n")
+
+        # Batch of 1 image, 640x640
+        batch = torch.zeros(1, 3, 640, 640)
+        targets = [{"boxes": torch.tensor([[0.0, 0.0, 100.0, 100.0]]), "labels": torch.tensor([5])}]
+
+        yolo_targets = model._convert_targets_to_yolo_format(
+            batch, cast("list[DetectionTarget]", targets)
         )
 
-        assert len(results.boxes) == 1
-        assert torch.equal(results.boxes.xyxy, boxes)
-        assert torch.equal(results.boxes.conf, scores)
-
-
-class TestYOLOv8WithMock:
-    """Tests for YOLOv8 using mocked Ultralytics."""
-
-    @pytest.fixture
-    def mock_ultralytics(self):
-        """Set up mocked Ultralytics YOLO."""
-        with patch("ultralytics.YOLO", MockYOLO):
-            yield
-
-    def test_yolov8_model_sizes(self) -> None:
-        """Test YOLOv8 model size variants."""
-        from objdet.models.yolo.yolov8 import YOLOv8
-
-        # Check MODEL_VARIANTS is defined
-        assert hasattr(YOLOv8, "MODEL_VARIANTS")
-        assert len(YOLOv8.MODEL_VARIANTS) > 0
-        assert "n" in YOLOv8.MODEL_VARIANTS
-        assert "s" in YOLOv8.MODEL_VARIANTS
-
-    def test_yolov11_model_sizes(self) -> None:
-        """Test YOLOv11 model size variants."""
-        from objdet.models.yolo.yolov11 import YOLOv11
-
-        # Check MODEL_VARIANTS is defined
-        assert hasattr(YOLOv11, "MODEL_VARIANTS")
-        assert len(YOLOv11.MODEL_VARIANTS) > 0
-
-
-class TestYOLOIntegrationWithMock:
-    """Integration tests for YOLO with mocked backend."""
-
-    def test_mock_predict_returns_boxes(self) -> None:
-        """Test that mock prediction returns valid boxes."""
-        yolo = MockYOLO()
-
-        results = yolo.predict("test.jpg")
-        boxes = results[0].boxes
-
-        # Should have sample detections
-        assert len(boxes.xyxy) > 0
-        assert boxes.xyxy.shape[1] == 4  # x1, y1, x2, y2
-
-    def test_mock_predict_returns_scores(self) -> None:
-        """Test that mock prediction returns confidence scores."""
-        yolo = MockYOLO()
-
-        results = yolo.predict("test.jpg")
-        boxes = results[0].boxes
-
-        assert len(boxes.conf) > 0
-        assert all(0 <= score <= 1 for score in boxes.conf)
-
-    def test_mock_predict_returns_labels(self) -> None:
-        """Test that mock prediction returns class labels."""
-        yolo = MockYOLO()
-
-        results = yolo.predict("test.jpg")
-        boxes = results[0].boxes
-
-        assert len(boxes.cls) > 0
+        # Format: [batch_idx, class, x_center, y_center, w, h]
+        # x_center = 50/640, y_center = 50/640, w = 100/640, h = 100/640
+        assert yolo_targets.shape == (1, 6)
+        assert yolo_targets[0, 0] == 0  # batch_idx
+        assert yolo_targets[0, 1] == 5  # class

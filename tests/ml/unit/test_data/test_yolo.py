@@ -234,3 +234,43 @@ class TestYOLODataset:
                 expected_area = (480 - 160) * (360 - 120)
                 assert abs(target["area"][0].item() - expected_area) < 100  # Allow small tolerance
                 break
+
+    def test_malformed_label_line(self, yolo_data_dir: Path) -> None:
+        """Test that malformed lines in label file are skipped."""
+        # Create a label file with a bad line
+        bad_content = "0 0.5 0.5 0.5 0.5\n0 0.2\n1 0.25 0.25 0.2 0.3"
+        (yolo_data_dir / "labels" / "image_001.txt").write_text(bad_content)
+
+        dataset = YOLODataset(
+            images_dir=yolo_data_dir / "images",
+            labels_dir=yolo_data_dir / "labels",
+            class_names=["person", "car"],
+        )
+
+        for idx in range(len(dataset)):
+            img_path = dataset.image_paths[idx]
+            if "image_001" in str(img_path):
+                _, target = dataset[idx]
+                # Should find 2 valid boxes, skipping the middle line
+                assert target["boxes"].shape[0] == 2
+                break
+
+    def test_transforms_applied(self, yolo_data_dir: Path) -> None:
+        """Test that transforms are applied to image and target."""
+
+        # Mock transform
+        from unittest.mock import MagicMock
+
+        mock_transform = MagicMock()
+        mock_transform.return_value = (torch.zeros(3, 10, 10), {"boxes": torch.zeros(0, 4)})
+
+        dataset = YOLODataset(
+            images_dir=yolo_data_dir / "images",
+            labels_dir=yolo_data_dir / "labels",
+            class_names=["person", "car"],
+            transforms=mock_transform,
+        )
+
+        _ = dataset[0]
+
+        assert mock_transform.called

@@ -81,6 +81,17 @@ class BaseEnsemble(BaseLightningDetector):
                     f"but model 0 has {num_classes} classes"
                 )
 
+        # Initialize BaseLightningDetector (and nn.Module) first
+        super().__init__(
+            num_classes=cast("int", num_classes),
+            class_index_mode=class_index_mode,
+            confidence_threshold=conf_thresh,
+            nms_threshold=iou_thresh,
+            pretrained=False,
+            **kwargs,
+        )
+
+        # Now safe to assign sub-modules
         self.ensemble_models = nn.ModuleList(models)
         self.iou_thresh = iou_thresh
         self.conf_thresh = conf_thresh
@@ -97,15 +108,6 @@ class BaseEnsemble(BaseLightningDetector):
             # Normalize weights if they don't sum to 1
             total = sum(weights)
             self.weights = [w / total for w in weights]
-
-        super().__init__(
-            num_classes=cast("int", num_classes),
-            class_index_mode=class_index_mode,
-            confidence_threshold=conf_thresh,
-            nms_threshold=iou_thresh,
-            pretrained=False,
-            **kwargs,
-        )
 
         logger.info(
             f"Created {self.__class__.__name__} with {len(models)} models, weights={self.weights}"

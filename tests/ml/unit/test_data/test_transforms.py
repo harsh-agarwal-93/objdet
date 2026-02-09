@@ -61,7 +61,7 @@ class TestResize:
     def test_resize_min_dimension(self, sample_image, sample_target):
         """Resize should make min dimension equal to min_size."""
         transform = Resize(min_size=400, max_size=800)
-        result_img, result_target = transform(sample_image, sample_target)
+        result_img, _ = transform(sample_image, sample_target)
 
         _, h, w = result_img.shape
         min_dim = min(h, w)
@@ -98,7 +98,7 @@ class TestCompose:
             ]
         )
 
-        result_img, result_target = transforms(sample_image, sample_target)
+        result_img, _ = transforms(sample_image, sample_target)
 
         # Check both transforms were applied
         _, h, w = result_img.shape
@@ -146,7 +146,7 @@ class TestRandomVerticalFlip:
         target = deepcopy(sample_target)
 
         transform = RandomVerticalFlip(p=1.0)
-        result_img, result_target = transform(sample_image, target)
+        result_img, _ = transform(sample_image, target)
 
         # Image should be vertically flipped
         assert torch.allclose(result_img, sample_image.flip(-2))
@@ -158,7 +158,7 @@ class TestColorJitter:
     def test_jitter_changes_image(self, sample_image, sample_target):
         """ColorJitter should modify image but not boxes."""
         transform = ColorJitter(brightness=0.5, contrast=0.5)
-        result_img, result_target = transform(sample_image, sample_target)
+        _, result_target = transform(sample_image, sample_target)
 
         # Image might be changed (random)
         # Boxes should not change
@@ -171,10 +171,77 @@ class TestRandomCrop:
     def test_crop_reduces_size(self, sample_image, sample_target):
         """Crop should reduce image size."""
         transform = RandomCrop(min_scale=0.5, max_scale=0.5, min_boxes_kept=0.0)
-        result_img, result_target = transform(sample_image, sample_target)
+        result_img, _ = transform(sample_image, sample_target)
 
         _, h, w = result_img.shape
         _, orig_h, orig_w = sample_image.shape
 
         assert h <= orig_h
         assert w <= orig_w
+
+
+class TestToTensor:
+    """Tests for ToTensor transform."""
+
+    def test_already_tensor(self, sample_image, sample_target):
+        """Test no-op if already tensor."""
+        from objdet.data.transforms.base import ToTensor
+
+        transform = ToTensor()
+        # Input is already float tensor in [0, 1]
+        result_img, _ = transform(sample_image, sample_target)
+
+        assert isinstance(result_img, torch.Tensor)
+        assert torch.allclose(result_img, sample_image)
+
+    def test_scales_values(self, sample_target):
+        """Test scaling from [0, 255] to [0, 1]."""
+        from objdet.data.transforms.base import ToTensor
+
+        # Create byte tensor in [0, 255]
+        img = torch.randint(0, 255, (3, 100, 100), dtype=torch.uint8)
+
+        transform = ToTensor()
+        result_img, _ = transform(img, sample_target)
+
+        assert result_img.dtype == torch.float32
+        assert result_img.max() <= 1.0
+
+
+class TestComposeExtras:
+    """Extra tests for Compose."""
+
+    def test_repr(self):
+        """Test string representation."""
+        transforms = Compose([Resize(100)])
+        assert "Compose" in str(transforms)
+        assert "Resize" in str(transforms)
+
+
+class TestResizeExtras:
+    """Extra tests for Resize."""
+
+    def test_max_size_limit(self, sample_image, sample_target):
+        """Test that max_size limits the scaling."""
+        # Image is 480x640
+        # If we set min_size=800, normally it would scale to 800x1066
+        # But if we cap max_size at 900, it should be limited
+
+        transform = Resize(min_size=800, max_size=900)
+        result_img, _ = transform(sample_image, sample_target)
+
+        _, h, w = result_img.shape
+        assert max(h, w) <= 900
+
+    def test_updates_area(self, sample_image, sample_target):
+        """Test that area is updated after resize."""
+        from copy import deepcopy
+
+        target = deepcopy(sample_target)
+        original_area = target["area"].clone()
+
+        transform = Resize(min_size=240, max_size=1000)  # Scale 0.5
+        _, result_target = transform(sample_image, target)
+
+        # Area should scale by 0.5^2 = 0.25
+        assert torch.allclose(result_target["area"], original_area * 0.25)
