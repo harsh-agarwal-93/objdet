@@ -49,8 +49,8 @@ def sample_predictions() -> list[DetectionPrediction]:
 def test_wbf_ensemble_init(mock_models: list[DummyModel]) -> None:
     """Test WBFEnsemble initialization."""
     ensemble = WBFEnsemble(models=mock_models, iou_thresh=0.6, skip_box_thresh=0.1, conf_type="max")
-    assert ensemble.iou_thresh == 0.6
-    assert ensemble.skip_box_thresh == 0.1
+    assert ensemble.iou_thresh == pytest.approx(0.6)
+    assert ensemble.skip_box_thresh == pytest.approx(0.1)
     assert ensemble.conf_type == "max"
     assert len(ensemble.ensemble_models) == 2
 
