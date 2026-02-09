@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types'
+
 export default function Select({
     label,
     options = [],
@@ -29,4 +31,15 @@ export default function Select({
             </select>
         </div>
     )
+}
+
+Select.propTypes = {
+    label: PropTypes.string,
+    options: PropTypes.arrayOf(
+        PropTypes.shape({
+            value: PropTypes.string.isRequired,
+            label: PropTypes.string.isRequired,
+        })
+    ),
+    className: PropTypes.string,
 }

@@ -184,70 +184,73 @@ class VOCDataset(Dataset):
     def _parse_xml(self, xml_path: Path, image_id: str) -> DetectionTarget:
         """Parse VOC XML annotation file."""
         if not xml_path.exists():
-            # No annotations for this image
-            return {
-                "boxes": torch.zeros((0, 4), dtype=torch.float32),
-                "labels": torch.zeros(0, dtype=torch.int64),
-                "area": torch.zeros(0, dtype=torch.float32),
-                "iscrowd": torch.zeros(0, dtype=torch.int64),
-                "image_id": hash(image_id) % (2**31),
-            }
+            return self._empty_target(image_id)
 
         tree = ET.parse(xml_path)
         root = tree.getroot()
 
+        boxes, labels, difficulties = self._extract_objects(root, xml_path)
+
+        if not boxes:
+            return self._empty_target(image_id)
+
+        boxes_tensor = torch.tensor(boxes, dtype=torch.float32)
+        areas = (boxes_tensor[:, 2] - boxes_tensor[:, 0]) * (
+            boxes_tensor[:, 3] - boxes_tensor[:, 1]
+        )
+
+        return {
+            "boxes": boxes_tensor,
+            "labels": torch.tensor(labels, dtype=torch.int64),
+            "area": areas,
+            "iscrowd": torch.tensor(difficulties, dtype=torch.int64),
+            "image_id": hash(image_id) % (2**31),
+        }
+
+    def _extract_objects(
+        self, root: ET.Element, xml_path: Path
+    ) -> tuple[list[list[float]], list[int], list[int]]:
+        """Extract objects from XML root."""
         boxes = []
         labels = []
         difficulties = []
 
         for obj in root.findall("object"):
-            # Get class name
             name_elem = obj.find("name")
             if name_elem is None or name_elem.text is None:
                 continue
+
             name = name_elem.text
             if name not in self.class_to_idx:
                 logger.warning(f"Unknown class '{name}' in {xml_path}")
                 continue
 
-            # Get bounding box
-            bbox = self._parse_bbox(obj, xml_path)
+            bbox = self._parse_bbox(obj)
             if bbox is None:
                 continue
 
             boxes.append(bbox)
             labels.append(self.class_to_idx[name])
 
-            # Get difficult flag
             difficult = obj.find("difficult")
-            difficulties.append(
+            diff_val = (
                 int(difficult.text) if difficult is not None and difficult.text is not None else 0
             )
+            difficulties.append(diff_val)
 
-        # Convert to tensors
-        if boxes:
-            boxes_tensor = torch.tensor(boxes, dtype=torch.float32)
-            areas = (boxes_tensor[:, 2] - boxes_tensor[:, 0]) * (
-                boxes_tensor[:, 3] - boxes_tensor[:, 1]
-            )
+        return boxes, labels, difficulties
 
-            return {
-                "boxes": boxes_tensor,
-                "labels": torch.tensor(labels, dtype=torch.int64),
-                "area": areas,
-                "iscrowd": torch.tensor(difficulties, dtype=torch.int64),
-                "image_id": hash(image_id) % (2**31),
-            }
-        else:
-            return {
-                "boxes": torch.zeros((0, 4), dtype=torch.float32),
-                "labels": torch.zeros(0, dtype=torch.int64),
-                "area": torch.zeros(0, dtype=torch.float32),
-                "iscrowd": torch.zeros(0, dtype=torch.int64),
-                "image_id": hash(image_id) % (2**31),
-            }
+    def _empty_target(self, image_id: str) -> DetectionTarget:
+        """Return an empty detection target."""
+        return {
+            "boxes": torch.zeros((0, 4), dtype=torch.float32),
+            "labels": torch.zeros(0, dtype=torch.int64),
+            "area": torch.zeros(0, dtype=torch.float32),
+            "iscrowd": torch.zeros(0, dtype=torch.int64),
+            "image_id": hash(image_id) % (2**31),
+        }
 
-    def _parse_bbox(self, obj: ET.Element, xml_path: Path) -> list[float] | None:
+    def _parse_bbox(self, obj: ET.Element) -> list[float] | None:
         """Parse bounding box from XML object element."""
         bbox = obj.find("bndbox")
         if bbox is None:

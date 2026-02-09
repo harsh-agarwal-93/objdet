@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
 import {
     Play,
@@ -169,16 +170,10 @@ export default function Models() {
                     ) : (
                         runs.map((run) => (
                             <Card key={run.run_id} className="p-4">
-                                <div
-                                    className="flex items-center justify-between cursor-pointer"
+                                <button
+                                    type="button"
+                                    className="w-full flex items-center justify-between cursor-pointer text-left"
                                     onClick={() => setExpandedRun(expandedRun === run.run_id ? null : run.run_id)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                            setExpandedRun(expandedRun === run.run_id ? null : run.run_id)
-                                        }
-                                    }}
                                 >
                                     <div className="flex items-center gap-4">
                                         <div>
@@ -198,7 +193,7 @@ export default function Models() {
                                             <ChevronDown className="w-5 h-5 text-gray-400" />
                                         )}
                                     </div>
-                                </div>
+                                </button>
 
                                 {expandedRun === run.run_id && (
                                     <motion.div
@@ -377,3 +372,5 @@ export default function Models() {
         </div>
     )
 }
+
+Models.propTypes = {}

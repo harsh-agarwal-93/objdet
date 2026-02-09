@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import PropTypes from 'prop-types'
 
 export default function ProgressBar({
     value = 0,
@@ -14,4 +15,9 @@ export default function ProgressBar({
             />
         </div>
     )
+}
+
+ProgressBar.propTypes = {
+    value: PropTypes.number,
+    className: PropTypes.string,
 }
