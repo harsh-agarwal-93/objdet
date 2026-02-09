@@ -115,3 +115,4 @@ All services implement health checks:
 - **MLflow**: `http://localhost:5000/health`
 - **Serve**: `http://localhost:8000/health`
 - **Backend**: `http://localhost:8000/health`
+- **System Status**: `http://localhost:8000/api/system/status`

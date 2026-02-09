@@ -50,7 +50,7 @@ changelog
 - **Training**: LightningCLI, custom callbacks, Optuna tuning
 - **Deployment**: LitServe REST API with A/B testing
 - **MLOps**: Celery job queue, job dependencies, resource routing
-- **Web UI**: Streamlit + FastAPI interface for training management
+- **Web UI**: React + FastAPI interface for training management
 
 ## Quick Example
 

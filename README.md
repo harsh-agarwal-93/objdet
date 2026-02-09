@@ -157,12 +157,14 @@ objdet/
 ├── tests/                # Unit and integration tests
 │   ├── unit/             # Unit tests for individual modules
 │   └── integration/      # End-to-end integration tests
-├── webapp/               # Web application (React + FastAPI)
-│   ├── backend/          # FastAPI REST API
-│   ├── frontend/         # React UI (Vite + Tailwind)
+├── backend/          # FastAPI REST API
+├── frontend/         # React UI (Vite + Tailwind)
+├── deploy/           # Deployment scripts and Dockerfiles
 │   └── docker-compose.yml # Multi-container deployment
-├── docs/                 # Documentation
-└── scripts/              # Utility scripts
+├── ml/               # Machine learning source code
+├── tests/            # Unit and integration tests
+├── docs/             # Documentation
+└── scripts/          # Utility scripts
 ```
 
 ## 🌐 Web Application
@@ -189,7 +191,7 @@ docker-compose up
 - **Job Queue**: Celery integration for distributed training
 - **API Documentation**: Automatic OpenAPI (Swagger) docs
 
-See [webapp/README.md](webapp/README.md) for detailed documentation.
+See [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md) for detailed documentation.
 
 ## 🧪 Testing
 

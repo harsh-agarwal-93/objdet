@@ -12,18 +12,18 @@ jobs:
     name: SonarQube Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
           enable-cache: true
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -44,6 +44,6 @@ jobs:
         continue-on-error: true
 
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v7
+        uses: sonarsource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

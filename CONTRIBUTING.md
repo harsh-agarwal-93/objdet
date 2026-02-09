@@ -62,7 +62,7 @@ git config commit.template .gitmessage
    ```bash
    uv run ruff check src tests
    uv run ruff format src tests
-   uv run ty check src
+   uv run pyrefly check src
    ```
 
 ## Commit Messages
