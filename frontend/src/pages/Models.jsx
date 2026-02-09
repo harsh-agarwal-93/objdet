@@ -145,8 +145,8 @@ export default function Models() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === tab.id
-                                ? 'bg-midnight-800 text-neon-teal border-b-2 border-neon-teal'
-                                : 'text-gray-400 hover:text-white'
+                            ? 'bg-midnight-800 text-neon-teal border-b-2 border-neon-teal'
+                            : 'text-gray-400 hover:text-white'
                             }`}
                     >
                         {tab.label}
@@ -172,6 +172,13 @@ export default function Models() {
                                 <div
                                     className="flex items-center justify-between cursor-pointer"
                                     onClick={() => setExpandedRun(expandedRun === run.run_id ? null : run.run_id)}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            setExpandedRun(expandedRun === run.run_id ? null : run.run_id)
+                                        }
+                                    }}
                                 >
                                     <div className="flex items-center gap-4">
                                         <div>
@@ -253,7 +260,7 @@ export default function Models() {
                                     min={1}
                                     max={1000}
                                     value={formData.epochs}
-                                    onChange={(e) => setFormData({ ...formData, epochs: parseInt(e.target.value) })}
+                                    onChange={(e) => setFormData({ ...formData, epochs: Number.parseInt(e.target.value) })}
                                 />
                                 <Input
                                     label="Batch Size"
@@ -261,7 +268,7 @@ export default function Models() {
                                     min={1}
                                     max={512}
                                     value={formData.batch_size}
-                                    onChange={(e) => setFormData({ ...formData, batch_size: parseInt(e.target.value) })}
+                                    onChange={(e) => setFormData({ ...formData, batch_size: Number.parseInt(e.target.value) })}
                                 />
                             </div>
 
@@ -274,7 +281,7 @@ export default function Models() {
                                     min={0.0001}
                                     max={0.1}
                                     value={formData.learning_rate}
-                                    onChange={(e) => setFormData({ ...formData, learning_rate: parseFloat(e.target.value) })}
+                                    onChange={(e) => setFormData({ ...formData, learning_rate: Number.parseFloat(e.target.value) })}
                                 />
                                 <Select
                                     label="Optimizer"

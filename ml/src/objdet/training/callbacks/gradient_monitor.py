@@ -93,10 +93,10 @@ class GradientMonitorCallback(Callback):
         is_nan = bool(grad.isnan().any())
         is_inf = bool(grad.isinf().any())
 
-        if is_nan and self.detect_anomalies:
-            logger.warning(f"NaN gradient detected in {name}")
-
-        if is_inf and self.detect_anomalies:
-            logger.warning(f"Inf gradient detected in {name}")
+        if self.detect_anomalies:
+            if is_nan:
+                logger.warning(f"NaN gradient detected in {name}")
+            if is_inf:
+                logger.warning(f"Inf gradient detected in {name}")
 
         return is_nan, is_inf

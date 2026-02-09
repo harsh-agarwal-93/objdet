@@ -65,6 +65,8 @@ const statusConfig = {
     },
 }
 
+import PropTypes from 'prop-types'
+
 export default function StatusBadge({ status }) {
     const config = statusConfig[status?.toLowerCase()] || statusConfig.pending
     const Icon = config.icon
@@ -75,4 +77,8 @@ export default function StatusBadge({ status }) {
             {config.label}
         </span>
     )
+}
+
+StatusBadge.propTypes = {
+    status: PropTypes.string.isRequired,
 }

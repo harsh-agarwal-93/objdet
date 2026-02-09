@@ -178,9 +178,7 @@ class TestPyTorchLightningPruningCallback:
         mock_trainer.current_epoch = 5
         mock_trainer.callback_metrics = {"val/loss": 0.5}
 
-        mock_pl_module = MagicMock()
-
-        callback.on_validation_end(mock_trainer, mock_pl_module)
+        callback.on_validation_end(mock_trainer)
 
         mock_trial.report.assert_called_once_with(0.5, 5)
 
@@ -195,10 +193,8 @@ class TestPyTorchLightningPruningCallback:
         mock_trainer.current_epoch = 5
         mock_trainer.callback_metrics = {}  # No metrics
 
-        mock_pl_module = MagicMock()
-
         # Should not raise
-        callback.on_validation_end(mock_trainer, mock_pl_module)
+        callback.on_validation_end(mock_trainer)
 
         # Should not have reported anything
         mock_trial.report.assert_not_called()

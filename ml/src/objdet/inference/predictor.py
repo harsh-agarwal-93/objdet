@@ -87,7 +87,7 @@ class Predictor:
             Configured Predictor instance.
         """
         checkpoint_path = Path(checkpoint_path)
-        if not checkpoint_path.exists():
+        if not Path.exists(checkpoint_path):
             raise ModelError(f"Checkpoint not found: {checkpoint_path}")
 
         # Load checkpoint

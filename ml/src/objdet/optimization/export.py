@@ -36,7 +36,6 @@ def export_model(
     checkpoint_path: str | Path,
     output_path: str | Path,
     export_format: Literal["onnx", "tensorrt", "safetensors"] = "onnx",
-    config_path: str | Path | None = None,
     **kwargs: Any,
 ) -> Path:
     """Export model to specified format.
@@ -47,7 +46,6 @@ def export_model(
         checkpoint_path: Path to model checkpoint.
         output_path: Output path for exported model.
         export_format: Target format ("onnx", "tensorrt", "safetensors").
-        config_path: Optional model config file.
         **kwargs: Additional format-specific arguments.
 
     Returns:
@@ -64,7 +62,7 @@ def export_model(
         )
 
     # Load model
-    model = _load_model_from_checkpoint(checkpoint_path, config_path)
+    model = _load_model_from_checkpoint(checkpoint_path)
 
     # Export based on format
     if export_format.lower() == "onnx":
@@ -277,7 +275,6 @@ def export_to_tensorrt(
 
 def _load_model_from_checkpoint(
     checkpoint_path: Path,
-    config_path: str | Path | None = None,
 ) -> BaseLightningDetector:
     """Load model from checkpoint."""
     checkpoint = torch.load(checkpoint_path, map_location="cpu")

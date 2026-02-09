@@ -25,7 +25,7 @@ Example:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from objdet.core.exceptions import ConfigurationError
 from objdet.core.logging import get_logger
@@ -33,11 +33,10 @@ from objdet.core.logging import get_logger
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-T = TypeVar("T")
 logger = get_logger(__name__)
 
 
-class Registry(Generic[T]):
+class Registry[T]:
     """Generic registry for plugin-style component management.
 
     This class provides a centralized registry where components can be

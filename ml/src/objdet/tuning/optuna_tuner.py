@@ -221,7 +221,6 @@ class PyTorchLightningPruningCallback:
     def on_validation_end(
         self,
         trainer: L.Trainer,
-        pl_module: L.LightningModule,
     ) -> None:
         """Report and possibly prune after validation."""
         epoch = trainer.current_epoch

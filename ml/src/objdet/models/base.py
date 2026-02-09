@@ -37,7 +37,7 @@ from objdet.core.constants import (
     ClassIndexMode,
 )
 from objdet.core.logging import get_logger
-from objdet.core.types import DetectionPrediction, DetectionTarget
+from objdet.core.types import DetectionPrediction, DetectionTarget, PredictionBatch
 
 logger = get_logger(__name__)
 
@@ -206,7 +206,7 @@ class BaseLightningDetector(L.LightningModule):
         images, targets = batch
 
         # Get predictions (inference mode)
-        predictions = cast("list[DetectionPrediction]", self.forward(images))
+        predictions = cast("PredictionBatch", self.forward(images))
 
         # Filter predictions by confidence
         filtered_preds = self._filter_predictions(predictions)
@@ -244,7 +244,7 @@ class BaseLightningDetector(L.LightningModule):
             batch_idx: Index of the current batch.
         """
         images, targets = batch
-        predictions = cast("list[DetectionPrediction]", self.forward(images))
+        predictions = cast("PredictionBatch", self.forward(images))
         filtered_preds = self._filter_predictions(predictions)
         self._test_map.update(filtered_preds, targets)  # type: ignore[arg-type]
 
@@ -278,7 +278,7 @@ class BaseLightningDetector(L.LightningModule):
         else:
             images = batch
 
-        predictions = cast("list[DetectionPrediction]", self.forward(images))
+        predictions = cast("PredictionBatch", self.forward(images))
         return self._filter_predictions(predictions)
 
     def _filter_predictions(

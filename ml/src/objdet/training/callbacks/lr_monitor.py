@@ -52,20 +52,37 @@ class LearningRateMonitorCallback(Callback):
 
         for opt_idx, optimizer in enumerate(trainer.optimizers):
             for pg_idx, param_group in enumerate(optimizer.param_groups):
-                # Learning rate
-                lr = param_group.get("lr", 0)
-                name = f"lr/optimizer_{opt_idx}_pg_{pg_idx}"
-                if len(trainer.optimizers) == 1 and len(optimizer.param_groups) == 1:
-                    name = "lr"
-                pl_module.log(name, lr, prog_bar=False)
+                self._log_param_group_stats(opt_idx, pg_idx, param_group, trainer, pl_module)
 
-                # Momentum
-                if self.log_momentum:
-                    momentum = param_group.get("momentum", param_group.get("betas", (0,))[0])
-                    if momentum is not None:
-                        pl_module.log(f"momentum/pg_{pg_idx}", momentum, prog_bar=False)
+    def _log_param_group_stats(
+        self,
+        opt_idx: int,
+        pg_idx: int,
+        param_group: dict[str, Any],
+        trainer: L.Trainer,
+        pl_module: L.LightningModule,
+    ) -> None:
+        """Log stats for a specific parameter group."""
+        # Learning rate
+        lr = param_group.get("lr", 0)
+        name = f"lr/optimizer_{opt_idx}_pg_{pg_idx}"
 
-                # Weight decay
-                if self.log_weight_decay:
-                    wd = param_group.get("weight_decay", 0)
-                    pl_module.log(f"weight_decay/pg_{pg_idx}", wd, prog_bar=False)
+        # Determine if we can use the simple "lr" name
+        is_single_opt = len(trainer.optimizers) == 1
+        is_single_pg = len(trainer.optimizers[opt_idx].param_groups) == 1
+
+        if is_single_opt and is_single_pg:
+            name = "lr"
+
+        pl_module.log(name, lr, prog_bar=False)
+
+        # Momentum
+        if self.log_momentum:
+            momentum = param_group.get("momentum", param_group.get("betas", (0,))[0])
+            if momentum is not None:
+                pl_module.log(f"momentum/pg_{pg_idx}", momentum, prog_bar=False)
+
+        # Weight decay
+        if self.log_weight_decay:
+            wd = param_group.get("weight_decay", 0)
+            pl_module.log(f"weight_decay/pg_{pg_idx}", wd, prog_bar=False)

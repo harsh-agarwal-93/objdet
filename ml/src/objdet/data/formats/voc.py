@@ -211,33 +211,11 @@ class VOCDataset(Dataset):
                 continue
 
             # Get bounding box
-            bbox = obj.find("bndbox")
+            bbox = self._parse_bbox(obj, xml_path)
             if bbox is None:
                 continue
 
-            xmin_elem = bbox.find("xmin")
-            ymin_elem = bbox.find("ymin")
-            xmax_elem = bbox.find("xmax")
-            ymax_elem = bbox.find("ymax")
-
-            if (
-                xmin_elem is None
-                or xmin_elem.text is None
-                or ymin_elem is None
-                or ymin_elem.text is None
-                or xmax_elem is None
-                or xmax_elem.text is None
-                or ymax_elem is None
-                or ymax_elem.text is None
-            ):
-                continue
-
-            xmin = float(xmin_elem.text)
-            ymin = float(ymin_elem.text)
-            xmax = float(xmax_elem.text)
-            ymax = float(ymax_elem.text)
-
-            boxes.append([xmin, ymin, xmax, ymax])
+            boxes.append(bbox)
             labels.append(self.class_to_idx[name])
 
             # Get difficult flag
@@ -268,6 +246,21 @@ class VOCDataset(Dataset):
                 "iscrowd": torch.zeros(0, dtype=torch.int64),
                 "image_id": hash(image_id) % (2**31),
             }
+
+    def _parse_bbox(self, obj: ET.Element, xml_path: Path) -> list[float] | None:
+        """Parse bounding box from XML object element."""
+        bbox = obj.find("bndbox")
+        if bbox is None:
+            return None
+
+        parts = {}
+        for part in ["xmin", "ymin", "xmax", "ymax"]:
+            elem = bbox.find(part)
+            if elem is None or elem.text is None:
+                return None
+            parts[part] = float(elem.text)
+
+        return [parts["xmin"], parts["ymin"], parts["xmax"], parts["ymax"]]
 
 
 @DATAMODULE_REGISTRY.register("voc", aliases=["pascal_voc"])

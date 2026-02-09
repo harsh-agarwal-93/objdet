@@ -91,7 +91,7 @@ export const handlers = [
     http.get(`${BASE_URL}/api/mlflow/runs`, ({ request }) => {
         const url = new URL(request.url)
         const experimentId = url.searchParams.get('experiment_id')
-        const maxResults = parseInt(url.searchParams.get('max_results') || '50')
+        const maxResults = Number.parseInt(url.searchParams.get('max_results') || '50')
 
         let filteredRuns = mockRuns
         if (experimentId) {

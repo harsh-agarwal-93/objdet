@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { TrendingUp, TrendingDown } from 'lucide-react'
 
+import PropTypes from 'prop-types'
+
 export default function StatCard({
     icon: Icon,
     label,
@@ -32,4 +34,12 @@ export default function StatCard({
             </div>
         </motion.div>
     )
+}
+
+StatCard.propTypes = {
+    icon: PropTypes.elementType.isRequired,
+    label: PropTypes.string.isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    trend: PropTypes.number,
+    className: PropTypes.string,
 }

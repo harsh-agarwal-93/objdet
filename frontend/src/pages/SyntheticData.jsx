@@ -176,7 +176,7 @@ export default function SyntheticData() {
                                     min={0}
                                     max={360}
                                     value={config.azimuth}
-                                    onChange={(e) => setConfig({ ...config, azimuth: parseInt(e.target.value) })}
+                                    onChange={(e) => setConfig({ ...config, azimuth: Number.parseInt(e.target.value) })}
                                     className="w-full"
                                 />
                             </div>
@@ -187,7 +187,7 @@ export default function SyntheticData() {
                                     min={-90}
                                     max={90}
                                     value={config.elevation}
-                                    onChange={(e) => setConfig({ ...config, elevation: parseInt(e.target.value) })}
+                                    onChange={(e) => setConfig({ ...config, elevation: Number.parseInt(e.target.value) })}
                                     className="w-full"
                                 />
                             </div>
@@ -204,19 +204,19 @@ export default function SyntheticData() {
                                 label="Range Bins"
                                 type="number"
                                 value={config.rangeBins}
-                                onChange={(e) => setConfig({ ...config, rangeBins: parseInt(e.target.value) })}
+                                onChange={(e) => setConfig({ ...config, rangeBins: Number.parseInt(e.target.value) })}
                             />
                             <Input
                                 label="Crossrange Bins"
                                 type="number"
                                 value={config.crossrangeBins}
-                                onChange={(e) => setConfig({ ...config, crossrangeBins: parseInt(e.target.value) })}
+                                onChange={(e) => setConfig({ ...config, crossrangeBins: Number.parseInt(e.target.value) })}
                             />
                             <Input
                                 label="Pixel Resolution"
                                 type="number"
                                 value={config.pixelRes}
-                                onChange={(e) => setConfig({ ...config, pixelRes: parseInt(e.target.value) })}
+                                onChange={(e) => setConfig({ ...config, pixelRes: Number.parseInt(e.target.value) })}
                             />
                         </div>
                     </Card>
