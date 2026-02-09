@@ -153,8 +153,8 @@ class ConfusionMatrix(Metric):
         pred_matched = torch.zeros(len(pred_boxes), dtype=torch.bool, device=pred_boxes.device)
 
         for p_idx, g_idx in zip(pred_indices, gt_indices, strict=True):
-            p_idx_item = p_idx.item()
-            g_idx_item = g_idx.item()
+            p_idx_item = int(p_idx.item())
+            g_idx_item = int(g_idx.item())
 
             if gt_matched[g_idx_item] or pred_matched[p_idx_item]:
                 continue

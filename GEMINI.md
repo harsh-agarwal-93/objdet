@@ -58,7 +58,7 @@ You act as a **Principal ML Engineer & Full-Stack Architect**.
     - Format: `<type>(<scope>): <subject>`
     - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`.
     - Example: `feat(models): add yolov8 training support`
-2.  **Changelog:** Use `git-cliff` to update `CHANGELOG.md`.
+2.  **Changelog:** Use `uvx git-cliff` to update `CHANGELOG.md`.
 
 ## ⚙️ Operational Commands (Makefile)
 
