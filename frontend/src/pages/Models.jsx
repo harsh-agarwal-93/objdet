@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
-import { motion } from 'framer-motion'
 import {
     Play,
     Square,
@@ -11,6 +9,7 @@ import {
     Clock,
     Cpu,
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { Card, Button, Input, Select, StatusBadge, ProgressBar } from '../components/ui'
 import api from '../api/client'
 
@@ -125,6 +124,85 @@ export default function Models() {
         { id: 'active', label: `⚡ Active Jobs (${activeTasks.length})` },
     ]
 
+    const renderRunsContent = () => {
+        if (loading) {
+            return (
+                <Card className="p-8 text-center">
+                    <RefreshCw className="w-8 h-8 text-neon-teal animate-spin mx-auto mb-2" />
+                    <p className="text-gray-400">Loading runs...</p>
+                </Card>
+            )
+        }
+
+        if (runs.length === 0) {
+            return (
+                <Card className="p-8 text-center">
+                    <p className="text-gray-400">No training runs found in MLFlow</p>
+                </Card>
+            )
+        }
+
+        return (
+            <>
+                {runs.map((run) => (
+                    <Card key={run.run_id} className="p-4">
+                        <button
+                            type="button"
+                            className="w-full flex items-center justify-between cursor-pointer text-left"
+                            onClick={() => setExpandedRun(expandedRun === run.run_id ? null : run.run_id)}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div>
+                                    <h3 className="font-medium text-white">{run.run_name || 'Unnamed Run'}</h3>
+                                    <p className="text-xs text-gray-500 font-mono">ID: {run.run_id}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <StatusBadge status={run.status} />
+                                <span className="text-xs text-gray-500 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {formatDate(run.start_time)}
+                                </span>
+                                {expandedRun === run.run_id ? (
+                                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                                ) : (
+                                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                                )}
+                            </div>
+                        </button>
+
+                        {expandedRun === run.run_id && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="mt-4 pt-4 border-t border-midnight-700"
+                            >
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-400 mb-2">Parameters</h4>
+                                        <p className="text-xs text-gray-500">No parameters logged</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-400 mb-2">Metrics</h4>
+                                        <p className="text-xs text-gray-500">No metrics logged</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 mt-4">
+                                    <Button size="sm" variant="secondary">
+                                        <Download className="w-3 h-3 mr-1" />
+                                        Export
+                                    </Button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </Card>
+                ))}
+            </>
+        )
+    }
+
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -158,71 +236,7 @@ export default function Models() {
             {/* Tab Content */}
             {activeTab === 'runs' && (
                 <div className="space-y-4">
-                    {loading ? (
-                        <Card className="p-8 text-center">
-                            <RefreshCw className="w-8 h-8 text-neon-teal animate-spin mx-auto mb-2" />
-                            <p className="text-gray-400">Loading runs...</p>
-                        </Card>
-                    ) : runs.length === 0 ? (
-                        <Card className="p-8 text-center">
-                            <p className="text-gray-400">No training runs found in MLFlow</p>
-                        </Card>
-                    ) : (
-                        runs.map((run) => (
-                            <Card key={run.run_id} className="p-4">
-                                <button
-                                    type="button"
-                                    className="w-full flex items-center justify-between cursor-pointer text-left"
-                                    onClick={() => setExpandedRun(expandedRun === run.run_id ? null : run.run_id)}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div>
-                                            <h3 className="font-medium text-white">{run.run_name || 'Unnamed Run'}</h3>
-                                            <p className="text-xs text-gray-500 font-mono">ID: {run.run_id}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <StatusBadge status={run.status} />
-                                        <span className="text-xs text-gray-500 flex items-center gap-1">
-                                            <Clock className="w-3 h-3" />
-                                            {formatDate(run.start_time)}
-                                        </span>
-                                        {expandedRun === run.run_id ? (
-                                            <ChevronUp className="w-5 h-5 text-gray-400" />
-                                        ) : (
-                                            <ChevronDown className="w-5 h-5 text-gray-400" />
-                                        )}
-                                    </div>
-                                </button>
-
-                                {expandedRun === run.run_id && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="mt-4 pt-4 border-t border-midnight-700"
-                                    >
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-400 mb-2">Parameters</h4>
-                                                <p className="text-xs text-gray-500">No parameters logged</p>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-400 mb-2">Metrics</h4>
-                                                <p className="text-xs text-gray-500">No metrics logged</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2 mt-4">
-                                            <Button size="sm" variant="secondary">
-                                                <Download className="w-3 h-3 mr-1" />
-                                                Export
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </Card>
-                        ))
-                    )}
+                    {renderRunsContent()}
                 </div>
             )}
 
