@@ -22,7 +22,7 @@ USER appuser
 COPY --chown=appuser:appuser pyproject.toml uv.lock LICENSE README.md ./
 
 # Install dependencies
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=~/.cache/uv \
     uv sync --frozen --no-dev --no-install-project
 
 # Set up virtual environment

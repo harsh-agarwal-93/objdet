@@ -60,7 +60,7 @@ USER appuser
 
 # Install dependencies (frozen) - only production deps
 # Note: we might need dev deps for running tests inside container if needed
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=~/.cache/uv \
     uv sync --frozen --no-dev --no-editable --no-install-project
 
 ENV PATH="/app/.venv/bin:$PATH"
@@ -86,7 +86,7 @@ FROM base AS serve
 USER appuser
 
 # Install dependencies with tensorrt extra
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=~/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra tensorrt
 
 ENV PATH="/app/.venv/bin:$PATH"

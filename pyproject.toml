@@ -122,6 +122,12 @@ path = "ml/src/objdet/version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["ml/src/objdet"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+    "ml/src"
+]
+
+
 # ============================================================================
 # Ruff Configuration
 # ============================================================================
