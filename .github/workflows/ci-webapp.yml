@@ -79,7 +79,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build frontend image
-        run: docker build -t webapp-frontend -f frontend/Dockerfile .
+        run: docker build -t webapp-frontend -f deploy/docker/frontend.Dockerfile .
 
       - name: Install container-structure-test
         run: |

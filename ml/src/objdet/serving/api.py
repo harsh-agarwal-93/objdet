@@ -18,6 +18,7 @@ import io
 from pathlib import Path
 from typing import Any
 
+import litserve as ls
 import torch
 from torch import Tensor
 
@@ -26,7 +27,7 @@ from objdet.core.logging import get_logger
 logger = get_logger(__name__)
 
 
-class DetectionAPI:
+class DetectionAPI(ls.LitAPI):
     """LitServe API for object detection.
 
     This class implements the LitServe API interface for serving
@@ -54,6 +55,7 @@ class DetectionAPI:
         confidence_threshold: float = 0.25,
         max_batch_size: int = 8,
     ) -> None:
+        super().__init__()
         self.checkpoint_path = Path(checkpoint_path)
         self.model_class = model_class
         self.device = device

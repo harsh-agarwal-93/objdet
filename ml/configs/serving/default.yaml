@@ -1,4 +1,7 @@
 # Default serving configuration
+checkpoint_path: /app/models/model.pt
+confidence_threshold: 0.25
+
 model:
   class_path: ml.src.objdet.models.yolo.YOLOv8
   init_args:

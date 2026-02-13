@@ -1,45 +1,33 @@
 # =============================================================================
-# Build stage to create wheel for objdet dependency
-# =============================================================================
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
-WORKDIR /app
-COPY pyproject.toml uv.lock LICENSE README.md ./
-COPY ml/ ml/
-RUN uv build
-
-# =============================================================================
-# Final stage
+# Backend Dockerfile — FastAPI + Celery (lightweight, no ML dependencies)
 # =============================================================================
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
-# Create non-root user for security and switch
 WORKDIR /app
+
+# Create non-root user
 RUN useradd --create-home --shell /bin/bash appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-# Copy dependency files
-COPY --chown=appuser:appuser pyproject.toml uv.lock LICENSE README.md ./
+# Copy backend dependency files only
+COPY --chown=appuser:appuser backend/pyproject.toml backend/uv.lock ./
 
-# Install dependencies
+# Install dependencies (frozen, no dev)
 RUN --mount=type=cache,target=~/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project
+    uv sync --frozen --no-dev
 
-# Set up virtual environment
 ENV PATH="/app/.venv/bin:$PATH"
 ENV VIRTUAL_ENV="/app/.venv"
 
-# Copy wheel from builder
-COPY --from=builder --chown=appuser:appuser /app/dist /app/dist
-
-# Install the package from wheel
-RUN uv pip install /app/dist/*.whl
-
-# Copy application code into backend subdirectory
+# Copy application code
 COPY --chown=appuser:appuser backend/ backend/
 
 EXPOSE 8000
 
 ENV PYTHONPATH=/app
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

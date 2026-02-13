@@ -7,7 +7,7 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 WORKDIR /app
 COPY pyproject.toml uv.lock LICENSE README.md ./
-COPY ml/ ml/
+COPY ml/src/ ml/src/
 RUN uv build
 
 # =============================================================================
@@ -110,6 +110,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 ENTRYPOINT ["python", "-m", "objdet"]
-CMD ["serve", "--config", "configs/serving/default.yaml"]
+CMD ["serve", "--config", "ml/configs/serving/default.yaml"]
 
 LABEL org.opencontainers.image.title="ObjDet Serving"

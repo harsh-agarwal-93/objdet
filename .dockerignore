@@ -77,3 +77,16 @@ docs/_build/
 cliff.toml
 .pre-commit-config.yaml
 sanity_check.py
+
+# Large data / model directories
+data/
+checkpoints/
+models/
+htmlcov/
+
+# Build-irrelevant files
+sonar-project.properties
+.sonar/
+Makefile
+CONTRIBUTING.md
+CHANGELOG.md

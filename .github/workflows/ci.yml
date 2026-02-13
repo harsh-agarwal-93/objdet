@@ -179,10 +179,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - dockerfile: deploy/Dockerfile.train
+          - dockerfile: deploy/docker/ml.Dockerfile
             image: train
-          - dockerfile: deploy/Dockerfile.serve
+            target: train
+          - dockerfile: deploy/docker/ml.Dockerfile
             image: serve
+            target: serve
     steps:
       - uses: actions/checkout@v4
 
@@ -207,6 +209,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
