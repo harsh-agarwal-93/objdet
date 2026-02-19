@@ -14,7 +14,7 @@ jobs:
     name: Backend Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
@@ -37,7 +37,7 @@ jobs:
     name: Docker Compose Health Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build and start services
         run: docker compose -f deploy/docker-compose.yml up -d --build
@@ -76,7 +76,7 @@ jobs:
     name: Container Structure Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build frontend image
         run: docker build -t webapp-frontend -f deploy/docker/frontend.Dockerfile .
