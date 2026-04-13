@@ -68,7 +68,7 @@ dependencies = [
     "whenever>=0.8.0",
     # Utilities
     "numpy>=1.26.0",
-    "pillow>=10.2.0",
+    "pillow>=12.2.0",
     "tqdm>=4.66.0",
     "ensemble-boxes>=1.0.9",
     "pydantic-settings>=2.12.0",
