@@ -87,16 +87,16 @@ dev = [
     { include-group = "docs" },
 ]
 test = [
-    "pytest>=8.0.0",
-    "pytest-cov>=4.1.0",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
     "pytest-asyncio>=0.23.0",
     "pytest-mock>=3.12.0",
     "pytest-xdist>=3.8.0",
 ]
-lint = ["pre-commit>=3.6.0", "pyrefly>=0.0.1", "ruff>=0.3.0", "pysonar"]
+lint = ["pre-commit>=4.6.0", "pyrefly>=0.62.0", "ruff>=0.15.12", "pysonar"]
 docs = [
     "sphinx>=7.2.0",
-    "sphinx-autodoc-typehints>=2.0.0",
+    "sphinx-autodoc-typehints>=3.10.2",
     "sphinx-rtd-theme>=2.0.0",
     "furo>=2024.1.29",
     "myst-parser>=2.0.0",
